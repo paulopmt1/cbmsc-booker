@@ -3,6 +3,7 @@ version: '3.8'
 services:
   # PHP + Apache service
   web:
+    container_name: cbmsc_booker_web
     build:
       context: .
       dockerfile: Dockerfile
@@ -21,6 +22,7 @@ services:
 
   # MySQL service
   db:
+    container_name: cbmsc_booker_db
     image: mysql:8.0
     ports:
       - "3306:3306"
@@ -34,6 +36,7 @@ services:
 
   # phpMyAdmin service
   phpmyadmin:
+    container_name: cbmsc_booker_phpmyadmin
     image: phpmyadmin/phpmyadmin
     ports:
       - "8085:80"
