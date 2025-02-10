@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  # PHP + Apache service
+  web:
+    container_name: cbmsc_booker_web
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8084:80"
+    volumes:
+      - ./skeleton/:/var/www/html
+      - ./apache.conf:/etc/apache2/sites-available/000-default.conf
+    depends_on:
+      - db
+    environment:
+      - MYSQL_HOST=db
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=mypassword
+      - MYSQL_DATABASE=mydatabase
+
+  # MySQL service
+  db:
+    container_name: cbmsc_booker_db
+    image: mysql:8.0
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=rootpassword
+      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=myuser
+      - MYSQL_PASSWORD=mypassword
+    volumes:
+      - mysql_data:/var/lib/mysql
+
+  # phpMyAdmin service
+  phpmyadmin:
+    container_name: cbmsc_booker_phpmyadmin
+    image: phpmyadmin/phpmyadmin
+    ports:
+      - "8085:80"
+    environment:
+      - PMA_HOST=db
+      - PMA_USER=myuser
+      - PMA_PASSWORD=mypassword
+    depends_on:
+      - db
+
+volumes:
+  mysql_data: 
