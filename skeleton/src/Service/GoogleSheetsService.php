@@ -8,7 +8,7 @@ class GoogleSheetsService
 {
     public function getSheetData(string $sheetId, string $sheetName): array
     {
-        // exemplo de link da tabela que iremos extrair os dados. Pegamos seu ID
+        // link da tabela que iremos extrair os dados. Pegamos seu ID
         $url = "https://docs.google.com/spreadsheets/d/{$sheetId}/gviz/tq?tqx=out:json";
 
         // aqui pegamos os dados da tabela através da função file_get_contents. Da url passada
