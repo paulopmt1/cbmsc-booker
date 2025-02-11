@@ -16,12 +16,10 @@ class sheetController extends AbstractController
         $this->googleSheetsService = $googleSheetsService;
     }
 
-    #[Route('/sheets', name:'get_sheets')]
-    public function getSheetsData(): JsonResponse
+    #[Route("/sheets/{sheetId}", name:'get_sheets')]
+    public function getSheetsData(string $sheetId): JsonResponse
     {   
-        // inserir id real
-        $sheetId = '1eImum6WiihpCqGaDISo-RWj-q0QPfy64PLIJj50dT5M';
-
+        
         // inserir nome se necessário
         $sheetName = '';
 

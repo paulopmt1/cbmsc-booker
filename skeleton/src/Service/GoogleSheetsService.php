@@ -2,6 +2,8 @@
 
 namespace App\Service;
 
+use Exception;
+
 class GoogleSheetsService
 {
     public function getSheetData(string $sheetId, string $sheetName): array
@@ -18,10 +20,10 @@ class GoogleSheetsService
         // usamos json_decode para transformar o arquivo json obtido, em um array 
         $data = json_decode($response, true);
 
-        // aqui eu crio uma excessão que se caso o array estiver vezio, não retornará um erro para o usuário, e sim um array vazio
+        // exceção para não gerar um erro caso a planilha esteja vazia 
         if (!isset($data['table']['rows']))
         {
-            return "A planilha está vazia";
+            throw new Exception("A planilha está vazia");
         }
 
         // processa e organiza os dados em forma de tabela
@@ -39,6 +41,5 @@ class GoogleSheetsService
 
         return $result;
 
-        // O próximo passo é criar um CONTROLLER para testar a API e vermos se os dados estão sendo obtidos corretamente.
     }
 }
