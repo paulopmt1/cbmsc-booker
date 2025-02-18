@@ -17,7 +17,7 @@ class WriteSheetsController extends AbstractController
         $writeSheetsService->configureClient($credentialsPath, $sheetIdB);      
 
         $dados = [
-            ['vlr1', 'vlr2', 'vl3', 'vlr4']
+            ['vlr1', 'vlr2', 'vlr3', 'vlr4']
              
         ];  
 
