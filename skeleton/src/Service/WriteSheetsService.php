@@ -39,5 +39,49 @@ class WriteSheetsService
             $body,
             $params
         );
+
+    }
+
+    public function estruturarDados(array $result): array
+    {
+        $dadosEstruturados = [];
+
+        $bombeiros = [];
+
+        foreach ($result as $linha)
+        {
+            $nome = $linha[0] ?? '';
+            $dia = (int) $linha[1] ?? 0;
+            $turno = $linha[2] ?? '';
+
+            if (!$nome || !$dia || !$turno)
+            {
+                continue;
+            }
+
+            if (!isset($bombeiros[$nome]))
+            {
+                $bombeiros[$nome] = array_fill(0, 32, "");
+                $bombeiros[$nome][0] = $nome;
+            }
+
+            $mapeamentoTurno = match ($turno)
+            {
+                "Integral" => "I",
+                "Diurno" => "D",
+                "Noturno" => "N",
+                default => "",
+            };
+
+            $coluna = $dia + 2;
+            $bombeiros[$nome][$coluna] = $mapeamentoTurno;
+        }
+
+        foreach ($bombeiros as $linha)
+        {
+            $dadosEstruturados[] = $linha;
+        }
+
+        return $dadosEstruturados;
     }
 }
