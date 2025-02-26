@@ -21,12 +21,12 @@ class syncController extends AbstractController
         
         $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
 
-        $result = $googleSheetsService->getSheetData($sheetId, "A1:C100");        
-
+        $result = $googleSheetsService->getSheetData($sheetId, "A1:C100");
+        
         $dadosEstruturados = $writeSheetsService->estruturarDados($result);
 
         $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
-        $writeSheetsService->appendData("A1:AH100", $dadosEstruturados);
+        $writeSheetsService->appendData("A13:AH13", $dadosEstruturados);
 
         return new Response("Dados organizados e escritos na planilha B!");
     }

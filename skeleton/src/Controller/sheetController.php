@@ -23,8 +23,9 @@ class sheetController extends AbstractController
         // inserir nome se necessário
         $sheetName = '';
 
-        $data = $this->googleSheetsService->getSheetData($sheetId, $sheetName);
+        $result = $this->googleSheetsService->getSheetData($sheetId, $sheetName);
 
-        return $this->json($data);
+        return $this->json($result);
+
     }
 }

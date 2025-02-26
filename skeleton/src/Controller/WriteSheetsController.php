@@ -18,11 +18,11 @@ class WriteSheetsController extends AbstractController
         $writeSheetsService->configureClient($credentialsPath, $sheetIdB);      
 
         $dados = [
-            ['vlr1', 'vlr2', 'vlr3', 'vlr4']
+            ['teste', 'teste', 'teste', 'teste']
              
         ];  
 
-        $writeSheetsService->appendData('D14:H14', $dados);
+        $writeSheetsService->appendData('D13:L13', $dados);
 
         return new Response("Dados adicionados à planilha: " . $sheetIdB);
     }

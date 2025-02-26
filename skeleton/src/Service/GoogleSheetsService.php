@@ -25,7 +25,6 @@ class GoogleSheetsService
         {
             throw new Exception("A planilha está vazia");
         }
-
         
         $result = [];
         foreach ($data['table']['rows'] as $row)

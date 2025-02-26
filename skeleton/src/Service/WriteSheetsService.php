@@ -45,43 +45,47 @@ class WriteSheetsService
     public function estruturarDados(array $result): array
     {
         $dadosEstruturados = [];
-
         $bombeiros = [];
 
-        foreach ($result as $linha)
-        {
-            $nome = $linha[0] ?? '';
-            $dia = (int) $linha[1] ?? 0;
-            $turno = $linha[2] ?? '';
+        foreach ($result as $linha) 
+        {    
+            $nome = $linha[1] ?? '';
 
-            if (!$nome || !$dia || !$turno)
-            {
-                continue;
+            if (!$nome) {
+                continue; 
             }
 
-            if (!isset($bombeiros[$nome]))
-            {
-                $bombeiros[$nome] = array_fill(0, 32, "");
-                $bombeiros[$nome][0] = $nome;
+            // criamos o array caso esse não existir ainda
+            if (!isset($bombeiros[$nome])) {
+                $bombeiros[$nome] = array_fill(0, 32, ""); 
+                $bombeiros[$nome][0] = $nome; 
             }
 
-            $mapeamentoTurno = match ($turno)
-            {
-                "Integral" => "I",
-                "Diurno" => "D",
-                "Noturno" => "N",
-                default => "",
-            };
+            // procura os turnos
+            for ($dia = 1; $dia <= 31; $dia++) {
+                $indiceTurno = $dia + 1; // começa no 2 por conta da estrutura da tabela final
 
-            $coluna = $dia + 2;
-            $bombeiros[$nome][$coluna] = $mapeamentoTurno;
+                if (isset($linha[$indiceTurno]) && !empty($linha[$indiceTurno])) {
+                    $turno = $linha[$indiceTurno];
+
+                    $mapeamentoTurno = match ($turno) {
+                        "Integral" => "I",
+                        "Diurno" => "D",
+                        "Noturno" => "N",
+                        default => "",
+                    };
+
+                    $bombeiros[$nome][$dia] = $mapeamentoTurno;
+                }
+            }
         }
 
-        foreach ($bombeiros as $linha)
-        {
+        // array associativo em lista de array
+        foreach ($bombeiros as $linha) {
             $dadosEstruturados[] = $linha;
         }
 
         return $dadosEstruturados;
     }
+
 }
