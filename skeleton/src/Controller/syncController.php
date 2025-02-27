@@ -17,16 +17,20 @@ class SyncController extends AbstractController
         GoogleSheetsService $googleSheetsService,
         WriteSheetsService $writeSheetsService
     ): Response {
-        if ($request->isMethod('POST')) {
+        
+        if ($request->isMethod('POST'))
+        {
             $sheetId = $request->request->get('sheetId');
             $sheetIdB = $request->request->get('sheetIdB');
 
-            if (!$sheetId || !$sheetIdB) {
+            if (!$sheetId || !$sheetIdB) 
+            {
                 $this->addFlash('error', 'Os IDs das planilhas são obrigatórios!');
                 return $this->redirectToRoute('home_page');
             }
 
-            try {
+            try 
+            {
                 $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
 
                 $result = $googleSheetsService->getSheetData($sheetId, "A1:C100");
@@ -36,8 +40,11 @@ class SyncController extends AbstractController
                 $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
                 $writeSheetsService->appendData("A13:AH13", $dadosEstruturados);
 
-                $this->addFlash('success', 'Dados organizados e escritos na planilha B com sucesso!');
-            } catch (\Exception $e) {
+                $this->addFlash('success', 'Dados sincronizados com sucesso!');
+            }
+
+            catch (\Exception $e)
+            {
                 $this->addFlash('Erro', 'Erro ao sincronizar planilhas: ' . $e->getMessage());
             }
 
