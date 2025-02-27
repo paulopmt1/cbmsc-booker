@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>{% block title %}Welcome{% endblock %}</title>
+        <link rel="icon" href="">
+        {% block stylesheets %}
+            <link rel="stylesheet" href="{{ asset('style/home.css',) }}">
+        {% endblock %}
+
+        {% block javascripts %}
+        {% endblock %}
+    </head>
+    <header>
+        <div class="logo-container">
+            <img src="{{ asset('images/bombeiro-150.png') }}" alt="logo">
+            <span>Olá, bombeiro!</span>
+        </div>
+    </header>
+    <body>
+        {% block body %}
+            <form action="{{ path('home_page') }}" method="post">
+                <div class="form-group">
+                    <label for="sheetId">Planilha da Escolha de Horários</label>
+                    <input type="text" id="sheetId" name="sheetId">
+                </div>
+
+                <div class="form-group">
+                    <label for="sheetIdB">Planilha Preliminar</label>
+                    <input type="text" id="sheetIdB" name="sheetIdB">
+                </div>
+                <input type="submit" value="SINCRONIZAR" class="submit-btn">
+            </form>
+
+            {% for message in app.flashes('success') %}
+                <div class="alert alert-success">{{ message }}</div>
+            {% endfor %}
+
+            {% for message in app.flashes('error') %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endfor %}
+
+        {% endblock %}
+    </body>
+</html>

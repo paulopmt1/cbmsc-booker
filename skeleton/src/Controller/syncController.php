@@ -4,30 +4,46 @@ namespace App\Controller;
 
 use App\Service\GoogleSheetsService;
 use App\Service\WriteSheetsService;
-use Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 
-class syncController extends AbstractController
+class SyncController extends AbstractController
 {
-    #[Route('/sync-sheets/{sheetId}/{sheetIdB}', name: 'sync-sheets')]
-    public function sincroPlanilhas(
+    #[Route('/', name: 'home_page', methods: ['GET', 'POST'])]
+    public function handleSync(
+        Request $request,
         GoogleSheetsService $googleSheetsService,
-        WriteSheetsService $writeSheetsService,
-        string $sheetId,
-        string $sheetIdB
-        ): Response { 
-        
-        $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
+        WriteSheetsService $writeSheetsService
+    ): Response {
+        if ($request->isMethod('POST')) {
+            $sheetId = $request->request->get('sheetId');
+            $sheetIdB = $request->request->get('sheetIdB');
 
-        $result = $googleSheetsService->getSheetData($sheetId, "A1:C100");
-        
-        $dadosEstruturados = $writeSheetsService->estruturarDados($result);
+            if (!$sheetId || !$sheetIdB) {
+                $this->addFlash('error', 'Os IDs das planilhas são obrigatórios!');
+                return $this->redirectToRoute('home_page');
+            }
 
-        $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
-        $writeSheetsService->appendData("A13:AH13", $dadosEstruturados);
+            try {
+                $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
 
-        return new Response("Dados organizados e escritos na planilha B!");
+                $result = $googleSheetsService->getSheetData($sheetId, "A1:C100");
+                
+                $dadosEstruturados = $writeSheetsService->estruturarDados($result);
+
+                $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
+                $writeSheetsService->appendData("A13:AH13", $dadosEstruturados);
+
+                $this->addFlash('success', 'Dados organizados e escritos na planilha B com sucesso!');
+            } catch (\Exception $e) {
+                $this->addFlash('Erro', 'Erro ao sincronizar planilhas: ' . $e->getMessage());
+            }
+
+            return $this->redirectToRoute('home_page');
+        }
+
+        return $this->render('home.html.twig');
     }
 }

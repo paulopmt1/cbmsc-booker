@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class sheetController extends AbstractController
+class SheetController extends AbstractController
 {
     private GoogleSheetsService $googleSheetsService;
 

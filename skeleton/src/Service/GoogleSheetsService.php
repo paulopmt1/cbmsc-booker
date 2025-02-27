@@ -12,7 +12,7 @@ class GoogleSheetsService
         $url = "https://docs.google.com/spreadsheets/d/{$sheetId}/gviz/tq?tqx=out:json";
 
         
-        $response = file_get_contents($url);
+        $response = file_get_contents($url);    
 
         // removendo prefixos extras add pelo Google
         $response = substr($response, 47, -2);
