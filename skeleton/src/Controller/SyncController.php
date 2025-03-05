@@ -25,7 +25,7 @@ class SyncController extends AbstractController
 
             if (!$sheetId || !$sheetIdB) 
             {
-                $this->addFlash('error', 'Os IDs das planilhas são obrigatórios!');
+                $this->addFlash('error', 'Os IDs corretos das planilhas são necessários para realizar a sincronização!');
                 return $this->redirectToRoute('home_page');
             }
 
@@ -40,17 +40,22 @@ class SyncController extends AbstractController
                 $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
                 $writeSheetsService->appendData("A13:AH13", $dadosEstruturados);
 
+                if (!isset($dadosEstruturados))
+                {
+                    $this->addFlash('error', 'Ocorreu um erro ao tentarmos sincronizar as planilhas. Por favro, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');     
+                }
+
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
             }
 
             catch (\Exception $e)
             {
-                $this->addFlash('Erro', 'Erro ao sincronizar planilhas: ' . $e->getMessage());
+                $this->addFlash('error', 'Erro ao sincronizar planilhas. Verifique se os IDs das planilhas estão corretos e tente novamente.');
             }
 
             return $this->redirectToRoute('home_page');
         }
 
-        return $this->render('home.html.twig');
+        return $this->render('home.html.twig');@Assert\LessThanOrEqual()
     }
 }
