@@ -4,6 +4,7 @@
         <meta charset="UTF-8">
         <title>{% block title %}Sincronizar Planilhas{% endblock %}</title>
         <link rel="icon" href="images/fogo.png">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         {% block stylesheets %}
             <link rel="stylesheet" href="{{ asset('style/home.css',) }}">
         {% endblock %}
@@ -28,17 +29,20 @@
                 <div class="form-group">
                     <label for="sheetIdB">Planilha Preliminar</label>
                     <input type="text" id="sheetIdB" name="sheetIdB">
+                    <i class="fa-solid fa-question" title="ID: está localizado na URL da planilha. São os caracteres entre '/d/' e '/edit?'"></i>
                 </div>
                 <input type="submit" value="SINCRONIZAR" class="submit-btn">
+                <br><br>
+                <div>
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
+
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                </div>
             </form>
-
-            {% for message in app.flashes('success') %}
-                <div class="alert alert-success">{{ message }}</div>
-            {% endfor %}
-
-            {% for message in app.flashes('error') %}
-                <div class="alert alert-danger">{{ message }}</div>
-            {% endfor %}
 
         {% endblock %}
     </body>

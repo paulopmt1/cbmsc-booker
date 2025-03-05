@@ -56,6 +56,6 @@ class SyncController extends AbstractController
             return $this->redirectToRoute('home_page');
         }
 
-        return $this->render('home.html.twig');@Assert\LessThanOrEqual()
+        return $this->render('home.html.twig');
     }
 }
