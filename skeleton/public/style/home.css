@@ -74,38 +74,4 @@ input[type="text"] {
     background-color: darkgreen;
 }
 
-/* Ajuste no ícone */
-.tooltip-icon {
-    margin-left: 8px;
-    color: #007bff;
-    cursor: pointer;
-    transition: color 0.3s ease-in-out, transform 0.2s;
-    position: relative;
-}
-
-/* Efeito ao passar o mouse */
-.tooltip-icon:hover {
-    color: #0056b3;
-    transform: scale(1.2);
-}
-
-/* Estilização do tooltip */
-.tooltip-text {
-    display: none;
-    position: absolute;
-    background-color: rgba(0, 0, 0, 0.8);
-    color: #fff;
-    padding: 6px 10px;
-    border-radius: 5px;
-    font-size: 12px;
-    white-space: nowrap;
-    top: -30px;
-    left: 0;
-    z-index: 10;
-}
-
-/* Exibir tooltip ao passar o mouse no ícone */
-.tooltip-icon:hover + .tooltip-text {
-    display: block;
-}
 
