@@ -39,5 +39,53 @@ class WriteSheetsService
             $body,
             $params
         );
+
     }
+
+    public function estruturarDados(array $result): array
+    {
+        $dadosEstruturados = [];
+        $bombeiros = [];
+
+        foreach ($result as $linha) 
+        {    
+            $nome = $linha[1] ?? '';
+
+            if (!$nome) {
+                continue; 
+            }
+
+            // criamos o array caso esse não existir ainda
+            if (!isset($bombeiros[$nome])) {
+                $bombeiros[$nome] = array_fill(0, 32, ""); 
+                $bombeiros[$nome][0] = $nome; 
+            }
+
+            // procura os turnos
+            for ($dia = 1; $dia <= 31; $dia++) {
+                $indiceTurno = $dia + 1; // começa no 2 por conta da estrutura da tabela final
+
+                if (isset($linha[$indiceTurno]) && !empty($linha[$indiceTurno])) {
+                    $turno = $linha[$indiceTurno];
+
+                    $mapeamentoTurno = match ($turno) {
+                        "Integral" => "I",
+                        "Diurno" => "D",
+                        "Noturno" => "N",
+                        default => "",
+                    };
+
+                    $bombeiros[$nome][$dia] = $mapeamentoTurno;
+                }
+            }
+        }
+
+        // array associativo em lista de array
+        foreach ($bombeiros as $linha) {
+            $dadosEstruturados[] = $linha;
+        }
+
+        return $dadosEstruturados;
+    }
+
 }

@@ -7,7 +7,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\Routing\Annotation\Route;
 
-class sheetController extends AbstractController
+class SheetController extends AbstractController
 {
     private GoogleSheetsService $googleSheetsService;
 
@@ -23,8 +23,9 @@ class sheetController extends AbstractController
         // inserir nome se necessário
         $sheetName = '';
 
-        $data = $this->googleSheetsService->getSheetData($sheetId, $sheetName);
+        $result = $this->googleSheetsService->getSheetData($sheetId, $sheetName);
 
-        return $this->json($data);
+        return $this->json($result);
+
     }
 }
