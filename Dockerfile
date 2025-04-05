@@ -7,12 +7,20 @@ RUN a2enmod rewrite
 RUN apt-get update && apt-get install -y \
         libicu-dev \
         libzip-dev \
-	git \
+        git \
         wget \
+        gnupg \
+        nodejs \
+        npm \
     && docker-php-ext-install \
         pdo_mysql \
         intl \
         zip
+
+# Install Node.js and Yarn
+RUN curl -sL https://deb.nodesource.com/setup_18.x | bash - \
+    && apt-get install -y nodejs \
+    && npm install -g yarn
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
