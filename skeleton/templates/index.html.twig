@@ -1,0 +1,16 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}React with Symfony{% endblock %}
+
+{% block body %}
+    <div id="root"></div>
+{% endblock %}
+
+{% block javascripts %}
+    {{ parent() }}
+    {% if app.environment == 'dev' %}
+        <script src="http://localhost:8080/build/app.js"></script>
+    {% else %}
+        {{ encore_entry_script_tags('app') }}
+    {% endif %}
+{% endblock %} 

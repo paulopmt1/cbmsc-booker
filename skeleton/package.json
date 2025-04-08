@@ -1,0 +1,28 @@
+{
+    "devDependencies": {
+        "@babel/core": "^7.17.0",
+        "@babel/preset-env": "^7.16.0",
+        "@babel/preset-react": "^7.26.3",
+        "@pmmmwh/react-refresh-webpack-plugin": "^0.5.16",
+        "@symfony/webpack-encore": "^4.0.0",
+        "core-js": "^3.38.0",
+        "react-refresh": "^0.14.2",
+        "regenerator-runtime": "^0.13.9",
+        "webpack": "^5.74.0",
+        "webpack-cli": "^5.1.0",
+        "webpack-notifier": "^1.15.0"
+    },
+    "license": "UNLICENSED",
+    "private": true,
+    "scripts": {
+        "dev-server": "encore dev-server --hot",
+        "dev": "encore dev",
+        "watch": "encore dev --watch",
+        "build": "encore production --progress"
+    },
+    "dependencies": {
+        "prop-types": "^15.8.1",
+        "react": "^18.3.1",
+        "react-dom": "^18.3.1"
+    }
+}
