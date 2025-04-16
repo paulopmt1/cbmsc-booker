@@ -10,12 +10,9 @@ use Symfony\Component\Routing\Annotation\Route;
 class WriteSheetsController extends AbstractController
 {
     #[Route('/write-sheet/{sheetIdB}', name:'write_sheets')]
-    public function escreverPlanilha(WriteSheetsService $writeSheetsService, string $sheetIdB): Response
-    {
+    public function escreverPlanilha(WriteSheetsService $writeSheetsService, string $sheetIdB): Response {
         
-        $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
-
-        $writeSheetsService->configureClient($credentialsPath, $sheetIdB);      
+        $writeSheetsService->setSheetIdB($sheetIdB);
 
         $dados = [
             ['teste', 'teste', 'teste', 'teste']
@@ -27,4 +24,3 @@ class WriteSheetsController extends AbstractController
         return new Response("Dados adicionados à planilha: " . $sheetIdB);
     }
 }
-

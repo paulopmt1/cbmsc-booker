@@ -6,11 +6,14 @@
 parameters:
     google_auth_config: '%env(GOOGLE_AUTH_CONFIG)%'
     default_sheet_id: '%env(DEFAULT_SHEET_ID)%'
+    
 services:
     App\Service\WriteSheetsService:
         arguments:
-            $credentialsPath: '%google_auth_config%'
             $sheetsIdB: '%default_sheet_id%'
+    App\Service\ConfigureClientService:
+        arguments:
+            $credentialsPath: '%google_auth_config%'
 
     # default configuration for services in *this* file
     _defaults:

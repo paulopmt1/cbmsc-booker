@@ -18,38 +18,35 @@ class SyncController extends AbstractController
         WriteSheetsService $writeSheetsService
     ): Response {
         
-        if ($request->isMethod('POST'))
-        {
+        if ($request->isMethod('POST')) {
+        
             $sheetId = $request->request->get('sheetId');
             $sheetIdB = $request->request->get('sheetIdB');
 
-            if (!$sheetId || !$sheetIdB) 
-            {
+            if (!$sheetId || !$sheetIdB) { 
+            
                 $this->addFlash('error', 'Os IDs corretos das planilhas são necessários para realizar a sincronização!');
                 return $this->redirectToRoute('home_page');
             }
 
-            try 
-            {
-                $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
+            try {
 
                 $result = $googleSheetsService->getSheetData($sheetId, "A1:C100");
                 
                 $dadosEstruturados = $writeSheetsService->estruturarDados($result);
 
-                $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
                 $writeSheetsService->appendData("A13:AH13", $dadosEstruturados);
 
-                if (!isset($dadosEstruturados))
-                {
-                    $this->addFlash('error', 'Ocorreu um erro ao tentarmos sincronizar as planilhas. Por favro, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');     
+                if (!isset($dadosEstruturados)) {
+                
+                    $this->addFlash('error', 'Ocorreu um erro ao tentarmos sincronizar as planilhas. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');   
                 }
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
             }
 
-            catch (\Exception $e)
-            {
+            catch (\Exception $e) {
+            
                 $this->addFlash('error', 'Erro ao sincronizar planilhas. Verifique se os IDs das planilhas estão corretos e tente novamente.');
             }
 

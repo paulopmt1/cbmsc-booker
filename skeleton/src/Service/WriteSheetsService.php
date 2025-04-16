@@ -8,22 +8,16 @@ use Google\Service\Sheets\ValueRange;
 
 class WriteSheetsService
 {
-    private ?Sheets $service = null;
-    private string $sheetIdB; 
+    private ConfigureClientService $configureClientService;
+    private string $sheetIdB;
 
-    public function configureClient(string $credentialsPath, string $sheetIdB): void
-    {
-        $this->sheetIdB = $sheetIdB; 
-
-        $client = new Client();
-        $client->setAuthConfig($credentialsPath);
-        $client->addScope(Sheets::SPREADSHEETS);
-        $this->service = new Sheets($client);
+    public function __construct(ConfigureClientService $configureClientService) {
+        $this->configureClientService = $configureClientService;
     }
 
-    public function appendData(string $range, array $values): void
-    {
-        if ($this->service === null) {
+    public function appendData(string $range, array $values): void {
+    
+        if ($this->configureClientService === null) {
             throw new \Exception("O cliente do Google Sheets não foi configurado. Chame configureClient() primeiro.");
         }   
 
@@ -33,8 +27,8 @@ class WriteSheetsService
 
         $params = ['valueInputOption' => 'RAW'];
 
-        $this->service->spreadsheets_values->append(
-            $this->sheetIdB, 
+        $this->configureClientService->getService()->spreadsheets_values->append(
+            $this->sheetIdB,
             $range,
             $body,
             $params
@@ -86,6 +80,10 @@ class WriteSheetsService
         }
 
         return $dadosEstruturados;
+    }
+
+    public function setSheetIdB(string $sheetIdB): void {
+        $this->sheetIdB = $sheetIdB;
     }
 
 }
