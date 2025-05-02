@@ -27,11 +27,24 @@ Instale as dependências do projeto (rodando dentro do container):
 composer install
 ```
 
+Instale os pacotes frontend:
+
+```bash
+yarn install
+```
+
+Rode a aplicação node do ambiente `dev` com:
+
+```
+npm run dev-server
+```
+
 ### Acesse a aplicação
 
 Acesse a aplicação no navegador: http://localhost:8084
 
-![image](https://github.com/user-attachments/assets/be0579e4-6e49-424a-9e45-a70fcc43bdc7)
+<img width="1136" alt="image" src="https://github.com/user-attachments/assets/ab7a95d8-d31c-4abb-8e17-9c572cfbe7db" />
+
 
 ### Acesse o phpmyadmin
 
