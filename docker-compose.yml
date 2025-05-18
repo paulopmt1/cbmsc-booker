@@ -20,6 +20,9 @@ services:
       - MYSQL_USER=myuser
       - MYSQL_PASSWORD=mypassword
       - MYSQL_DATABASE=mydatabase
+      - APP_RUNTIME_ENV=dev
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   # MySQL service
   db:
