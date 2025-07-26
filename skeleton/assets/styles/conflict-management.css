@@ -46,6 +46,26 @@
     line-height: 1.4;
 }
 
+.resolved-notice {
+    background-color: #efe;
+    border: 1px solid #cfc;
+    border-radius: 8px;
+    padding: 16px;
+    margin-bottom: 24px;
+    color: #363;
+    font-size: 14px;
+    font-weight: 500;
+    text-align: center;
+    line-height: 1.4;
+}
+
+.no-conflict-message {
+    text-align: center;
+    color: #666;
+    margin: 32px 0;
+    font-size: 16px;
+}
+
 .periods-container {
     margin-bottom: 32px;
 }
@@ -80,6 +100,11 @@
     padding: 8px 0;
 }
 
+.person-label.disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .person-checkbox {
     width: 20px;
     height: 20px;
@@ -88,14 +113,25 @@
     accent-color: #007bff;
 }
 
+.person-checkbox:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+}
+
 .person-name {
     font-size: 16px;
     color: #333;
     font-weight: 500;
 }
 
+.button-container {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
 .confirm-button {
-    width: 100%;
+    flex: 1;
     background-color: #007bff;
     color: white;
     border: none;
@@ -105,6 +141,7 @@
     font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s ease;
+    min-width: 150px;
 }
 
 .confirm-button:hover {
@@ -113,6 +150,155 @@
 
 .confirm-button:active {
     transform: translateY(1px);
+}
+
+.back-button {
+    background-color: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 16px 24px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    min-width: 150px;
+}
+
+.back-button:hover {
+    background-color: #545b62;
+}
+
+.back-button:active {
+    transform: translateY(1px);
+}
+
+/* Calendar View Styles */
+.calendar-view {
+    padding: 20px;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+
+.calendar-title {
+    text-align: center;
+    font-size: 28px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 32px;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    max-width: 1200px;
+    margin: 0 auto 32px auto;
+}
+
+.calendar-day {
+    background: white;
+    border-radius: 12px;
+    padding: 20px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    transition: all 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.calendar-day.clickable {
+    cursor: pointer;
+}
+
+.calendar-day.clickable:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.calendar-day.selected {
+    border-color: #007bff;
+    box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.1);
+}
+
+.day-number {
+    font-size: 24px;
+    font-weight: 700;
+    color: #333;
+    margin-bottom: 8px;
+}
+
+.day-date {
+    font-size: 14px;
+    color: #666;
+    margin-bottom: 12px;
+}
+
+.day-status {
+    font-size: 12px;
+    font-weight: 600;
+    padding: 4px 8px;
+    border-radius: 12px;
+    text-transform: uppercase;
+}
+
+/* Day status styles */
+.day-no-conflict {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.day-unresolved {
+    background-color: #fff3cd;
+    border: 1px solid #ffeaa7;
+}
+
+.day-unresolved .day-status {
+    background-color: #ffc107;
+    color: #856404;
+}
+
+.day-resolved {
+    background-color: #d4edda;
+    border: 1px solid #c3e6cb;
+}
+
+.day-resolved .day-status {
+    background-color: #28a745;
+    color: white;
+}
+
+.calendar-legend {
+    display: flex;
+    justify-content: center;
+    gap: 24px;
+    flex-wrap: wrap;
+    margin-top: 32px;
+}
+
+.legend-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 14px;
+    color: #666;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+    border: 1px solid #ddd;
+}
+
+.legend-color.no-conflict {
+    background-color: #f8f9fa;
+}
+
+.legend-color.unresolved {
+    background-color: #ffc107;
+}
+
+.legend-color.resolved {
+    background-color: #28a745;
 }
 
 /* Responsive design */
@@ -133,5 +319,27 @@
     .validation-error {
         padding: 12px;
         font-size: 13px;
+    }
+    
+    .calendar-grid {
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+    }
+    
+    .calendar-day {
+        padding: 16px;
+    }
+    
+    .day-number {
+        font-size: 20px;
+    }
+    
+    .button-container {
+        flex-direction: column;
+    }
+    
+    .confirm-button,
+    .back-button {
+        width: 100%;
     }
 } 

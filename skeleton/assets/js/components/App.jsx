@@ -1,5 +1,6 @@
-import React from 'react';
+import React, { useState } from 'react';
 import * as ReactDOM from 'react-dom/client';
+import CalendarView from './CalendarView';
 import ConflictManagement from './ConflictManagement';
 import '../../styles/conflict-management.css';
 
@@ -7,14 +8,41 @@ class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            // State can be added here if needed
+            selectedDay: null,
+            view: 'calendar' // 'calendar' or 'conflict'
         };
     }
 
+    handleDaySelect = (day) => {
+        this.setState({
+            selectedDay: day,
+            view: 'conflict'
+        });
+    };
+
+    handleBackToCalendar = () => {
+        this.setState({
+            selectedDay: null,
+            view: 'calendar'
+        });
+    };
+
     render() {
+        const { view, selectedDay } = this.state;
+
         return (
             <div>
-                <ConflictManagement />
+                {view === 'calendar' ? (
+                    <CalendarView 
+                        onDaySelect={this.handleDaySelect}
+                        selectedDay={selectedDay}
+                    />
+                ) : (
+                    <ConflictManagement 
+                        selectedDay={selectedDay}
+                        onBackToCalendar={this.handleBackToCalendar}
+                    />
+                )}
             </div>
         );
     }

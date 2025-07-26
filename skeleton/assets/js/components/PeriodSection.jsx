@@ -1,7 +1,7 @@
 import React from 'react';
 import PersonItem from './PersonItem';
 
-const PeriodSection = ({ title, people, selectedPeople, onPersonSelect }) => {
+const PeriodSection = ({ title, people, selectedPeople, onPersonSelect, disabled = false }) => {
     return (
         <div className="period-section">
             <h2 className="period-title">{title}</h2>
@@ -12,6 +12,7 @@ const PeriodSection = ({ title, people, selectedPeople, onPersonSelect }) => {
                         person={person}
                         isSelected={selectedPeople.includes(person.id)}
                         onSelect={() => onPersonSelect(person.id)}
+                        disabled={disabled}
                     />
                 ))}
             </div>
