@@ -1,19 +1,20 @@
 import React from 'react';
 import * as ReactDOM from 'react-dom/client';
+import ConflictManagement from './ConflictManagement';
+import '../../styles/conflict-management.css';
 
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            message: 'Hello from React!'
+            // State can be added here if needed
         };
     }
 
     render() {
         return (
             <div>
-                <h1>{this.state.message}</h1>
-                <p>React is now integrated with Symfony!</p>
+                <ConflictManagement />
             </div>
         );
     }
