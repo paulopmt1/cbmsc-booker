@@ -42,6 +42,27 @@ class WriteSheetsService
 
     }
 
+    public function updateData(string $range, array $values): void
+    {
+        if ($this->service === null) {
+            throw new \Exception("O cliente do Google Sheets não foi configurado. Chame configureClient() primeiro.");
+        }   
+
+        $body = new ValueRange([
+            'values' => $values 
+        ]);
+
+        $params = ['valueInputOption' => 'RAW'];
+
+        $this->service->spreadsheets_values->update(
+            $this->sheetIdB, 
+            $range,
+            $body,
+            $params
+        );
+
+    }
+
     public function estruturarDados(array $result): array
     {
         $dadosEstruturados = [];
@@ -50,6 +71,7 @@ class WriteSheetsService
         foreach ($result as $linha) 
         {    
             $nome = $linha[1] ?? '';
+            $cpf = $linha[2] ?? '';
 
             if (!$nome) {
                 continue; 
@@ -57,12 +79,12 @@ class WriteSheetsService
 
             // criamos o array caso esse não existir ainda
             if (!isset($bombeiros[$nome])) {
-                $bombeiros[$nome] = array_fill(0, 32, ""); 
-                $bombeiros[$nome][0] = $nome; 
+                $bombeiros[$nome] = array_fill(0, 33, ""); 
+                $bombeiros[$nome][0] = $nome;
             }
 
             // procura os turnos
-            for ($dia = 1; $dia <= 31; $dia++) {
+            for ($dia = 1; $dia <= 33; $dia++) {
                 $indiceTurno = $dia + 1; // começa no 2 por conta da estrutura da tabela final
 
                 if (isset($linha[$indiceTurno]) && !empty($linha[$indiceTurno])) {
@@ -78,6 +100,8 @@ class WriteSheetsService
                     $bombeiros[$nome][$dia] = $mapeamentoTurno;
                 }
             }
+
+            $bombeiros[$nome][1] = $cpf;
         }
 
         // array associativo em lista de array

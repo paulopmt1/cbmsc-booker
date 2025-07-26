@@ -52,3 +52,18 @@ Acesse o phpmyadmin no navegador: http://localhost:8085
 
 ![image](https://github.com/user-attachments/assets/5bd7fb66-4c3b-4313-b9f7-b1ffca458231)
 
+## Como sincronizar dados
+
+A planilha de origem deve:
+
+- Estar com acesso semi-público, ou seja, qualquer um com o link deve poder visualizar.
+
+
+A planilha de destino deve:
+- Estar com o email do robô tendo permissão de edição (planilha-rob@cbmsc-booker.iam.gserviceaccount.com)
+
+O arquivo `.env` deve possuir o path para o arquivo `cbmsc-booker-credentials.json`. Aqui um exemplo de path:
+
+```
+GOOGLE_AUTH_CONFIG=/var/www/html/config/cbmsc-booker-credentials.json
+``` 

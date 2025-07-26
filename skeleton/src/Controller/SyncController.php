@@ -26,7 +26,10 @@ class SyncController extends AbstractController
             if (!$sheetId || !$sheetIdB) 
             {
                 $this->addFlash('error', 'Os IDs corretos das planilhas são necessários para realizar a sincronização!');
-                return $this->redirectToRoute('home_page');
+                return $this->render('home.html.twig', [
+                    'sheetId' => $sheetId,
+                    'sheetIdB' => $sheetIdB
+                ]);
             }
 
             try 
@@ -38,22 +41,37 @@ class SyncController extends AbstractController
                 $dadosEstruturados = $writeSheetsService->estruturarDados($result);
 
                 $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
-                $writeSheetsService->appendData("A13:AH13", $dadosEstruturados);
+                $firstLineForNames = 13;
+                $firstColumnForNames = "A";
+                $columnForDay31 = "AH";
+                $numberOfLines = count($dadosEstruturados);
+                $writeSheetsService->updateData($firstColumnForNames . $firstLineForNames . ":" . $columnForDay31 . ($firstLineForNames + $numberOfLines), $dadosEstruturados);
 
                 if (!isset($dadosEstruturados))
                 {
                     $this->addFlash('error', 'Ocorreu um erro ao tentarmos sincronizar as planilhas. Por favro, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');     
+                    return $this->render('home.html.twig', [
+                        'sheetId' => $sheetId,
+                        'sheetIdB' => $sheetIdB
+                    ]);
                 }
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
+                return $this->render('home.html.twig', [
+                    'sheetId' => $sheetId,
+                    'sheetIdB' => $sheetIdB
+                ]);
             }
 
             catch (\Exception $e)
             {
                 $this->addFlash('error', 'Erro ao sincronizar planilhas. Verifique se os IDs das planilhas estão corretos e tente novamente.');
+                $this->addFlash('dev_error', $e->getMessage());
+                return $this->render('home.html.twig', [
+                    'sheetId' => $sheetId,
+                    'sheetIdB' => $sheetIdB
+                ]);
             }
-
-            return $this->redirectToRoute('home_page');
         }
 
         return $this->render('home.html.twig');
