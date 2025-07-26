@@ -1,20 +1,44 @@
 import React, { useState, useEffect } from 'react';
-import { getAllScheduleData, getResolution } from '../data/scheduleData';
 
 const CalendarView = ({ onDaySelect, selectedDay }) => {
     const [scheduleData, setScheduleData] = useState([]);
     const [resolutions, setResolutions] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
-        const data = getAllScheduleData();
-        setScheduleData(data);
-        
-        // Load resolutions from localStorage
-        const storedResolutions = JSON.parse(localStorage.getItem('scheduleResolutions') || '{}');
-        setResolutions(storedResolutions);
+        loadData();
     }, []);
 
-    const formatDate = (date) => {
+    const loadData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
+            
+            // Use global ApiService or fallback to window.ApiService
+            const ApiService = window.ApiService;
+            if (!ApiService) {
+                throw new Error('ApiService not available');
+            }
+            
+            const apiService = new ApiService();
+            const [scheduleResponse, resolutionsResponse] = await Promise.all([
+                apiService.getAllScheduleData(),
+                apiService.getAllResolutions()
+            ]);
+            
+            setScheduleData(scheduleResponse);
+            setResolutions(resolutionsResponse);
+        } catch (err) {
+            console.error('Failed to load data:', err);
+            setError('Erro ao carregar dados do calendário');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
         const daysOfWeek = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
         const months = ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'];
         
@@ -58,6 +82,29 @@ const CalendarView = ({ onDaySelect, selectedDay }) => {
                 return '';
         }
     };
+
+    if (loading) {
+        return (
+            <div className="calendar-view">
+                <div className="loading-message">
+                    <p>Carregando calendário...</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="calendar-view">
+                <div className="error-message">
+                    <p>{error}</p>
+                    <button onClick={loadData} className="retry-button">
+                        Tentar novamente
+                    </button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="calendar-view">

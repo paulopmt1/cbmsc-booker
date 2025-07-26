@@ -66,6 +66,37 @@
     font-size: 16px;
 }
 
+.loading-message {
+    text-align: center;
+    color: #666;
+    margin: 32px 0;
+    font-size: 16px;
+}
+
+.error-message {
+    text-align: center;
+    color: #c33;
+    margin: 32px 0;
+    font-size: 16px;
+}
+
+.retry-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px 24px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    margin-top: 16px;
+    transition: background-color 0.2s ease;
+}
+
+.retry-button:hover {
+    background-color: #0056b3;
+}
+
 .periods-container {
     margin-bottom: 32px;
 }

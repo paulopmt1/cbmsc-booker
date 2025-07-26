@@ -7,3 +7,7 @@
 
 // any CSS you import will output into a single css file (app.css in this case)
 import './styles/app.css';
+
+// Import API service and make it globally available
+import { ApiService } from './js/services/apiService.js';
+window.ApiService = ApiService;

@@ -1,29 +1,53 @@
 import React, { useState, useEffect } from 'react';
 import PeriodSection from './PeriodSection';
-import { getScheduleForDay, saveResolution, getResolution } from '../data/scheduleData';
 
 const ConflictManagement = ({ selectedDay, onBackToCalendar }) => {
     const [selectedPeople, setSelectedPeople] = useState([]);
     const [validationError, setValidationError] = useState('');
     const [dayData, setDayData] = useState(null);
     const [isResolved, setIsResolved] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
 
     useEffect(() => {
         if (selectedDay) {
-            const data = getScheduleForDay(selectedDay);
-            setDayData(data);
+            loadDayData();
+        }
+    }, [selectedDay]);
+
+    const loadDayData = async () => {
+        try {
+            setLoading(true);
+            setError(null);
             
-            // Check if this day is already resolved
-            const resolution = getResolution(selectedDay);
-            if (resolution) {
+            // Use global ApiService or fallback to window.ApiService
+            const ApiService = window.ApiService;
+            if (!ApiService) {
+                throw new Error('ApiService not available');
+            }
+            
+            const apiService = new ApiService();
+            const [scheduleData, resolutionData] = await Promise.all([
+                apiService.getScheduleForDay(selectedDay),
+                apiService.getResolution(selectedDay)
+            ]);
+            
+            setDayData(scheduleData);
+            
+            if (resolutionData) {
                 setIsResolved(true);
-                setSelectedPeople(resolution.selectedPeople);
+                setSelectedPeople(resolutionData.selectedPeople || []);
             } else {
                 setIsResolved(false);
                 setSelectedPeople([]);
             }
+        } catch (err) {
+            console.error('Failed to load day data:', err);
+            setError('Erro ao carregar dados do dia selecionado');
+        } finally {
+            setLoading(false);
         }
-    }, [selectedDay]);
+    };
 
     const handlePersonSelect = (personId) => {
         if (isResolved) return; // Prevent changes if already resolved
@@ -62,25 +86,63 @@ const ConflictManagement = ({ selectedDay, onBackToCalendar }) => {
         return true;
     };
 
-    const handleConfirm = () => {
+    const handleConfirm = async () => {
         if (!validateSelections()) {
             return;
         }
 
-        // Save the resolution
-        const resolution = saveResolution(selectedDay, selectedPeople);
-        setIsResolved(true);
-        
-        console.log('Resolution saved:', resolution);
-        alert('Conflito resolvido com sucesso!');
+        try {
+            const ApiService = window.ApiService;
+            if (!ApiService) {
+                throw new Error('ApiService not available');
+            }
+            
+            const apiService = new ApiService();
+            const resolution = await apiService.saveResolution(selectedDay, selectedPeople);
+            setIsResolved(true);
+            
+            console.log('Resolution saved:', resolution);
+            alert('Conflito resolvido com sucesso!');
+        } catch (err) {
+            console.error('Failed to save resolution:', err);
+            alert('Erro ao salvar resolução. Tente novamente.');
+        }
     };
 
-    const formatDate = (date) => {
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
         const daysOfWeek = ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado'];
         const months = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
         
         return `${daysOfWeek[date.getDay()]} ${date.getDate()} de ${months[date.getMonth()]}`;
     };
+
+    if (loading) {
+        return (
+            <div className="conflict-management">
+                <div className="conflict-card">
+                    <div className="loading-message">
+                        <p>Carregando dados do conflito...</p>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (error) {
+        return (
+            <div className="conflict-management">
+                <div className="conflict-card">
+                    <div className="error-message">
+                        <p>{error}</p>
+                        <button onClick={loadDayData} className="retry-button">
+                            Tentar novamente
+                        </button>
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     if (!dayData) {
         return (
