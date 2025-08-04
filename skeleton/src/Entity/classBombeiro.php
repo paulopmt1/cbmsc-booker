@@ -1,38 +1,62 @@
 <?php
 
-
+// Aqui vai a inclusão de outros arquivos necessários, se houver
 
 class Bombeiro {
     // Atributos
     private $nome;
     private $cpf;
     private $numeroCelular;
-    private $antiguidade;
+    private $antiguidade = 0;
     private $carteiraAmbulancia = false;
+    private $pontuacao = 0;
+    private $cidadeOrigem;
+    private $diasQueQuerServico = [];
 
     // Construtor
-    public function __construct($nome, $cpf, $numeroCelular, $antiguidade, $carteiraAmbulancia){
+    public function __construct($nome, $cpf, $numeroCelular, $antiguidade, $carteiraAmbulancia, $cidadeOrigem){
         $this->setNome($nome);
         $this->setCpf($cpf);
         $this->setNumeroCelular($numeroCelular);
         $this->setAntiguidade($antiguidade);
         $this->setCarteiraAmbulancia($carteiraAmbulancia);
+        $this->setCidadeOrigem($cidadeOrigem);
 
-        // Define a antiguidade
+        //
 
         switch ($antiguidade) {
             case $antiguidade < 2:
-                $this->setAntiguidade('Iniciante');
+                $this->setPontuacao(5);
                 break;
             case $antiguidade > 2 && $antiguidade < 5:
-                $this->setAntiguidade('Intermediário');
+                $this->setPontuacao(10);
                 break;
             case $antiguidade >= 5:
-                $this->setAntiguidade('Avançado');
+                $this->setPontuacao(15);
                 break;
             case $antiguidade < 10:
-                $this->setAntiguidade('Antigasso');
+                $this->setPontuacao(20);
+                break;
         }
+
+        if ($nome == "Querubin") {
+            $this->setPontuacao(1000); // Exemplo de pontuação especial
+        }
+
+        switch ($cidadeOrigem) {
+            case "Videira":
+                $this->setPontuacao($this->getPontuacao() + 20);
+                break;
+            case "Fraiburgo":
+                $this->setPontuacao($this->getPontuacao() + 15);
+                break;
+            case "Caçador":
+                $this->setPontuacao($this->getPontuacao() + 10);
+                break;
+        }
+
+        
+
     }
 
     // Métodos
@@ -83,6 +107,22 @@ class Bombeiro {
 
     public function setCarteiraAmbulancia($carteiraAmbulancia) {
         $this->carteiraAmbulancia = $carteiraAmbulancia;
+    }
+
+    public function getPontuacao() {
+        return $this->pontuacao;
+    }
+
+    public function setPontuacao($pontuacao) {
+        $this->pontuacao = $pontuacao;
+    }
+
+    public function getCidadeOrigem() {
+        return $this->cidadeOrigem;
+    }
+
+    public function setCidadeOrigem($cidadeOrigem) {
+        $this->cidadeOrigem = $cidadeOrigem;
     }
 
 }
