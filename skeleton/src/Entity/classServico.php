@@ -29,15 +29,22 @@ class Servico {
         $this->setMes($mes);
     } */
 
-    public function resolverConflitos() {
+    public function resolverConflitos($turno, $dia) {
         // Turnos
+
         $manha = [];
         $tarde = [];
         $noite = [];
         $integral = [];
-
         $bombeiros = [];
+        $contagemTurnos = [];
 
+        // Adiciona um valor para cada vez que o turno for escolhido
+        foreach ($contagemTurnos as $nomeTurno => $valor) {
+            if ($turno == $nomeTurno) {
+                $contagemTurnos[$nomeTurno]++;
+            }
+        }
         
         while (count($manha) > 3) {
             for ($i = 0; $i < count($bombeiros); $i++) {
@@ -81,19 +88,6 @@ class Servico {
         $dia = [$manha, $tarde, $noite, $integral];
         return $dia;
 
-        
-    }
-
-    public function escolherDiaServico($nome, $dia, $mes, $turno) {
-        $this->setNomeDoBombeiro($nome);
-        $this->setDia($dia);
-        $this->setMes($mes);
-        $this->setTurno($turno);
-
-        $escolha = [];
-        $escolha = [$nome, $dia, $mes, $turno];
-
-        return $escolha;
         
     }
     

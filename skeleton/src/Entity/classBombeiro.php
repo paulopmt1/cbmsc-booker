@@ -68,6 +68,20 @@ class Bombeiro {
 
     // Métodos
 
+    public function escolherDiaServico($nome, $dia, $mes, $turno) {
+
+        $this->setNome($nome);
+        $this->setDia($dia);
+        $this->setMes($mes);
+        $this->setTurno($turno);
+
+        $escolha = [];
+        $escolha = [$nome, $dia, $mes, $turno];
+
+        return $escolha;
+        
+    }
+
 
     public function exibirDados() {
         return "Nome: {$this->getNome()}, CPF: {$this->getCpf()}, Celular: {$this->getNumeroCelular()}, Antiguidade: {$this->getAntiguidade()}, Carteira Ambulância: {$this->getCarteiraAmbulancia()}";
