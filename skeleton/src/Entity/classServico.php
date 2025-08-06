@@ -10,10 +10,6 @@ class Servico {
 
     private $turno; // manhã, tarde, noite, integral(24 horas?)
 
-    private $bombeiro1;
-    private $bombeiro2;
-    private $bombeiro3;
-
     private $bombeiros = [];
 
     // Métodos
@@ -37,7 +33,7 @@ class Servico {
         $noite = [];
         $integral = [];
         $bombeiros = [];
-        $contagemTurnos = [];
+        $contagemTurnos = [ "manhã" => 0, "tarde" => 0, "noite" => 0, "integral" => 0 ];
 
         // Adiciona um valor para cada vez que o turno for escolhido
         foreach ($contagemTurnos as $nomeTurno => $valor) {
@@ -46,51 +42,63 @@ class Servico {
             }
         }
         
+        // Adiciona os bombeiros com maior pontuação no array de cada turno
+
         while (count($manha) > 3) {
-            for ($i = 0; $i < count($bombeiros); $i++) {
+            for ($i = 0; $i < count($bombeiros) -1; $i++) {
                 if ($bombeiros[$i]->getPontuacao() < $bombeiros[$i + 1]->getPontuacao()) {
+                    $manha[] = $bombeiros[$i + 1];
+                } else {
                     $manha[] = $bombeiros[$i];
                 }
+                if (count($manha) == 3) {
+                    break;
+                }
             }
         }
-    
-    
-    
+
         while (count($tarde) > 3) {
-            for ($i = 0; $i < count($bombeiros); $i++) {
-                if ($bombeiros[$i]->getPontuacao() < $bombeiros[$i +1]->getPontuacao()) {
+            for ($i = 0; $i < count($bombeiros) -1; $i++) {
+                if ($bombeiros[$i]->getPontuacao() < $bombeiros[$i + 1]->getPontuacao()) {
+                    $tarde[] = $bombeiros[$i + 1];
+                } else {
                     $tarde[] = $bombeiros[$i];
                 }
+                if (count($tarde) == 3) {
+                    break;
+                }
             }
         }
-    
 
-    
         while (count($noite) > 3) {
-            for ($i = 0; $i < count($bombeiros); $i++) {
+            for ($i = 0; $i < count($bombeiros) -1; $i++) {
                 if ($bombeiros[$i]->getPontuacao() < $bombeiros[$i + 1]->getPontuacao()) {
+                    $noite[] = $bombeiros[$i + 1];
+                } else {
                     $noite[] = $bombeiros[$i];
                 }
-            }
-        }
-    
-
-    
-        while (count($integral) > 3) {
-            for ($i = 0; $i < count($bombeiros); $i++) {
-                if ($bombeiros[$i]->getPontuacao() < $bombeiros[$i +1]->getPontuacao()) {
-                    $integral[] = $bombeiros[$i];
+                if (count($noite) == 3) {
+                    break;
                 }
             }
         }
-        
 
+        while (count($integral) > 3) {
+            for ($i = 0; $i < count($bombeiros) -1; $i++) {
+                if ($bombeiros[$i]->getPontuacao() < $bombeiros[$i + 1]->getPontuacao()) {
+                    $integral[] = $bombeiros[$i + 1];
+                } else {
+                    $integral[] = $bombeiros[$i];
+                }
+                if (count($integral) == 3) {
+                    break;
+                }
+            }
+        }
+    
         $dia = [$manha, $tarde, $noite, $integral];
         return $dia;
-
-        
     }
-    
 
     // Getters e Setters
 

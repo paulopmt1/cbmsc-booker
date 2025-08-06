@@ -24,6 +24,10 @@
         $diaDeServico->escolherDiaServico($bombeiro[1]->getNome(), 15, "Janeiro", "manhã");
         $diaDeServico->escolherDiaServico($bombeiro[2]->getNome(), 15, "Janeiro", "manhã");
         $diaDeServico->escolherDiaServico($bombeiro[3]->getNome(), 15, "Janeiro", "manhã");
+
+        $escolha->resolverConflitos
+
+
         
 
         ?>
