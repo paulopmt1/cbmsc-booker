@@ -1,6 +1,6 @@
 <?php
 
-// Aqui vai a inclusão de outros arquivos necessários, se houver
+require_once 'skeleton/src/Entity/classServico.php';
 
 class Bombeiro {
     // Atributos
@@ -11,7 +11,9 @@ class Bombeiro {
     private $carteiraAmbulancia = false;
     private $pontuacao = 0;
     private $cidadeOrigem;
-    private $diasQueQuerServico = [];
+    private $dia = [];
+    private $mes;
+    private $turno; // manhã, tarde, noite, integral(24 horas?)
 
     // Construtor
     public function __construct($nome, $cpf, $numeroCelular, $antiguidade, $carteiraAmbulancia, $cidadeOrigem){
@@ -53,19 +55,22 @@ class Bombeiro {
             case "Caçador":
                 $this->setPontuacao($this->getPontuacao() + 10);
                 break;
+            default:
+                $this->setPontuacao($this->getPontuacao() + 5);
+                break;
         }
 
-        
+        if ($carteiraAmbulancia == true) {
+            $this->setPontuacao($this->getPontuacao() + 10);
+        }
 
     }
 
     // Métodos
+
+
     public function exibirDados() {
         return "Nome: {$this->getNome()}, CPF: {$this->getCpf()}, Celular: {$this->getNumeroCelular()}, Antiguidade: {$this->getAntiguidade()}, Carteira Ambulância: {$this->getCarteiraAmbulancia()}";
-    }
-
-    public function tirarServico() {
-        return "O bombeiro {$this->getNome()} está de serviço."; // Exemplo do que podemos fazer
     }
 
     // Getters and Setters
@@ -75,6 +80,7 @@ class Bombeiro {
 
     public function setNome($nome) {
         $this->nome = $nome;
+
     }
 
     public function getCpf() {
@@ -123,6 +129,30 @@ class Bombeiro {
 
     public function setCidadeOrigem($cidadeOrigem) {
         $this->cidadeOrigem = $cidadeOrigem;
+    }
+
+    public function getDia() {
+        return $this->dia;
+    }
+
+    public function setDia($dia) {
+        $this->dia = $dia;
+    }
+
+    public function getMes() {
+        return $this->mes;
+    }
+
+    public function setMes($mes) {
+        $this->mes = $mes;
+    }
+
+    public function getTurno() {
+        return $this->turno;
+    }
+
+    public function setTurno($turno) {
+        $this->turno = $turno;
     }
 
 }
