@@ -6,7 +6,6 @@ class Bombeiro {
     // Atributos
     private $nome;
     private $cpf;
-    private $numeroCelular;
     private $antiguidade = 0;
     private $carteiraAmbulancia = false;
     private $pontuacao = 0;
@@ -16,30 +15,14 @@ class Bombeiro {
     private $turno; // manhã, tarde, noite, integral(24 horas?)
 
     // Construtor
-    public function __construct($nome, $cpf, $numeroCelular, $antiguidade, $carteiraAmbulancia, $cidadeOrigem){
+    public function __construct($nome, $cpf, $antiguidade, $carteiraAmbulancia, $cidadeOrigem){
         $this->setNome($nome);
         $this->setCpf($cpf);
-        $this->setNumeroCelular($numeroCelular);
         $this->setAntiguidade($antiguidade);
         $this->setCarteiraAmbulancia($carteiraAmbulancia);
         $this->setCidadeOrigem($cidadeOrigem);
 
         //
-
-        switch ($antiguidade) {
-            case $antiguidade < 2:
-                $this->setPontuacao(5);
-                break;
-            case $antiguidade > 2 && $antiguidade < 5:
-                $this->setPontuacao(10);
-                break;
-            case $antiguidade >= 5:
-                $this->setPontuacao(15);
-                break;
-            case $antiguidade < 10:
-                $this->setPontuacao(20);
-                break;
-        }
 
         if ($nome == "Querubin") {
             $this->setPontuacao(1000); // Exemplo de pontuação especial
@@ -66,6 +49,23 @@ class Bombeiro {
 
     }
 
+    public function calcularAntiguidade($antiguidade) {
+        switch ($antiguidade) {
+            case $antiguidade < 2:
+                $this->setPontuacao($this->getPontuacao() + 5);
+                break;
+            case $antiguidade > 2 && $antiguidade < 5:
+                $this->setPontuacao($this->getPontuacao() + 10);
+                break;
+            case $antiguidade >= 5:
+                $this->setPontuacao($this->getPontuacao() + 15);
+                break;
+            case $antiguidade < 10:
+                $this->setPontuacao($this->getPontuacao() + 20);
+                break;
+        }
+    }
+
     // Métodos
 
     public function escolherDiaServico($nome, $dia, $mes, $turno) {
@@ -84,7 +84,7 @@ class Bombeiro {
 
 
     public function exibirDados() {
-        return "Nome: {$this->getNome()}, CPF: {$this->getCpf()}, Celular: {$this->getNumeroCelular()}, Antiguidade: {$this->getAntiguidade()}, Carteira Ambulância: {$this->getCarteiraAmbulancia()}";
+        return "Nome: {$this->getNome()}, CPF: {$this->getCpf()}, Antiguidade: {$this->getAntiguidade()}, Carteira Ambulância: {$this->getCarteiraAmbulancia()}";
     }
 
     // Getters and Setters
@@ -103,14 +103,6 @@ class Bombeiro {
 
     public function setCpf($cpf) {
         $this->cpf = $cpf;
-    }
-
-    public function getNumeroCelular() {
-        return $this->numeroCelular;
-    }
-
-    public function setNumeroCelular($numeroCelular) {
-        $this->numeroCelular = $numeroCelular;
     }
 
     public function getAntiguidade() {
