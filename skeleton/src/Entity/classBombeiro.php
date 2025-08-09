@@ -10,9 +10,15 @@ class Bombeiro {
     private $carteiraAmbulancia = false;
     private $pontuacao = 0;
     private $cidadeOrigem;
-    private $dia = [];
+    private $dias = [];
     private $mes;
     private $turno; // manhã, tarde, noite, integral(24 horas?)
+
+    // Constantes
+    private const CPF_DO_QUERUBIN = 10010010001; // CPF do Querubin
+    private const CIDADE_FRAIBURGO = "Fraiburgo";
+    private const CIDADE_VIDEIRA = "Videira";
+    private const CIDADE_CACADOR = "Caçador";
 
     // Construtor
     public function __construct($nome, $cpf, $antiguidade, $carteiraAmbulancia, $cidadeOrigem){
@@ -24,27 +30,26 @@ class Bombeiro {
 
         //
 
-        if ($nome == "Querubin") {
+        if ($cpf == self::CPF_DO_QUERUBIN) {
             $this->setPontuacao(1000); // Exemplo de pontuação especial
         }
 
         switch ($cidadeOrigem) {
-            case "Videira":
-                $this->setPontuacao($this->getPontuacao() + 20);
+            case self::CIDADE_VIDEIRA:
+                $this->pontuacao += 20;
                 break;
-            case "Fraiburgo":
-                $this->setPontuacao($this->getPontuacao() + 15);
+            case self::CIDADE_FRAIBURGO:
+                $this->pontuacao += 15;
                 break;
-            case "Caçador":
-                $this->setPontuacao($this->getPontuacao() + 10);
-                break;
+            case self::CIDADE_CACADOR:
+                $this->pontuacao += 10;
             default:
-                $this->setPontuacao($this->getPontuacao() + 5);
+                $this->pontuacao += 5; // Pontuação padrão para outras cidades
                 break;
         }
 
         if ($carteiraAmbulancia == true) {
-            $this->setPontuacao($this->getPontuacao() + 10);
+            $this->pontuacao += 10;
         }
 
     }
@@ -52,36 +57,34 @@ class Bombeiro {
     public function calcularAntiguidade($antiguidade) {
         switch ($antiguidade) {
             case $antiguidade < 2:
-                $this->setPontuacao($this->getPontuacao() + 5);
+                $this->pontuacao += 5;
                 break;
             case $antiguidade > 2 && $antiguidade < 5:
-                $this->setPontuacao($this->getPontuacao() + 10);
+                $this->pontuacao += 10;
                 break;
             case $antiguidade >= 5:
-                $this->setPontuacao($this->getPontuacao() + 15);
+                $this->pontuacao += 15;
                 break;
             case $antiguidade < 10:
-                $this->setPontuacao($this->getPontuacao() + 20);
+                $this->pontuacao += 20;
                 break;
         }
     }
 
     // Métodos
 
-    public function escolherDiaServico($nome, $dia, $mes, $turno) {
+    public function adicionarDisponibilidadeServico($mes, $dias, $turno) {
 
-        $this->setNome($nome);
-        $this->setDia($dia);
+        $this->setDias($dias);
         $this->setMes($mes);
         $this->setTurno($turno);
 
         $escolha = [];
-        $escolha = [$nome, $dia, $mes, $turno];
+        $escolha = [$dias, $mes, $turno];
 
         return $escolha;
         
     }
-
 
     public function exibirDados() {
         return "Nome: {$this->getNome()}, CPF: {$this->getCpf()}, Antiguidade: {$this->getAntiguidade()}, Carteira Ambulância: {$this->getCarteiraAmbulancia()}";
@@ -137,12 +140,12 @@ class Bombeiro {
         $this->cidadeOrigem = $cidadeOrigem;
     }
 
-    public function getDia() {
-        return $this->dia;
+    public function getDias() {
+        return $this->dias;
     }
 
-    public function setDia($dia) {
-        $this->dia = $dia;
+    public function setDias($dias) {
+        $this->dias = $dias;
     }
 
     public function getMes() {

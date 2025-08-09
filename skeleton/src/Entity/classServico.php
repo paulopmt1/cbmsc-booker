@@ -25,7 +25,7 @@ class Servico {
         $this->setMes($mes);
     } */
 
-    public function resolverConflitos($turno, $dia) {
+    public function resolverConflitos($turno, $dias, $data) {
         // Turnos
 
         $manha = [];
@@ -83,7 +83,7 @@ class Servico {
             }
         }
 
-        while (count($integral) > 3) {
+        while (count($integral) > 1) {
             for ($i = 0; $i < count($bombeiros) -1; $i++) {
                 if ($bombeiros[$i]->getPontuacao() < $bombeiros[$i + 1]->getPontuacao()) {
                     $integral[] = $bombeiros[$i + 1];
@@ -96,8 +96,9 @@ class Servico {
             }
         }
     
-        $dia = [$manha, $tarde, $noite, $integral];
-        return $dia;
+        $dias[$data] = [
+            'turno' => 'I' || 'D' || 'N',
+        ];
     }
 
     // Getters e Setters
