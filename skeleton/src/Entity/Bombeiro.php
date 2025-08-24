@@ -105,6 +105,18 @@ class Bombeiro {
         return false;
     }
 
+    /**
+     * Verifica se o bombeiro tem disponibilidade para um dia e turno específico
+     */
+    public function temDisponibilidade($dia, $turno) {
+        foreach ($this->disponibilidades as $disponibilidade) {
+            if ($disponibilidade->getDia() == $dia && $disponibilidade->getTurno() == $turno) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     // Método para imprimir a disponibilidade do bombeiro sem Xdebug
     public function print_disponibilidade() {
         foreach ($this->disponibilidades as $disponibilidade) {

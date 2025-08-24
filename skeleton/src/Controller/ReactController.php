@@ -7,6 +7,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Bombeiro;
 use App\Entity\Disponibilidade;
+use App\Entity\Servico;
 
 class ReactController extends AbstractController
 {
@@ -47,6 +48,29 @@ class ReactController extends AbstractController
         echo "<h3>Bombeiro 3 - " . $bombeiro3->getNome() . " (" . $bombeiro3->getCidadeOrigem() . ") - " . $bombeiro3->getAntiguidade() . "</h3>";
         $bombeiro3->print_disponibilidade();
 
-        return new Response("Teste de instâncias de múltiplos bombeiros concluído!");
+
+        // Adicionar os bombeiros ao serviço
+        $servico = new Servico();
+        $servico->adicionarBombeiro($bombeiro1);
+        $servico->adicionarBombeiro($bombeiro2);
+        $servico->adicionarBombeiro($bombeiro3);
+
+        // Computar os turnos
+        $servico->computarTurnos();
+
+        echo "<h3>Turnos do mês</h3>";
+        $servico->print_turnos_do_mes(5);
+
+        // Resolver os conflitos
+        // $servico->resolverConflitos();
+
+        // Exibir os conflitos
+        echo "<h3>Conflitos</h3>";
+        foreach ($servico->getConflitos() as $conflito) {
+            echo "Dia: {$conflito['dia']}, Turno: {$conflito['turno']}";
+            echo "<br>";
+        }
+
+        return new Response("");
     }
 } 
