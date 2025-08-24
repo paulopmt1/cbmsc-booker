@@ -15,12 +15,6 @@ class Bombeiro {
     private $cidadeOrigem;
     private $disponibilidades = []; // Array de objetos Disponibilidade
 
-    // Constantes
-    private const CPF_DO_QUERUBIN = 10010010001; // CPF do Querubin
-    private const CIDADE_FRAIBURGO = "Fraiburgo";
-    private const CIDADE_VIDEIRA = "Videira";
-    private const CIDADE_CACADOR = "Caçador";
-
     // Construtor
     public function __construct($nome, $cpf, $antiguidade, $carteiraAmbulancia, $cidadeOrigem){
         $this->setNome($nome);

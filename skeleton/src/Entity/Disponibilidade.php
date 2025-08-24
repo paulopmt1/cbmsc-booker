@@ -2,12 +2,8 @@
 
 namespace App\Entity;
 
+use App\Constants\CbmscConstants;
 class Disponibilidade {
-    // Constantes para enum do turno
-    public const TURNO_NOTURNO = "NOTURNO";
-    public const TURNO_INTEGRAL = "INTEGRAL";
-    public const TURNO_DIURNO = "DIURNO";
-
     // Atributos
     private int $dia;
     private int $mes;
@@ -48,9 +44,8 @@ class Disponibilidade {
     }
 
     public function setTurno(string $turno): void {
-        $turnosValidos = [self::TURNO_NOTURNO, self::TURNO_INTEGRAL, self::TURNO_DIURNO];
-        if (!in_array($turno, $turnosValidos)) {
-            throw new \InvalidArgumentException("Turno deve ser um dos valores: " . implode(', ', $turnosValidos));
+        if (!in_array($turno, CbmscConstants::getTurnosValidos())) {
+            throw new \InvalidArgumentException("Turno deve ser um dos valores: " . implode(', ', CbmscConstants::getTurnosValidos()));
         }
         $this->turno = $turno;
     }
