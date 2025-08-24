@@ -1,6 +1,6 @@
 <?php
 
-require_once 'skeleton/src/Entity/classBombeiro.php';
+namespace App\Entity;
 
 class Servico {
     // Atributos
