@@ -2,6 +2,8 @@
 
 namespace App\Entity;
 
+use App\Entity\Disponibilidade;
+
 
 
 class Bombeiro {
@@ -10,11 +12,8 @@ class Bombeiro {
     private $cpf;
     private $antiguidade = 0;
     private $carteiraAmbulancia = false;
-    private $pontuacao = 0;
     private $cidadeOrigem;
-    private $dias = [];
-    private $mes;
-    private $turno; // manhã, tarde, noite, integral(24 horas?)
+    private $disponibilidades = []; // Array de objetos Disponibilidade
 
     // Constantes
     private const CPF_DO_QUERUBIN = 10010010001; // CPF do Querubin
@@ -29,63 +28,12 @@ class Bombeiro {
         $this->setAntiguidade($antiguidade);
         $this->setCarteiraAmbulancia($carteiraAmbulancia);
         $this->setCidadeOrigem($cidadeOrigem);
-
-        //
-
-        if ($cpf == self::CPF_DO_QUERUBIN) {
-            $this->setPontuacao(1000); // Exemplo de pontuação especial
-        }
-
-        switch ($cidadeOrigem) {
-            case self::CIDADE_VIDEIRA:
-                $this->pontuacao += 20;
-                break;
-            case self::CIDADE_FRAIBURGO:
-                $this->pontuacao += 15;
-                break;
-            case self::CIDADE_CACADOR:
-                $this->pontuacao += 10;
-            default:
-                $this->pontuacao += 5; // Pontuação padrão para outras cidades
-                break;
-        }
-
-        if ($carteiraAmbulancia == true) {
-            $this->pontuacao += 10;
-        }
-
     }
-
-    public function calcularAntiguidade($antiguidade) {
-        switch ($antiguidade) {
-            case $antiguidade < 2:
-                $this->pontuacao += 5;
-                break;
-            case $antiguidade > 2 && $antiguidade < 5:
-                $this->pontuacao += 10;
-                break;
-            case $antiguidade >= 5:
-                $this->pontuacao += 15;
-                break;
-            case $antiguidade < 10:
-                $this->pontuacao += 20;
-                break;
-        }
-    }
-
-    // Métodos
 
     public function adicionarDisponibilidadeServico($mes, $dias, $turno) {
-
-        $this->setDias($dias);
-        $this->setMes($mes);
-        $this->setTurno($turno);
-
-        $escolha = [];
-        $escolha = [$dias, $mes, $turno];
-
-        return $escolha;
-        
+        // Cria uma nova instância de Disponibilidade e adiciona ao array
+        $disponibilidade = new Disponibilidade($dias, $mes, $turno);
+        $this->adicionarDisponibilidade($disponibilidade);
     }
 
     public function exibirDados() {
@@ -126,14 +74,6 @@ class Bombeiro {
         $this->carteiraAmbulancia = $carteiraAmbulancia;
     }
 
-    public function getPontuacao() {
-        return $this->pontuacao;
-    }
-
-    public function setPontuacao($pontuacao) {
-        $this->pontuacao = $pontuacao;
-    }
-
     public function getCidadeOrigem() {
         return $this->cidadeOrigem;
     }
@@ -142,28 +82,40 @@ class Bombeiro {
         $this->cidadeOrigem = $cidadeOrigem;
     }
 
-    public function getDias() {
-        return $this->dias;
+    public function getDisponibilidade() {
+        return $this->disponibilidades;
     }
 
-    public function setDias($dias) {
-        $this->dias = $dias;
+    public function setDisponibilidade(array $disponibilidade) {
+        $this->disponibilidades = $disponibilidade;
     }
 
-    public function getMes() {
-        return $this->mes;
+    /**
+     * Adiciona um objeto Disponibilidade ao array
+     */
+    public function adicionarDisponibilidade(Disponibilidade $disponibilidade): void {
+        $this->disponibilidades[] = $disponibilidade;
     }
 
-    public function setMes($mes) {
-        $this->mes = $mes;
+    /**
+     * Remove uma disponibilidade específica
+     */
+    public function removerDisponibilidade(Disponibilidade $disponibilidade): bool {
+        foreach ($this->disponibilidades as $key => $disp) {
+            if ($disp->equals($disponibilidade)) {
+                unset($this->disponibilidades[$key]);
+                $this->disponibilidades = array_values($this->disponibilidades); // Re-index array
+                return true;
+            }
+        }
+        return false;
     }
 
-    public function getTurno() {
-        return $this->turno;
-    }
-
-    public function setTurno($turno) {
-        $this->turno = $turno;
+    // Método para imprimir a disponibilidade do bombeiro sem Xdebug
+    public function print_disponibilidade() {
+        foreach ($this->disponibilidades as $disponibilidade) {
+            echo $disponibilidade . "<br>";
+        }
     }
 
 }

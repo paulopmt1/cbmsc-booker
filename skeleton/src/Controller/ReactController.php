@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Bombeiro;
+use App\Entity\Disponibilidade;
 
 class ReactController extends AbstractController
 {
@@ -19,12 +20,13 @@ class ReactController extends AbstractController
     public function poooTest(): Response
     {
         $bombeiro1 = new Bombeiro("João", "12345678901", "999999999", 3, true, "Videira");
-        $bombeiro1->adicionarDisponibilidadeServico("1", "1", "NOTURNO");
-        $bombeiro1->adicionarDisponibilidadeServico("1", "2", "NOTURNO");
-        $bombeiro1->adicionarDisponibilidadeServico("1", "4", "DIURNO");
-        $bombeiro1->adicionarDisponibilidadeServico("1", "5", "DIURNO");
-        $bombeiro1->adicionarDisponibilidadeServico("1", "6", "DIURNO");
-        
-        return $this->json(['message' => 'Teste de instâncias do objeto', 'bombeiro' => $bombeiro1]);
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(1, 8, "NOTURNO"));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(2, 8, "NOTURNO"));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(4, 8, "DIURNO"));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(5, 8, "DIURNO"));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(6, 8, "INTEGRAL"));
+        $bombeiro1->print_disponibilidade();
+
+        return new Response("Teste de instâncias do objeto");
     }
 } 
