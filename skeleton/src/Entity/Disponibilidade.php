@@ -6,13 +6,12 @@ use App\Constants\CbmscConstants;
 class Disponibilidade {
     // Atributos
     private int $dia;
-    private int $mes;
+    private int $mes = 1; // mes fixo para agosto por hora pois não suportamos isso ainda
     private string $turno;
 
     // Construtor
-    public function __construct(int $dia, int $mes, string $turno) {
+    public function __construct(int $dia, string $turno) {
         $this->setDia($dia);
-        $this->setMes($mes);
         $this->setTurno($turno);
     }
 

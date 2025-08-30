@@ -16,18 +16,10 @@ class Bombeiro {
     private $disponibilidades = []; // Array de objetos Disponibilidade
 
     // Construtor
-    public function __construct($nome, $cpf, $antiguidade, $carteiraAmbulancia, $cidadeOrigem){
+    public function __construct($nome, $cpf, $carteiraAmbulancia){
         $this->setNome($nome);
         $this->setCpf($cpf);
-        $this->setAntiguidade($antiguidade);
         $this->setCarteiraAmbulancia($carteiraAmbulancia);
-        $this->setCidadeOrigem($cidadeOrigem);
-    }
-
-    public function adicionarDisponibilidadeServico($mes, $dias, $turno) {
-        // Cria uma nova instância de Disponibilidade e adiciona ao array
-        $disponibilidade = new Disponibilidade($dias, $mes, $turno);
-        $this->adicionarDisponibilidade($disponibilidade);
     }
 
     public function exibirDados() {
