@@ -124,7 +124,7 @@ class WriteSheetsService
         {
             $nome = $linha[CbmscConstants::COLUNA_NOME] ?? '';
             $cpf = $linha[CbmscConstants::COLUNA_CPF] ?? '';
-            $carteiraAmbulancia = $linha[CbmscConstants::COLUNA_CARTADE_AMBULANCIA] ?? '';
+            $carteiraAmbulancia = $linha[CbmscConstants::COLUNA_CARTEIRA_DE_AMBULANCIA] ?? '';
 
             $bombeiro = new Bombeiro($nome, $cpf, $carteiraAmbulancia);
 
@@ -138,18 +138,10 @@ class WriteSheetsService
                 $indiceTurno = CbmscConstants::COLUNA_DIA_1 -1 + $dia;
 
                 if (isset($linha[$indiceTurno]) && !empty($linha[$indiceTurno])) {
-                    $turno = $linha[$indiceTurno];
+                    $turno = strtoupper($linha[$indiceTurno]);
 
-                    switch (strtoupper($turno)) {
-                        case CbmscConstants::TURNO_INTEGRAL:
-                            $turno = CbmscConstants::TURNO_INTEGRAL;
-                            break;
-                        case CbmscConstants::TURNO_DIURNO:
-                            $turno = CbmscConstants::TURNO_DIURNO;
-                            break;
-                        case CbmscConstants::TURNO_NOTURNO:
-                            $turno = CbmscConstants::TURNO_NOTURNO;
-                            break;
+                    if (!in_array($turno, CbmscConstants::getTurnosValidos())) {
+                        continue;
                     }
 
                     $disponibilidade = new Disponibilidade($dia, $turno);
