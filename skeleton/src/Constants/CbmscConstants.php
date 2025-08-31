@@ -14,7 +14,7 @@ class CbmscConstants {
     // Colunas da planilha de respostas
     public const COLUNA_NOME = 1;
     public const COLUNA_CPF = 2;
-    public const COLUNA_CARTADE_AMBULANCIA = 3;
+    public const COLUNA_CARTEIRA_DE_AMBULANCIA = 3;
     public const COLUNA_DIA_1 = 4;
     
     // Turnos (duplicado da classe Disponibilidade para facilitar acesso)
