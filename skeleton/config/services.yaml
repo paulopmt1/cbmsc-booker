@@ -11,7 +11,7 @@ services:
         arguments:
             $credentialsPath: '%google_auth_config%'
 
-    App\Service\WriteSheetsService:
+    App\Service\ConversorPlanilhasBombeiro:
         autowire: true
 
     # default configuration for services in *this* file

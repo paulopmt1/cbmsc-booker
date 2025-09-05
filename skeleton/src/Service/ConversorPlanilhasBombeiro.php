@@ -6,7 +6,7 @@ use App\Constants\CbmscConstants;
 use App\Entity\Bombeiro;
 use App\Entity\Disponibilidade;
 
-class WriteSheetsService
+class ConversorPlanilhasBombeiro
 {
     public function __construct(
         private readonly GoogleSheetsService $googleSheetsService
