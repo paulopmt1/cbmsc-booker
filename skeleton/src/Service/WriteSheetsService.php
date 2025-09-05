@@ -13,10 +13,6 @@ class WriteSheetsService
     ) {
     }
 
-    public function updateDataWithSheetId(string $sheetId, string $range, array $values): void
-    {
-        $this->googleSheetsService->updateData($sheetId, $range, $values);
-    }
 
     public function convertePlanilhaParaObjetosDeBombeiros(array $result): array
     {

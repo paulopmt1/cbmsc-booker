@@ -52,7 +52,7 @@ class SyncController extends AbstractController
                     ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_31 . 
                     (CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
-                $writeSheetsService->updateDataWithSheetId($sheetIdB, $spreadsheetRange, $dadosPlanilhaProcessados);
+                $googleSheetsService->updateData($sheetIdB, $spreadsheetRange, $dadosPlanilhaProcessados);
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [
