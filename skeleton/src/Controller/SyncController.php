@@ -36,7 +36,8 @@ class SyncController extends AbstractController
             try 
             {
                 $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
-                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A1:C100");
+                $googleSheetsService->configureClient($credentialsPath);
+                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A2:AI100");
                 $bombeiros = $writeSheetsService->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
                 $dadosPlanilhaProcessados = $writeSheetsService->converterBombeirosParaPlanilha($bombeiros);
 

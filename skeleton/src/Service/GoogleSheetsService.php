@@ -3,42 +3,90 @@
 namespace App\Service;
 
 use Exception;
+use Google\Client;
+use Google\Service\Sheets;
 
 class GoogleSheetsService
 {
-    public function getSheetData(string $sheetId): array
+    private Client $client;
+    private Sheets $sheetsService;
+
+    public function configureClient(string $credentialsPath): void
     {
-        // link da tabela que iremos extrair os dados. Pegamos seu ID
-        $url = "https://docs.google.com/spreadsheets/d/{$sheetId}/gviz/tq?tqx=out:json";
+        $client = new Client();
+        $client->setAuthConfig($credentialsPath);
+        $client->addScope(Sheets::SPREADSHEETS);
+        $this->sheetsService = new Sheets($client);
+    }
+    
 
-        
-        $response = file_get_contents($url);    
+    public function getSheetData(string $sheetId, string $range = 'A:Z'): array
+    {
+        try {
+            $response = $this->sheetsService->spreadsheets_values->get(
+                $sheetId,
+                $range
+            );
 
-        // removendo prefixos extras add pelo Google
-        $response = substr($response, 47, -2);
-
-        // usamos json_decode para transformar o arquivo json obtido, em um array 
-        $data = json_decode($response, true);
-
-        
-        if (!isset($data['table']['rows']))
-        {
-            throw new Exception("A planilha está vazia");
-        }
-        
-        $result = [];
-        foreach ($data['table']['rows'] as $row)
-        {
-            $rowData = [];
-            foreach ($row['c'] as $cell)
-            {
-                $rowData[] = $cell['v'] ?? '';
+            $values = $response->getValues();
+            
+            if (empty($values)) {
+                throw new Exception("A planilha está vazia ou o range especificado não contém dados");
             }
 
-            $result[] = $rowData;
+            return $values;
+
+        } catch (\Google\Service\Exception $e) {
+            $error = json_decode($e->getMessage(), true);
+            throw new Exception("Erro da API do Google Sheets: " . ($error['error']['message'] ?? $e->getMessage()));
+        } catch (Exception $e) {
+            throw new Exception("Erro ao acessar a planilha: " . $e->getMessage());
         }
+    }
 
-        return $result;
+    public function getSheetInfo(string $sheetId): array
+    {
+        try {
+            $spreadsheet = $this->sheetsService->spreadsheets->get($sheetId);
+            
+            return [
+                'title' => $spreadsheet->getProperties()->getTitle(),
+                'sheets' => array_map(function($sheet) {
+                    return [
+                        'title' => $sheet->getProperties()->getTitle(),
+                        'sheetId' => $sheet->getProperties()->getSheetId(),
+                        'gridProperties' => [
+                            'rowCount' => $sheet->getProperties()->getGridProperties()->getRowCount(),
+                            'columnCount' => $sheet->getProperties()->getGridProperties()->getColumnCount(),
+                        ]
+                    ];
+                }, $spreadsheet->getSheets())
+            ];
 
+        } catch (\Google\Service\Exception $e) {
+            $error = json_decode($e->getMessage(), true);
+            throw new Exception("Erro da API do Google Sheets: " . ($error['error']['message'] ?? $e->getMessage()));
+        }
+    }
+
+    public function getMultipleRanges(string $sheetId, array $ranges): array
+    {
+        try {
+            $response = $this->sheetsService->spreadsheets_values->batchGet(
+                $sheetId,
+                ['ranges' => $ranges]
+            );
+
+            $result = [];
+            foreach ($response->getValueRanges() as $index => $valueRange) {
+                $result[$ranges[$index]] = $valueRange->getValues() ?? [];
+            }
+
+            return $result;
+
+        } catch (\Google\Service\Exception $e) {
+            $error = json_decode($e->getMessage(), true);
+            throw new Exception("Erro da API do Google Sheets: " . ($error['error']['message'] ?? $e->getMessage()));
+        }
     }
 }
