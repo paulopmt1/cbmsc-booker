@@ -5,25 +5,35 @@ namespace App\Service;
 use Exception;
 use Google\Client;
 use Google\Service\Sheets;
+use Google\Service\Sheets\ValueRange;
 
 class GoogleSheetsService
 {
-    private Client $client;
-    private Sheets $sheetsService;
+    private ?Sheets $sheetsService = null;
 
-    public function configureClient(string $credentialsPath): void
-    {
+    public function __construct(
+        private readonly string $credentialsPath
+    ) {
         $client = new Client();
         $client->setAuthConfig($credentialsPath);
         $client->addScope(Sheets::SPREADSHEETS);
         $this->sheetsService = new Sheets($client);
+    }
+
+    public function getSheetsService(): Sheets
+    {
+        if ($this->sheetsService === null) {
+            throw new Exception("O serviço Google Sheets não foi inicializado corretamente.");
+        }
+        
+        return $this->sheetsService;
     }
     
 
     public function getSheetData(string $sheetId, string $range = 'A:Z'): array
     {
         try {
-            $response = $this->sheetsService->spreadsheets_values->get(
+            $response = $this->getSheetsService()->spreadsheets_values->get(
                 $sheetId,
                 $range
             );
@@ -47,7 +57,7 @@ class GoogleSheetsService
     public function getSheetInfo(string $sheetId): array
     {
         try {
-            $spreadsheet = $this->sheetsService->spreadsheets->get($sheetId);
+            $spreadsheet = $this->getSheetsService()->spreadsheets->get($sheetId);
             
             return [
                 'title' => $spreadsheet->getProperties()->getTitle(),
@@ -72,7 +82,7 @@ class GoogleSheetsService
     public function getMultipleRanges(string $sheetId, array $ranges): array
     {
         try {
-            $response = $this->sheetsService->spreadsheets_values->batchGet(
+            $response = $this->getSheetsService()->spreadsheets_values->batchGet(
                 $sheetId,
                 ['ranges' => $ranges]
             );
@@ -88,5 +98,37 @@ class GoogleSheetsService
             $error = json_decode($e->getMessage(), true);
             throw new Exception("Erro da API do Google Sheets: " . ($error['error']['message'] ?? $e->getMessage()));
         }
+    }
+
+    public function appendData(string $sheetId, string $range, array $values): void
+    {
+        $body = new ValueRange([
+            'values' => $values 
+        ]);
+
+        $params = ['valueInputOption' => 'RAW'];
+
+        $this->getSheetsService()->spreadsheets_values->append(
+            $sheetId, 
+            $range,
+            $body,
+            $params
+        );
+    }
+
+    public function updateData(string $sheetId, string $range, array $values): void
+    {
+        $body = new ValueRange([
+            'values' => $values 
+        ]);
+
+        $params = ['valueInputOption' => 'RAW'];
+
+        $this->getSheetsService()->spreadsheets_values->update(
+            $sheetId, 
+            $range,
+            $body,
+            $params
+        );
     }
 }

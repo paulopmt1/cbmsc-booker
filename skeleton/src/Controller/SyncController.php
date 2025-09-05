@@ -35,8 +35,6 @@ class SyncController extends AbstractController
 
             try 
             {
-                $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
-                $googleSheetsService->configureClient($credentialsPath);
                 $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A2:AI100");
                 $bombeiros = $writeSheetsService->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
                 $dadosPlanilhaProcessados = $writeSheetsService->converterBombeirosParaPlanilha($bombeiros);
@@ -49,13 +47,12 @@ class SyncController extends AbstractController
                     ]);
                 }
 
-                $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
                 $numberOfLines = count($bombeiros);
                 $spreadsheetRange = CbmscConstants::PLANILHA_HORARIOS_COLUNA_NOMES . CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES . 
                     ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_31 . 
                     (CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
-                $writeSheetsService->updateData($spreadsheetRange, $dadosPlanilhaProcessados);
+                $writeSheetsService->updateDataWithSheetId($sheetIdB, $spreadsheetRange, $dadosPlanilhaProcessados);
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [

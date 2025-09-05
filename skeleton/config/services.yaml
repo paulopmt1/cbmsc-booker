@@ -5,12 +5,14 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     google_auth_config: '%env(GOOGLE_AUTH_CONFIG)%'
-    default_sheet_id: '%env(DEFAULT_SHEET_ID)%'
+
 services:
-    App\Service\WriteSheetsService:
+    App\Service\GoogleSheetsService:
         arguments:
             $credentialsPath: '%google_auth_config%'
-            $sheetsIdB: '%default_sheet_id%'
+
+    App\Service\WriteSheetsService:
+        autowire: true
 
     # default configuration for services in *this* file
     _defaults:
@@ -25,6 +27,7 @@ services:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
             - '../src/Kernel.php'
+            - '../src/Service/GoogleSheetsService.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones
