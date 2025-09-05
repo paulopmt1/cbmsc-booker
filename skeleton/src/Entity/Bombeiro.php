@@ -68,8 +68,13 @@ class Bombeiro {
         $this->cidadeOrigem = $cidadeOrigem;
     }
 
-    public function getDisponibilidade() {
-        return $this->disponibilidades;
+    public function getDisponibilidade($dia) {
+        foreach ($this->disponibilidades as $disponibilidade) {
+            if ($disponibilidade->getDia() == $dia) {
+                return $disponibilidade;
+            }
+        }
+        return null;
     }
 
     public function setDisponibilidade(array $disponibilidade) {

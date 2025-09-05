@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Constants\CbmscConstants;
 use App\Service\GoogleSheetsService;
 use App\Service\WriteSheetsService;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -35,19 +36,11 @@ class SyncController extends AbstractController
             try 
             {
                 $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
+                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A1:C100");
+                $bombeiros = $writeSheetsService->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+                $dadosPlanilha = $writeSheetsService->converterBombeirosParaPlanilha($bombeiros);
 
-                $result = $googleSheetsService->getSheetData($sheetId, "A1:C100");
-                
-                $dadosEstruturados = $writeSheetsService->estruturarDados($result);
-
-                $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
-                $firstLineForNames = 13;
-                $firstColumnForNames = "A";
-                $columnForDay31 = "AH";
-                $numberOfLines = count($dadosEstruturados);
-                $writeSheetsService->updateData($firstColumnForNames . $firstLineForNames . ":" . $columnForDay31 . ($firstLineForNames + $numberOfLines), $dadosEstruturados);
-
-                if (!isset($dadosEstruturados))
+                if (!isset($dadosPlanilha))
                 {
                     $this->addFlash('error', 'Ocorreu um erro ao tentarmos sincronizar as planilhas. Por favro, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');     
                     return $this->render('home.html.twig', [
@@ -55,6 +48,14 @@ class SyncController extends AbstractController
                         'sheetIdB' => $sheetIdB
                     ]);
                 }
+
+                $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
+                $numberOfLines = count($bombeiros);
+                $spreadsheetRange = CbmscConstants::PLANILHA_HORARIOS_COLUNA_NOMES . CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES . 
+                    ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_31 . 
+                    (CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES + $numberOfLines);
+
+                $writeSheetsService->updateData($spreadsheetRange, $dadosPlanilha);
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [
