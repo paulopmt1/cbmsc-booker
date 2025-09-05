@@ -66,65 +66,15 @@ class WriteSheetsService
 
     }
 
-    public function estruturarDados(array $result): array
-    {
-        $dadosEstruturados = [];
-        $bombeiros = [];
-
-        foreach ($result as $linha) 
-        {    
-            $nome = $linha[1] ?? '';
-            $cpf = $linha[2] ?? '';
-
-            if (!$nome) {
-                continue; 
-            }
-
-            // criamos o array caso esse não existir ainda
-            if (!isset($bombeiros[$nome])) {
-                $bombeiros[$nome] = array_fill(0, 33, ""); 
-                $bombeiros[$nome][0] = $nome;
-            }
-
-            // procura os turnos
-            for ($dia = 1; $dia <= 33; $dia++) {
-                $indiceTurno = $dia + 1; // começa no 2 por conta da estrutura da tabela final
-
-                if (isset($linha[$indiceTurno]) && !empty($linha[$indiceTurno])) {
-                    $turno = $linha[$indiceTurno];
-
-                    $mapeamentoTurno = match ($turno) {
-                        "Integral" => "I",
-                        "Diurno" => "D",
-                        "Noturno" => "N",
-                        default => "",
-                    };
-
-                    $bombeiros[$nome][$dia] = $mapeamentoTurno;
-                }
-            }
-
-            $bombeiros[$nome][1] = $cpf;
-        }
-
-        // array associativo em lista de array
-        foreach ($bombeiros as $linha) {
-            $dadosEstruturados[] = $linha;
-        }
-
-        return $dadosEstruturados;
-    }
-
-
     public function convertePlanilhaParaObjetosDeBombeiros(array $result): array
     {
         $bombeiros = [];
 
         foreach ($result as $linha) 
         {
-            $nome = $linha[CbmscConstants::COLUNA_NOME] ?? '';
-            $cpf = $linha[CbmscConstants::COLUNA_CPF] ?? '';
-            $carteiraAmbulancia = $linha[CbmscConstants::COLUNA_CARTEIRA_DE_AMBULANCIA] ?? '';
+            $nome = $linha[CbmscConstants::PLANILHA_HORARIOS_COLUNA_NOME] ?? '';
+            $cpf = $linha[CbmscConstants::PLANILHA_HORARIOS_COLUNA_CPF] ?? '';
+            $carteiraAmbulancia = $linha[CbmscConstants::PLANILHA_HORARIOS_COLUNA_CARTEIRA_DE_AMBULANCIA] ?? '';
 
             $bombeiro = new Bombeiro($nome, $cpf, $carteiraAmbulancia);
 
@@ -135,7 +85,7 @@ class WriteSheetsService
             // procura os turnos
             for ($dia = 1; $dia <= 31; $dia++) {
                 // -1 porque estamos começando com índice 1 e não 0 (para facilitar legibilidade - dias 1 até 31 em vez de dias 0 até 30)
-                $indiceTurno = CbmscConstants::COLUNA_DIA_1 -1 + $dia;
+                $indiceTurno = CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_1 -1 + $dia;
 
                 if (isset($linha[$indiceTurno]) && !empty($linha[$indiceTurno])) {
                     $turno = strtoupper($linha[$indiceTurno]);
@@ -153,5 +103,43 @@ class WriteSheetsService
         }
 
         return $bombeiros;
+    }
+
+    public function converterBombeirosParaPlanilha(array $bombeiros): array
+    {
+        $planilha = [];
+
+        /**
+         * @var Bombeiro $bombeiro
+         */
+        foreach ($bombeiros as $bombeiro) {
+            $bombeiroArray = [];
+            $bombeiroArray[CbmscConstants::PLANILHA_PME_COLUNA_NOME] = $bombeiro->getNome();
+            $bombeiroArray[CbmscConstants::PLANILHA_PME_COLUNA_CPF] = $bombeiro->getCpf();
+            $bombeiroArray[CbmscConstants::PLANILHA_PME_COLUNA_CARTEIRA_DE_AMBULANCIA] = $bombeiro->getCarteiraAmbulancia();
+
+            for ($dia = 1; $dia <= 31; $dia++) {
+                // -1 porque começamos com o indice do dia 1
+                $correcaoIndice = -1;
+                $indiceTurno = CbmscConstants::PLANILHA_PME_COLUNA_DIA_1 + $dia + $correcaoIndice;
+                $bombeiroArray[$indiceTurno] = 
+                    $bombeiro->getDisponibilidade($dia) ? 
+                        $this->converterTurnoParaLetra($bombeiro->getDisponibilidade($dia)->getTurno()) : 
+                        '';
+            }
+
+            $planilha[] = $bombeiroArray;
+        }
+
+        return $planilha;
+    }
+
+    private function converterTurnoParaLetra(string $turno): string
+    {
+        return match ($turno) {
+            CbmscConstants::TURNO_INTEGRAL => 'I',
+            CbmscConstants::TURNO_DIURNO => 'D',
+            CbmscConstants::TURNO_NOTURNO => 'N',
+        };
     }
 }
