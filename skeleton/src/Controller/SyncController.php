@@ -38,11 +38,10 @@ class SyncController extends AbstractController
                 $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
                 $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A1:C100");
                 $bombeiros = $writeSheetsService->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
-                $dadosPlanilha = $writeSheetsService->converterBombeirosParaPlanilha($bombeiros);
+                $dadosPlanilhaProcessados = $writeSheetsService->converterBombeirosParaPlanilha($bombeiros);
 
-                if (!isset($dadosPlanilha))
-                {
-                    $this->addFlash('error', 'Ocorreu um erro ao tentarmos sincronizar as planilhas. Por favro, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');     
+                if ( count($dadosPlanilhaProcessados) == 0 ) {
+                    $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');
                     return $this->render('home.html.twig', [
                         'sheetId' => $sheetId,
                         'sheetIdB' => $sheetIdB
@@ -55,7 +54,7 @@ class SyncController extends AbstractController
                     ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_31 . 
                     (CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
-                $writeSheetsService->updateData($spreadsheetRange, $dadosPlanilha);
+                $writeSheetsService->updateData($spreadsheetRange, $dadosPlanilhaProcessados);
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [

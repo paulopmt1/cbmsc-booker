@@ -12,11 +12,10 @@ class CbmscConstants {
     public const CPF_DO_QUERUBIN = 10010010001; // CPF do Querubin
 
     // Colunas da planilha de respostas
-    public const PLANILHA_HORARIOS_COLUNA_NOME = 1;
-    public const PLANILHA_HORARIOS_COLUNA_CPF = 2;
-    public const PLANILHA_HORARIOS_COLUNA_CARTEIRA_DE_AMBULANCIA = 3;
-    public const PLANILHA_HORARIOS_COLUNA_DIA_1 = 4;
-
+    public const PLANILHA_HORARIOS_COLUNA_NOME = 1; // B (coluna 0 (A) é a data da resposta)
+    public const PLANILHA_HORARIOS_COLUNA_CPF = 2; // C
+    public const PLANILHA_HORARIOS_COLUNA_CARTEIRA_DE_AMBULANCIA = 3; // D
+    public const PLANILHA_HORARIOS_COLUNA_DIA_1 = 4; // E
     public const PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES = 13;
     public const PLANILHA_HORARIOS_COLUNA_NOMES = 'A';
     public const PLANILHA_HORARIOS_COLUNA_DIA_31 = 'AH';
