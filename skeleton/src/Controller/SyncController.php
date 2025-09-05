@@ -4,7 +4,7 @@ namespace App\Controller;
 
 use App\Constants\CbmscConstants;
 use App\Service\GoogleSheetsService;
-use App\Service\WriteSheetsService;
+use App\Service\ConversorPlanilhasBombeiro;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -16,7 +16,7 @@ class SyncController extends AbstractController
     public function handleSync(
         Request $request,
         GoogleSheetsService $googleSheetsService,
-        WriteSheetsService $writeSheetsService
+        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro
     ): Response {
         
         if ($request->isMethod('POST'))
@@ -35,11 +35,9 @@ class SyncController extends AbstractController
 
             try 
             {
-                $credentialsPath = $_ENV['GOOGLE_AUTH_CONFIG'];
-                $googleSheetsService->configureClient($credentialsPath);
                 $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A2:AI100");
-                $bombeiros = $writeSheetsService->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
-                $dadosPlanilhaProcessados = $writeSheetsService->converterBombeirosParaPlanilha($bombeiros);
+                $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+                $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
 
                 if ( count($dadosPlanilhaProcessados) == 0 ) {
                     $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');
@@ -49,13 +47,12 @@ class SyncController extends AbstractController
                     ]);
                 }
 
-                $writeSheetsService->configureClient($credentialsPath, $sheetIdB);
                 $numberOfLines = count($bombeiros);
                 $spreadsheetRange = CbmscConstants::PLANILHA_HORARIOS_COLUNA_NOMES . CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES . 
                     ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_31 . 
                     (CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
-                $writeSheetsService->updateData($spreadsheetRange, $dadosPlanilhaProcessados);
+                $googleSheetsService->updateData($sheetIdB, $spreadsheetRange, $dadosPlanilhaProcessados);
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [

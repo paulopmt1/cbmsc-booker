@@ -3,68 +3,16 @@
 namespace App\Service;
 
 use App\Constants\CbmscConstants;
-use Google\Client;
-use Google\Service\Sheets;
-use Google\Service\Sheets\ValueRange;
 use App\Entity\Bombeiro;
 use App\Entity\Disponibilidade;
 
-class WriteSheetsService
+class ConversorPlanilhasBombeiro
 {
-    private ?Sheets $service = null;
-    private string $sheetIdB; 
-
-    public function configureClient(string $credentialsPath, string $sheetIdB): void
-    {
-        $this->sheetIdB = $sheetIdB; 
-
-        $client = new Client();
-        $client->setAuthConfig($credentialsPath);
-        $client->addScope(Sheets::SPREADSHEETS);
-        $this->service = new Sheets($client);
+    public function __construct(
+        private readonly GoogleSheetsService $googleSheetsService
+    ) {
     }
 
-    public function appendData(string $range, array $values): void
-    {
-        if ($this->service === null) {
-            throw new \Exception("O cliente do Google Sheets não foi configurado. Chame configureClient() primeiro.");
-        }   
-
-        $body = new ValueRange([
-            'values' => $values 
-        ]);
-
-        $params = ['valueInputOption' => 'RAW'];
-
-        $this->service->spreadsheets_values->append(
-            $this->sheetIdB, 
-            $range,
-            $body,
-            $params
-        );
-
-    }
-
-    public function updateData(string $range, array $values): void
-    {
-        if ($this->service === null) {
-            throw new \Exception("O cliente do Google Sheets não foi configurado. Chame configureClient() primeiro.");
-        }   
-
-        $body = new ValueRange([
-            'values' => $values 
-        ]);
-
-        $params = ['valueInputOption' => 'RAW'];
-
-        $this->service->spreadsheets_values->update(
-            $this->sheetIdB, 
-            $range,
-            $body,
-            $params
-        );
-
-    }
 
     public function convertePlanilhaParaObjetosDeBombeiros(array $result): array
     {
