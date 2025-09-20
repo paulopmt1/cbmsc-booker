@@ -50,7 +50,7 @@ class Bombeiro {
         return $this->antiguidade;
     }
 
-    public function setAntiguidade($antiguidade) {
+    public function setAntiguidade(int $antiguidade) {
         $this->antiguidade = $antiguidade;
     }
 

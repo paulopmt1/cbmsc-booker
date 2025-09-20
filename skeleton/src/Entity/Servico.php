@@ -62,6 +62,7 @@ class Servico {
             if ($zerarPontuacao) {
                 $bombeiro->setPontuacao(0);
 
+                // TODO: Melhorar essa tratativa
                 if ( $bombeiro->getNome() == 'BC CHEROBIN ' || $bombeiro->getCpf() === CbmscConstants::CPF_DO_QUERUBIN ) {
                     $bombeiro->setPontuacao(1000000);
                 }

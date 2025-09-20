@@ -6,6 +6,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Entity\Servico;
+use App\Service\CalculadorDeAntiguidadeService;
 use App\Service\ConversorPlanilhasBombeiro;
 use App\Service\GoogleSheetsService;
 class ReactController extends AbstractController
@@ -17,10 +18,17 @@ class ReactController extends AbstractController
     }
 
     #[Route('/consulta_escala_por_dia/{planilhaId}/{dia}', name: 'consulta_escala_por_dia')]
-    public function consultaEscalaPorDia(GoogleSheetsService $googleSheetsService, ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro, string $planilhaId, int $dia): Response
+    public function consultaEscalaPorDia(
+        GoogleSheetsService $googleSheetsService, 
+        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro, 
+        CalculadorDeAntiguidadeService $calculadorDeAntiguidade,
+        string $planilhaId, 
+        int $dia): Response
     {
         $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($planilhaId, "A2:AI100");
-        $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+        $bombeiros = $calculadorDeAntiguidade->definirAntiguidadeBombeiros(
+            $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos)
+        );
 
         // Exibe o total de bombeiros
         echo "<h3>Total de bombeiros: " . count($bombeiros) . "</h3>";
@@ -31,7 +39,8 @@ class ReactController extends AbstractController
             $servico->adicionarBombeiro($bombeiro);
         }
 
-        $servico->computarPontuacaoBombeiros();
+        
+        $servico->computarPontuacaoBombeiros(true);
 
         echo "<h3>Turnos do dia " . $dia . "</h3>";
         $servico->print_turnos_do_mes($dia);
