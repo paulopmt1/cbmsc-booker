@@ -22,7 +22,7 @@ class ConversorPlanilhasBombeiro
         {
             $nome = $linha[CbmscConstants::PLANILHA_HORARIOS_COLUNA_NOME] ?? '';
             $cpf = $linha[CbmscConstants::PLANILHA_HORARIOS_COLUNA_CPF] ?? '';
-            $carteiraAmbulancia = $linha[CbmscConstants::PLANILHA_HORARIOS_COLUNA_CARTEIRA_DE_AMBULANCIA] ?? '';
+            $carteiraAmbulancia = $linha[CbmscConstants::PLANILHA_HORARIOS_COLUNA_CARTEIRA_DE_AMBULANCIA] === 'Sim' ? true : false;
 
             $bombeiro = new Bombeiro($nome, $cpf, $carteiraAmbulancia);
 

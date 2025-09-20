@@ -3,85 +3,235 @@
 namespace App\Entity;
 
 use App\Constants\CbmscConstants;
+use App\Entity\Bombeiro;
+use PDO;
 
 class Servico {
-    // Atributos
-    private $contagemTurnos = [ 
-        CbmscConstants::TURNO_DIURNO => 0, 
-        CbmscConstants::TURNO_NOTURNO => 0, 
-        CbmscConstants::TURNO_INTEGRAL => 0 
+
+    /**
+     * Aqui definimos quantos BCs por turno podemos ter
+     * Esse termo é chamado de cotas, hoje suportamos 6 cotas de 12h ou seja 3 de 24h,
+     * ou seja, 3 BCs durante o dia e 3 durante a noite simultaneamente
+     */
+    private $quotasDe12hPorTurno = [
+        CbmscConstants::TURNO_DIURNO => 2,
+        CbmscConstants::TURNO_NOTURNO => 2,
+        CbmscConstants::TURNO_INTEGRAL => 1,
     ];
 
     /**
-     * 1 cota = 12h (DIURNO) + 12h (NOTURNO) ou 24h (INTEGRAL) de trabalho
-     * Hoje, suportamos 3 cotas por dia
-     * 1 cota pode conter 1 período INTEGRAL ou 2 meio períodos (NOTURNO + DIURNO)
-     * Aqui temos as constantes que armazenam as horas de cada período
-     */
-    private $maximoDeCotas = 3;
-
-    /**
      * Array de bombeiros que serão utilizados para o serviço do mês
+     * @var $bombeiros App\Entity\Bombeiro
      */
     private $bombeiros = [];
-
-    /**
-     * Array de turnos do mês
-     */
-    private $turnos_do_mes = [];
-
-    /**
-     * Array de conflitos
-     */
-    private $conflitos = [];
 
     /**
      * Computa os turnos dos bombeiros o mês inteiro e adiciona ao array de turnos
      * assim sabemos quantos bombeiros temos para cada turno
      */
-    public function computarTurnos() {
+    public function computarTodosOsTurnos() {
+        $todosOsTurnos = [];
+
+        // Para cada dia do mês, computamos os turnos dos bombeiros
+        for ($dia = 1; $dia <= 31; $dia++) {
+            $turnos_do_dia = $this->computarTurnosDoDia($dia);
+
+            // Adiciona o dia e os turnos ao array de turnos do mês
+            $todosOsTurnos[$dia] = [
+                'dia' => $dia,
+                'turnos' => $turnos_do_dia
+            ];
+        }
+
+        return $todosOsTurnos;
+    }
+
+    /**
+     * Define pontuação de bombeiros baseados em alguns critérios:
+     *  - Se é Querubim = 1000000 pontos
+     *  - Se a cidade de origem é a mesma do quartel = 1000
+     *  - Se tem carteira = 100 pontos
+     *  - Grau de formação
+     * 
+     * @param bool $zerarPontuacao Precisamos resetar a pontuação pois esta função é chamada várias vezes
+     */
+    public function computarPontuacaoBombeiros(bool $zerarPontuacao = false) {
+
+        foreach ($this->bombeiros as &$bombeiro) {
+
+            if ($zerarPontuacao) {
+                $bombeiro->setPontuacao(0);
+
+                if ( $bombeiro->getNome() == 'BC CHEROBIN ' || $bombeiro->getCpf() === CbmscConstants::CPF_DO_QUERUBIN ) {
+                    $bombeiro->setPontuacao(1000000);
+                }
+    
+                if ($bombeiro->getCidadeOrigem() === CbmscConstants::CIDADE_VIDEIRA){
+                    $bombeiro->setPontuacao($bombeiro->getPontuacao() + 100);
+                }
+    
+                if ($bombeiro->getCarteiraAmbulancia()) {
+                    $bombeiro->setPontuacao($bombeiro->getPontuacao() + 50);
+                }
+
+                $bombeiro->setPontuacao($bombeiro->getPontuacao() + $bombeiro->getAntiguidade());
+            }
+
+
+            // Cada dia que o bombeiro ganha joga ele 1000 pontos para trás
+            if ($bombeiro->getDiasAdquiridos() !== 0) {
+                $reducao = $bombeiro->getDiasAdquiridos() * 1000;
+                $bombeiro->setPontuacao($bombeiro->getPontuacao() - $reducao);
+            }
+        }
+    }
+
+    /**
+     * Distribui todos os turnos para cada dia do mês baseado nas regras de prioridade
+     */
+    public function distribuirTurnosParaMes(){
+        $todosOsTurnos = [];
+
+        // Para cada dia do mês, distribui serviços
+        for ($dia = 1; $dia <= 31; $dia++) {
+            $turnos_do_dia = $this->computarTurnosDoDia($dia);
+            $turnos = [];
+            
+            foreach ($this->quotasDe12hPorTurno as $turno => $cotas) {
+                $turnos[$turno] = $this->getBombeirosPorPrioridade($turnos_do_dia[$turno], $cotas);
+            }
+            
+            $todosOsTurnos[$dia] = $turnos;
+
+            // Precisamos recomputar a pontuação pois cada vez que um bombeiro é selecionado volta para o "fim da fila"
+            $this->computarPontuacaoBombeiros(true);
+        }
+
+        /**
+         * Revisa cada dia para ter certeza de que a distribuição ficou justa.
+         * Idealmente desejamos que cada bombeiro tenha uma distribuição equivalente de horários,
+         * ou seja, o mesmo % de horários solicitados x distribuidos
+         * 
+         * Isso precisar ser feito depois da distribuição de dias, pois só aqui sabemos
+         * o % de destribuição para cada bombeiro.
+         */
+        // foreach ($todosOsTurnos as $dia => $turnos) {
+        //     $turnos_do_dia = $this->computarTurnosDoDia($dia);
+
+        //     if ($dia == 22){
+        //         $a = 1;
+        //     }
+        //     foreach ($turnos as $turnoKey => $turno) {
+        //         $todosOsTurnos[$dia][$turnoKey] = $this->getBombeirosPorPrioridade($turnos_do_dia[$turnoKey], $cotas);
+        //     }
+        // }
+
+        // for ($dia = 1; $dia <= 31; $dia++) {
+            // $turnos_do_dia = $this->computarTurnosDoDia($dia);
+            // $turnos = [];
+            
+            // foreach ($this->quotasDe12hPorTurno as $turno => $cotas) {
+            //     $turnos[$turno] = $this->getBombeirosPorPrioridade($turnos_do_dia[$turno], $cotas);
+            // }
+            
+            // $todosOsTurnos[$dia] = $turnos;
+
+            // // Precisamos recomputar a pontuação pois cada vez que um bombeiro é selecionado volta para o "fim da fila"
+            // $this->computarPontuacaoBombeiros(false);
+        // }
+
+
+        return $todosOsTurnos;
+    }
+
+    private function getBombeirosPorPrioridade(array $bombeiros, int $numberoBombeiros) {
+        $bombeirosPorPercentual = $this->ordenaBombeirosPorPercentualDeServicosAceitos($bombeiros);
+
+        $bombeirosOrdenados = $this->ordenaBombeirosPorPontuacao($bombeirosPorPercentual);
+        $bombeirosSelecionados = array_splice($bombeirosOrdenados, 0, $numberoBombeiros);
+
+        foreach($bombeirosSelecionados as &$bombeiro) {
+            $bombeiro->increaseDiasAdquiridos();
+        }
+
+        return $bombeirosSelecionados;
+    }
+
+    /**
+     * Aplica bubble sort para deixar bombeiros com a maior pontuação primeiro
+     */
+    private function ordenaBombeirosPorPontuacao(&$bombeiros) {
+        $nowData = null;
+
+        for ($i = 0; $i < count($bombeiros); $i++) {
+            for ($j = 0; $j < count($bombeiros); $j++) {
+                if ($bombeiros[$i]->getPontuacao() > $bombeiros[$j]->getPontuacao()) {
+                    $nowData = $bombeiros[$i];
+                    $bombeiros[$i] = $bombeiros[$j];
+                    $bombeiros[$j] = $nowData;
+                }
+            }
+        }
+
+        return $bombeiros;
+    }
+
+    /**
+     * Aplica bubble sort para deixar bombeiros com menor percentual de serviços primeiro
+     */
+    private function ordenaBombeirosPorPercentualDeServicosAceitos(&$bombeiros) {
+        $nowData = null;
+
+        for ($i = 0; $i < count($bombeiros); $i++) {
+            for ($j = 0; $j < count($bombeiros); $j++) {
+                if ($bombeiros[$i]->getPercentualDeServicosAceitos() > $bombeiros[$j]->getPercentualDeServicosAceitos()) {
+                    $nowData = $bombeiros[$i];
+                    $bombeiros[$i] = $bombeiros[$j];
+                    $bombeiros[$j] = $nowData;
+                }
+            }
+        }
+
+        return $bombeiros;
+    }
+
+    /**
+     * Computa os turnos para um dia específico
+     * 
+     * @param int $dia
+     */
+    public function computarTurnosDoDia(int $dia) {
         $turnos_do_dia = [
             CbmscConstants::TURNO_DIURNO => [],
             CbmscConstants::TURNO_NOTURNO => [],
             CbmscConstants::TURNO_INTEGRAL => []
         ];
 
-        // Para cada dia do mês, computamos os turnos dos bombeiros
-        for ($dia = 1; $dia <= 31; $dia++) {
-            // Para cada bombeiro, obtem o turno do dia atual
-            foreach ($this->bombeiros as $bombeiro) {
-                // Verifica se o bombeiro tem disponibilidade para o dia atual
-                if ($bombeiro->temDisponibilidade($dia, CbmscConstants::TURNO_DIURNO)) {
-                    $turnos_do_dia[CbmscConstants::TURNO_DIURNO][] = $bombeiro;
-                } else if ($bombeiro->temDisponibilidade($dia, CbmscConstants::TURNO_NOTURNO)) {
-                    $turnos_do_dia[CbmscConstants::TURNO_NOTURNO][] = $bombeiro;
-                } else if ($bombeiro->temDisponibilidade($dia, CbmscConstants::TURNO_INTEGRAL)) {
-                    $turnos_do_dia[CbmscConstants::TURNO_INTEGRAL][] = $bombeiro;
-                }
+        // Para cada bombeiro, obtem o turno do dia atual
+        foreach ($this->bombeiros as $bombeiro) {
+            if ($bombeiro->temDisponibilidade($dia, CbmscConstants::TURNO_DIURNO)) {
+                $turnos_do_dia[CbmscConstants::TURNO_DIURNO][] = $bombeiro;
+            } else if ($bombeiro->temDisponibilidade($dia, CbmscConstants::TURNO_NOTURNO)) {
+                $turnos_do_dia[CbmscConstants::TURNO_NOTURNO][] = $bombeiro;
+            } else if ($bombeiro->temDisponibilidade($dia, CbmscConstants::TURNO_INTEGRAL)) {
+                $turnos_do_dia[CbmscConstants::TURNO_INTEGRAL][] = $bombeiro;
             }
-
-            // Adiciona o dia e os turnos ao array de turnos do mês
-            $this->turnos_do_mes[$dia] = [
-                'dia' => $dia,
-                'turnos' => $turnos_do_dia,
-                'conflitos' => []
-            ];
         }
+
+        return $turnos_do_dia;
     }
 
-    public function resolverConflitos() {
-    }
-
-
-    public function print_turnos_do_mes($dia) {
-        if (!isset($this->turnos_do_mes[$dia])) {
+    public function print_turnos_do_mes(int $dia) {
+        $todosOsTurnos = $this->computarTodosOsTurnos();
+        
+        if (!isset($todosOsTurnos[$dia])) {
             echo "<p style='color: red; font-weight: bold;'>❌ Dia {$dia} não encontrado!</p>";
             return;
         }
-
-        $dadosDia = $this->turnos_do_mes[$dia];
         
-        echo "<div style='border: 1px solid #ddd; margin: 10px 0; padding: 15px; border-radius: 5px; background-color: #f9f9f9;'>";
+        $dadosDia = $todosOsTurnos[$dia];
+        
+        echo "<div style='width: 45%; float: left; border: 1px solid #ddd; margin: 10px 20px 0 0; padding: 15px;'>";
         echo "<h3 style='color: #333; margin-top: 0;'>📅 DIA {$dia} - ESCALAÇÃO DE TURNOS</h3>";
         
         // Contar total de bombeiros
@@ -97,7 +247,7 @@ class Servico {
             $icon = $this->getTurnoIcon($turno);
             $count = count($bombeiros);
             
-            echo "<div style='margin: 10px 0; padding: 10px; background-color: white; border-left: 4px solid " . $this->getTurnoColor($turno) . ";'>";
+            echo "<div style='margin: 10px 0; padding: 10px; border-left: 4px solid " . $this->getTurnoColor($turno) . ";'>";
             echo "<h4 style='margin: 0 0 8px 0; color: " . $this->getTurnoColor($turno) . ";'>";
             echo "{$icon} {$turno} ({$count} bombeiro" . ($count != 1 ? 's' : '') . ")";
             echo "</h4>";
@@ -111,8 +261,8 @@ class Servico {
                     if ($bombeiro->getCarteiraAmbulancia()) {
                         $badges[] = "🚑";
                     }
-                    $badges[] = $bombeiro->getCidadeOrigem();
-                    $badges[] = $bombeiro->getAntiguidade() . "a";
+
+                    $badges[] = $bombeiro->getPontuacao() . " pts";
                     
                     echo "<li style='margin: 3px 0;'>";
                     echo "<strong>{$bombeiro->getNome()}</strong>";
@@ -123,16 +273,6 @@ class Servico {
             }
             echo "</div>";
         }
-        
-        // Mostrar conflitos se existirem
-        if (!empty($dadosDia['conflitos'])) {
-            echo "<div style='background-color: #fff3cd; border: 1px solid #ffeaa7; padding: 10px; border-radius: 5px; margin-top: 10px;'>";
-            echo "<h4 style='color: #856404; margin: 0 0 5px 0;'>⚠️ CONFLITOS</h4>";
-            foreach ($dadosDia['conflitos'] as $conflito) {
-                echo "<p style='margin: 2px 0; color: #856404;'>• {$conflito}</p>";
-            }
-            echo "</div>";
-        }
 
         echo "</div>";
     }
@@ -140,7 +280,7 @@ class Servico {
     /**
      * Retorna o ícone para cada tipo de turno
      */
-    private function getTurnoIcon($turno) {
+    private function getTurnoIcon(string $turno) {
         switch ($turno) {
             case CbmscConstants::TURNO_DIURNO:
                 return "☀️";
@@ -167,10 +307,6 @@ class Servico {
             default:
                 return "#95a5a6"; // Cinza
         }
-    }
-
-    public function getConflitos() {
-        return $this->conflitos;
     }
     
     /**

@@ -14,6 +14,8 @@ class Bombeiro {
     private $carteiraAmbulancia = false;
     private $cidadeOrigem;
     private $disponibilidades = []; // Array de objetos Disponibilidade
+    private $diasAdquiridos = 0;
+    private $pontuacao = 0;
 
     // Construtor
     public function __construct($nome, $cpf, $carteiraAmbulancia){
@@ -75,6 +77,39 @@ class Bombeiro {
             }
         }
         return null;
+    }
+
+    public function getDiasAdquiridos() {
+        return $this->diasAdquiridos;
+    }
+
+    public function increaseDiasAdquiridos() {
+        $this->diasAdquiridos++;
+    }
+
+    public function decreaseDiasAdquiridos() {
+        $this->diasAdquiridos--;
+    }
+
+    public function getDiasSolicitados() {
+        // Isso garante que mesmo na varredura de % ele sempre seja o primeiro
+        if ($this->nome == 'BC CHEROBIN ') {
+            return 100000000000;
+        }
+
+        return count($this->disponibilidades);
+    }
+
+    public function setPontuacao(int $pontos) {
+        $this->pontuacao = $pontos;
+    }
+
+    public function getPontuacao() {
+        return $this->pontuacao;
+    }
+
+    public function getPercentualDeServicosAceitos() {
+        return round($this->getDiasAdquiridos() * 100 / $this->getDiasSolicitados(), 2);
     }
 
     public function setDisponibilidade(array $disponibilidade) {
