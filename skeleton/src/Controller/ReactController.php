@@ -36,20 +36,17 @@ class ReactController extends AbstractController
         foreach ($bombeiros as $bombeiro) {
             $servico->adicionarBombeiro($bombeiro);
         }
-
         
         $servico->computarPontuacaoBombeiros(true);
 
         echo "<h3>Turnos do dia " . $dia . "</h3>";
         $servico->print_turnos_do_mes($dia);
 
-        
         $turnosParaMes = $servico->distribuirTurnosParaMes();
         $turnosParaDia = $turnosParaMes[$dia];
 
         // Exibir dos turnos aprovados
         echo "<h3>Turnos aprovados</h3>";
-        // $servicosDia = $servico->computarTurnosDoDia($dia);
         
         foreach ($turnosParaDia as $key => $conflito) {
             echo '<strong>' . $key . '</strong><br>';
@@ -66,12 +63,13 @@ class ReactController extends AbstractController
             }
         }
 
-        echo "<h3>% de serviços aceitos por BC</h3>";
+        echo "<h3>Serviços recebidos por BC</h3>";
 
         foreach ($bombeiros as $bombeiro) {
-            echo $bombeiro->getNome() . ' ' . $bombeiro->getPercentualDeServicosAceitos() . '% <br>';
+            echo $bombeiro->getNome() . ' - ' . 
+            $bombeiro->getDiasAdquiridos() . ' de ' . $bombeiro->getDiasSolicitados() . ' dias<br>';
+            
         }
-
         return new Response("");
     }
 } 

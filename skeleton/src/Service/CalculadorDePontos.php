@@ -140,21 +140,6 @@ class CalculadorDePontos {
         //     }
         // }
 
-        // for ($dia = 1; $dia <= 31; $dia++) {
-            // $turnos_do_dia = $this->computarTurnosDoDia($dia);
-            // $turnos = [];
-            
-            // foreach ($this->quotasDe12hPorTurno as $turno => $cotas) {
-            //     $turnos[$turno] = $this->getBombeirosPorPrioridade($turnos_do_dia[$turno], $cotas);
-            // }
-            
-            // $todosOsTurnos[$dia] = $turnos;
-
-            // // Precisamos recomputar a pontuação pois cada vez que um bombeiro é selecionado volta para o "fim da fila"
-            // $this->computarPontuacaoBombeiros(false);
-        // }
-
-
         return $todosOsTurnos;
     }
 

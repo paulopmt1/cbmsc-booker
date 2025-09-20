@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Constants\CbmscConstants;
+use App\Service\CalculadorDeAntiguidade;
+use App\Service\CalculadorDePontos;
 use App\Service\GoogleSheetsService;
 use App\Service\ConversorPlanilhasBombeiro;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +18,8 @@ class SyncController extends AbstractController
     public function handleSync(
         Request $request,
         GoogleSheetsService $googleSheetsService,
-        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro
+        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
+        CalculadorDeAntiguidade $calculadorDeAntiguidade
     ): Response {
         
         if ($request->isMethod('POST'))
@@ -37,6 +40,14 @@ class SyncController extends AbstractController
             {
                 $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A2:AI100");
                 $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+
+
+                $servico = new CalculadorDePontos($calculadorDeAntiguidade);
+                foreach ($bombeiros as $bombeiro) {
+                    $servico->adicionarBombeiro($bombeiro);
+                }
+                $servico->distribuirTurnosParaMes();
+
                 $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
 
                 if ( count($dadosPlanilhaProcessados) == 0 ) {
