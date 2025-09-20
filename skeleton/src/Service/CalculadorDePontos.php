@@ -178,7 +178,7 @@ class CalculadorDePontos {
     /**
      * Aplica bubble sort para deixar bombeiros com menor percentual de serviços primeiro
      */
-    private function ordenaBombeirosPorPercentualDeServicosAceitos(&$bombeiros) {
+    public function ordenaBombeirosPorPercentualDeServicosAceitos(&$bombeiros) {
         $nowData = null;
 
         for ($i = 0; $i < count($bombeiros); $i++) {

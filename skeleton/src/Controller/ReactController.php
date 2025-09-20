@@ -22,6 +22,7 @@ class ReactController extends AbstractController
         GoogleSheetsService $googleSheetsService, 
         ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
         CalculadorDeAntiguidade $calculadorDeAntiguidade,
+        CalculadorDePontos $calculadorDePontos,
         string $planilhaId, 
         int $dia): Response
     {
@@ -65,9 +66,10 @@ class ReactController extends AbstractController
 
         echo "<h3>Serviços recebidos por BC</h3>";
 
-        foreach ($bombeiros as $bombeiro) {
+        foreach ($calculadorDePontos->ordenaBombeirosPorPercentualDeServicosAceitos($bombeiros) as $bombeiro) {
             echo $bombeiro->getNome() . ' - ' . 
-            $bombeiro->getDiasAdquiridos() . ' de ' . $bombeiro->getDiasSolicitados() . ' dias<br>';
+            $bombeiro->getDiasAdquiridos() . ' de ' . $bombeiro->getDiasSolicitados() . ' dias - ' . 
+            round($bombeiro->getPercentualDeServicosAceitos()) . '%<br>';
             
         }
         return new Response("");
