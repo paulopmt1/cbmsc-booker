@@ -5,8 +5,8 @@ namespace App\Controller;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Entity\Servico;
-use App\Service\CalculadorDeAntiguidadeService;
+use App\Service\CalculadorDeAntiguidade;
+use App\Service\CalculadorDePontos;
 use App\Service\ConversorPlanilhasBombeiro;
 use App\Service\GoogleSheetsService;
 class ReactController extends AbstractController
@@ -20,21 +20,19 @@ class ReactController extends AbstractController
     #[Route('/consulta_escala_por_dia/{planilhaId}/{dia}', name: 'consulta_escala_por_dia')]
     public function consultaEscalaPorDia(
         GoogleSheetsService $googleSheetsService, 
-        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro, 
-        CalculadorDeAntiguidadeService $calculadorDeAntiguidade,
+        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
+        CalculadorDeAntiguidade $calculadorDeAntiguidade,
         string $planilhaId, 
         int $dia): Response
     {
         $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($planilhaId, "A2:AI100");
-        $bombeiros = $calculadorDeAntiguidade->definirAntiguidadeBombeiros(
-            $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos)
-        );
+        $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
 
         // Exibe o total de bombeiros
         echo "<h3>Total de bombeiros: " . count($bombeiros) . "</h3>";
 
         // Adicionar os bombeiros ao serviço
-        $servico = new Servico();
+        $servico = new CalculadorDePontos($calculadorDeAntiguidade);
         foreach ($bombeiros as $bombeiro) {
             $servico->adicionarBombeiro($bombeiro);
         }

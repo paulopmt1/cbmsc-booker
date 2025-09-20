@@ -1,12 +1,18 @@
 <?php
 
-namespace App\Entity;
+namespace App\Service;
 
 use App\Constants\CbmscConstants;
 use App\Entity\Bombeiro;
-use PDO;
+use App\Service\CalculadorDeAntiguidade;
 
-class Servico {
+class CalculadorDePontos {
+
+    
+    public function __construct(
+        private readonly CalculadorDeAntiguidade $calculadorDeAntiguidade
+    ) {
+    }
 
     /**
      * Aqui definimos quantos BCs por turno podemos ter
@@ -64,18 +70,25 @@ class Servico {
 
                 // TODO: Melhorar essa tratativa
                 if ( $bombeiro->getNome() == 'BC CHEROBIN ' || $bombeiro->getCpf() === CbmscConstants::CPF_DO_QUERUBIN ) {
-                    $bombeiro->setPontuacao(1000000);
+                    $bombeiro->setPontuacao(CbmscConstants::PONTUACAO_QUERUBIN);
                 }
-    
-                if ($bombeiro->getCidadeOrigem() === CbmscConstants::CIDADE_VIDEIRA){
-                    $bombeiro->setPontuacao($bombeiro->getPontuacao() + 100);
+
+                switch($bombeiro->getCidadeOrigem()) {
+                    case CbmscConstants::CIDADE_VIDEIRA:
+                        $bombeiro->setPontuacao($bombeiro->getPontuacao() + CbmscConstants::PONTUACAO_VIDEIRA);
+                        break;
+                    default:
+                        $bombeiro->setPontuacao($bombeiro->getPontuacao() + CbmscConstants::PONTUACAO_OUTRAS_CIDADES);
+                        break;
                 }
     
                 if ($bombeiro->getCarteiraAmbulancia()) {
-                    $bombeiro->setPontuacao($bombeiro->getPontuacao() + 50);
+                    $bombeiro->setPontuacao($bombeiro->getPontuacao() + CbmscConstants::PONTUACAO_CARTEIRA_AMBULANCIA);
                 }
 
-                $bombeiro->setPontuacao($bombeiro->getPontuacao() + $bombeiro->getAntiguidade());
+                $bombeiro->setPontuacao(
+                    $bombeiro->getPontuacao() + $this->calculadorDeAntiguidade->getAntiguidade($bombeiro)
+                );
             }
 
 

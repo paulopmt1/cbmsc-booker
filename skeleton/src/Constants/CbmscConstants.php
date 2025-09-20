@@ -32,20 +32,12 @@ class CbmscConstants {
     public const TURNO_DIURNO = "DIURNO";
     
     // Pontuações por cidade
-    public const PONTUACAO_VIDEIRA = 20;
-    public const PONTUACAO_FRAIBURGO = 15;
-    public const PONTUACAO_CACADOR = 10;
-    public const PONTUACAO_OUTRAS_CIDADES = 5;
+    public const PONTUACAO_VIDEIRA = 100;
+    public const PONTUACAO_OUTRAS_CIDADES = 0;
     
     // Pontuações por características
-    public const PONTUACAO_CARTEIRA_AMBULANCIA = 10;
-    public const PONTUACAO_QUERUBIN = 1000;
-    
-    // Pontuações por antiguidade
-    public const PONTUACAO_ANTIGUIDADE_MENOS_2_ANOS = 5;
-    public const PONTUACAO_ANTIGUIDADE_2_A_5_ANOS = 10;
-    public const PONTUACAO_ANTIGUIDADE_5_ANOS_OU_MAIS = 15;
-    public const PONTUACAO_ANTIGUIDADE_MENOS_10_ANOS = 20;
+    public const PONTUACAO_CARTEIRA_AMBULANCIA = 50;
+    public const PONTUACAO_QUERUBIN = 1000000;
     
     /**
      * Retorna um array com todas as cidades válidas
