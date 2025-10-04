@@ -17,7 +17,21 @@ const Avatar: React.FC<AvatarProps> = ({ imageSrc, altText = "Avatar", size = 10
                 height: size,
                 borderRadius: "50%",
                 objectFit: "cover",
-                boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)"
+                border: "2px solid #0c1a35",
+                boxShadow: `
+                    0 0 8px rgba(12, 26, 53, 0.4),
+                    0 0 16px rgba(12, 26, 53, 0.3),
+                    0 0 24px rgba(12, 26, 53, 0.2)
+                `,
+                transition: "box-shadow 0.4s ease-in-out"
+            }}
+            onMouseEnter={(e) => {
+                (e.currentTarget.style.boxShadow =
+                    "0 0 12px rgba(12, 26, 53, 0.6), 0 0 20px rgba(12, 26, 53, 0.5)");
+            }}
+            onMouseLeave={(e) => {
+                (e.currentTarget.style.boxShadow =
+                    "0 0 8px rgba(12, 26, 53, 0.4), 0 0 16px rgba(12, 26, 53, 0.3), 0 0 24px rgba(12, 26, 53, 0.2)");
             }}
             />
         </div>
