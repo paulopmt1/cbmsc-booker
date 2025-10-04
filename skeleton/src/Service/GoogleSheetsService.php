@@ -28,7 +28,6 @@ class GoogleSheetsService
         
         return $this->sheetsService;
     }
-    
 
     public function getSheetData(string $sheetId, string $range = 'A:Z'): array
     {
