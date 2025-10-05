@@ -10,7 +10,7 @@
 # Ignorar diretórios gerados
 /public/bundles/
 /var/
-/vendor/
+vendor/
 
 ###< symfony/framework-bundle ###
 

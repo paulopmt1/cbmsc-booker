@@ -7,9 +7,9 @@ use App\Constants\CbmscConstants;
 class Servico {
     // Atributos
     private $contagemTurnos = [ 
-        CbmscConstants::TURNO_DIURNO => 0, 
-        CbmscConstants::TURNO_NOTURNO => 0, 
-        CbmscConstants::TURNO_INTEGRAL => 0 
+        CbmscConstants::TURNO_DIURNO => 0,
+        CbmscConstants::TURNO_NOTURNO => 0,
+        CbmscConstants::TURNO_INTEGRAL => 0
     ];
 
     /**
