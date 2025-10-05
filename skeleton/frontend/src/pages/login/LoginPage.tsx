@@ -22,10 +22,8 @@ const LoginPage: React.FC = () => {
   };
 
   return (
-    <div
-      className="login-container">
-      <div
-      className="login-card">
+    <div className="login-container">
+      <div className="login-card">
         <Avatar imageSrc={bombeiro} altText="bombeiro" size={120} />
         <h2>Login</h2>
         <form onSubmit={handleSubmit} className="login-form">
