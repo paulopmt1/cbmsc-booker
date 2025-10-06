@@ -27,16 +27,15 @@ services:
   # MySQL service
   db:
     container_name: cbmsc_booker_db
-    image: mysql:8.0
+    image: postgres:15
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=mydatabase
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypassword
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: 12345
+      POSTGRES_DB: cbmsc_booker_db
     volumes:
-      - mysql_data:/var/lib/mysql
+      - pgdata:/var/lib/mysql
 
   # phpMyAdmin service
   phpmyadmin:
@@ -52,4 +51,4 @@ services:
       - db
 
 volumes:
-  mysql_data: 
+  pgdata: 
