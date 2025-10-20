@@ -3,6 +3,7 @@
 namespace FiremanBundle\Entity;
 
 use App\Constants\Cities;
+use App\Constants\Seniority;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use UserBundle\Entity\CreatedAndUpdatedEntityTrait;
@@ -28,8 +29,11 @@ class FiremanEntity implements JsonSerializable
     #[ORM\Column(name: 'carteira_de_ambulancia', type: 'boolean')]
     private bool $ambulanceLicense = false;
 
-    #[ORM\Column(name: '', type: '', length: 1)]
+    #[ORM\Column(name: 'cidade_de_origem', type: 'string', length: 1)]
     private string $originCity = Cities::class;
+
+    #[ORM\Column(name: '', type: '', length: 1)]
+    private string $seniority = Seniority::class;
 
     // aqui vai a coluna de disponibilidades. Acredito que ela será uma entidade que se irá se relacionar com esta
 
