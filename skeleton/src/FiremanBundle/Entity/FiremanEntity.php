@@ -2,6 +2,7 @@
 
 namespace FiremanBundle\Entity;
 
+use App\Constants\Cities;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use UserBundle\Entity\CreatedAndUpdatedEntityTrait;
@@ -24,7 +25,23 @@ class FiremanEntity implements JsonSerializable
     #[ORM\Column(name: 'cpf', type: 'string', length: 11)] // VALIDAÇÃO
     private string $cpf;
 
-    #[ORM\Column(name: 'antiguidade', type: 'string', length: '')]
+    #[ORM\Column(name: 'carteira_de_ambulancia', type: 'boolean')]
+    private bool $ambulanceLicense = false;
+
+    #[ORM\Column(name: '', type: '', length: 1)]
+    private string $originCity = Cities::class;
+
+    // aqui vai a coluna de disponibilidades. Acredito que ela será uma entidade que se irá se relacionar com esta
+
+    public function getName(): string {
+        return $this->name;
+    }
+
+    public function setName(string $name): FiremanEntity {
+        $this->name = $name;
+
+        return $this;
+    }
 
     public function jsonSerialize(): array {
 
