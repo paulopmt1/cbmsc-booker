@@ -4,6 +4,7 @@ namespace FiremanBundle\Entity;
 
 use App\Constants\Cities;
 use App\Constants\Seniority;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
 use UserBundle\Entity\CreatedAndUpdatedEntityTrait;
@@ -20,7 +21,7 @@ class FiremanEntity implements JsonSerializable
     #[ORM\GeneratedValue(strategy: 'IDENTITY')]
     private int $id;
 
-    #[ORM\Column(name: 'nome', type: 'string', lenght: 100)]
+    #[ORM\Column(name: 'nome', type: 'string', length: 100)]
     private string $name;
 
     #[ORM\Column(name: 'cpf', type: 'string', length: 11)] // VALIDAÇÃO
@@ -32,10 +33,19 @@ class FiremanEntity implements JsonSerializable
     #[ORM\Column(name: 'cidade_de_origem', type: 'string', length: 1)]
     private string $originCity = Cities::class;
 
-    #[ORM\Column(name: '', type: '', length: 1)]
+    #[ORM\Column(name: 'antiguidade', type: 'string', length: 1)]
     private string $seniority = Seniority::class;
 
-    // aqui vai a coluna de disponibilidades. Acredito que ela será uma entidade que se irá se relacionar com esta
+    #[ORM\JoinTable(name: '', )]
+    #[ORM\JoinColumn(name: '', referencedColumnName: '')]
+    #[ORM\InverseJoinColumn(name: '', referencedColumnName: '')]
+    #[ORM\ManyToMany(targetEntity: AvailabilityEntity::class)]
+    private Collection $availability;
+
+    public function __construct()
+    {
+        $this->availability = new ArrayCollection();
+    }
 
     public function getName(): string {
         return $this->name;
@@ -47,10 +57,20 @@ class FiremanEntity implements JsonSerializable
         return $this;
     }
 
+    /*
+     *  @return Collection<int, Availability>
+     */
+    public function getAvailability(): Collection {}
+
     public function jsonSerialize(): array {
 
         return [
-
+            'id' => $this->id,
+            'name' => $this->name,
+            'cpf' => $this->cpf,
+            'originCity' => $this->originCity,
+            'seniority' => $this->seniority,
+            'availability' => $this->seniority->toArray(),
         ];
     }
 }
