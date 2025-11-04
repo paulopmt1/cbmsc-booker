@@ -2,19 +2,20 @@
 
 namespace FiremanBundle\Entity;
 
+use App\AvailabilityBundle\Entity\AvailabilityEntity;
 use App\Constants\Cities;
 use App\Constants\Seniority;
+use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
-use UserBundle\Entity\CreatedAndUpdatedEntityTrait;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'bombeiro', schema: 'db_cbmsc')]
 #[ORM\Entity(repositoryClass: \FiremanBundle\Repository\FiremanRepository::class)]
 #[ORM\HasLifecycleCallbacks]
 class FiremanEntity implements JsonSerializable
 {
-    use CreatedAndUpdatedEntityTrait;
 
     #[ORM\Id]
     #[ORM\Column(name: 'id', type: 'integer')]
@@ -31,20 +32,26 @@ class FiremanEntity implements JsonSerializable
     private bool $ambulanceLicense = false;
 
     #[ORM\Column(name: 'cidade_de_origem', type: 'string', length: 1)]
-    private string $originCity = Cities::class;
+    #[Assert\Choice(choices: ['Fraiburgo', 'Videira', 'Caçador'])]
+    private string $originCity;
 
     #[ORM\Column(name: 'antiguidade', type: 'string', length: 1)]
     private string $seniority = Seniority::class;
 
-    #[ORM\JoinTable(name: '', )]
+    #[ORM\JoinTable(name: '')]
     #[ORM\JoinColumn(name: '', referencedColumnName: '')]
     #[ORM\InverseJoinColumn(name: '', referencedColumnName: '')]
     #[ORM\ManyToMany(targetEntity: AvailabilityEntity::class)]
-    private Collection $availability;
+    private ArrayCollection $availability;
 
     public function __construct()
     {
         $this->availability = new ArrayCollection();
+    }
+
+    public function getId(): int
+    {
+        return $this->id;
     }
 
     public function getName(): string {

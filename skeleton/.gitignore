@@ -20,3 +20,15 @@
 npm-debug.log
 yarn-error.log
 ###< symfony/webpack-encore-bundle ###
+
+
+../.DS_Store
+../.idea/
+migrations/Version20251103024303.php
+src/AvailabilityBundle/Dto/
+../vendor/
+
+composer.json
+composer.lock
+config/bundles.php
+symfony.lock
