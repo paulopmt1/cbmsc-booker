@@ -21,11 +21,10 @@ class AvailabilityEntity implements \JsonSerializable
     #[ORM\Column(name: 'turno', type: 'string', length: 50)] // turno
     #[Assert\NotBlank(message: 'O turno é obrigatório')]
     #[Assert\Choice(choices: ['noturno', 'integral', 'diurno'], message: 'O turno deve ser noturno, integral ou diurno')]
-    private string $shift; // Terá um Emum ou classe para escolher turnos fixos aqui?
+    private string $shift;
 
     public function __construct()
     {
-
     }
 
     public function getId(): ?int
@@ -66,6 +65,10 @@ class AvailabilityEntity implements \JsonSerializable
 
     public function jsonSerialize(): array
     {
-        return [  ];
+        return [
+            'id' => $this->id,
+            'date' => $this->date,
+            'shift' => $this->shift,
+        ];
     }
 }
