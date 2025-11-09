@@ -14,4 +14,6 @@ class CreateFiremanDto
     #[Assert\NotBlank(message: 'O CPF é obrigatório')]
     #[Assert\Type(type: 'string', message: 'O CPF deve ser válido')]
     public string $cpf; // Melhor logo na próxima vez que mexer aqui, escrever a validação para o CPF...
+
+
 }

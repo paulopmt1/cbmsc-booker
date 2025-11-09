@@ -1,26 +1,26 @@
 <?php
 
-namespace FiremanBundle\Entity;
+namespace App\FiremanBundle\Entity;
 
 use App\AvailabilityBundle\Entity\AvailabilityEntity;
-use App\Constants\Cities;
 use App\Constants\Seniority;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use JsonSerializable;
+use Symfony\Component\Security\Core\User\UserInterface;
 use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'bombeiro', schema: 'db_cbmsc')]
 #[ORM\Entity(repositoryClass: \FiremanBundle\Repository\FiremanRepository::class)]
 #[ORM\HasLifecycleCallbacks]
-class FiremanEntity implements JsonSerializable
+class FiremanEntity implements UserInterface, JsonSerializable
 {
 
     #[ORM\Id]
-    #[ORM\Column(name: 'id', type: 'integer')]
-    #[ORM\GeneratedValue(strategy: 'IDENTITY')]
-    private int $id;
+    #[ORM\Column(name: 'uid', type: 'integer')]
+    #[ORM\GeneratedValue(strategy: 'AUTO')]
+    private int $uid;
 
     #[ORM\Column(name: 'nome', type: 'string', length: 100)]
     private string $name;
@@ -38,6 +38,13 @@ class FiremanEntity implements JsonSerializable
     #[ORM\Column(name: 'antiguidade', type: 'string', length: 1)]
     private string $seniority = Seniority::class;
 
+    #[ORM\Column(name: 'mail', type: 'string', length: 64, options: ['default' => ''])]
+    #[Assert\NotBlank]
+    private string $email;
+
+    #[ORM\Column(name: 'pass', type: 'string', length: 32, options: ['default' => ''])]
+    private string $password;
+
     #[ORM\JoinTable(name: '')]
     #[ORM\JoinColumn(name: '', referencedColumnName: '')]
     #[ORM\InverseJoinColumn(name: '', referencedColumnName: '')]
@@ -49,9 +56,16 @@ class FiremanEntity implements JsonSerializable
         $this->availability = new ArrayCollection();
     }
 
-    public function getId(): int
+    public function getUid(): int
     {
-        return $this->id;
+        return $this->uid;
+    }
+
+    public function setUid(int $uid): FiremanEntity
+    {
+        $this->uid = $uid;
+
+        return $this;
     }
 
     public function getName(): string {
@@ -64,6 +78,21 @@ class FiremanEntity implements JsonSerializable
         return $this;
     }
 
+    public function getRoles(): array
+    {
+        // TODO: Implement getRoles() method.
+    }
+
+    public function eraseCredentials(): void
+    {
+        // TODO: Implement eraseCredentials() method.
+    }
+
+    public function getUserIdentifier(): string
+    {
+        // TODO: Implement getUserIdentifier() method.
+    }
+
     /*
      *  @return Collection<int, Availability>
      */
@@ -72,7 +101,7 @@ class FiremanEntity implements JsonSerializable
     public function jsonSerialize(): array {
 
         return [
-            'id' => $this->id,
+            'id' => $this->uid,
             'name' => $this->name,
             'cpf' => $this->cpf,
             'originCity' => $this->originCity,
