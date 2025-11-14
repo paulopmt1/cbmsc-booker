@@ -3,8 +3,9 @@
 namespace App\AvailabilityBundle\Entity;
 
 
+use App\AvailabilityBundle\Repository\AvailabilityRepository;
+use AppBundle\Exception\DomainException;
 use Doctrine\ORM\Mapping as ORM;
-use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Table(name: 'disponibilidade', schema: 'db_cbmsc')]
 #[ORM\Entity(repositoryClass: AvailabilityRepository::class)]
@@ -18,10 +19,12 @@ class AvailabilityEntity implements \JsonSerializable
     #[ORM\Column(name: 'data', type: 'datetime')]
     private \DateTimeImmutable $date;
 
-    #[ORM\Column(name: 'turno', type: 'string', length: 50)] // turno
-    #[Assert\NotBlank(message: 'O turno é obrigatório')]
-    #[Assert\Choice(choices: ['noturno', 'integral', 'diurno'], message: 'O turno deve ser noturno, integral ou diurno')]
+    #[ORM\Column(name: 'turno', type: 'string', length: 50)]
     private string $shift;
+
+    public const CITIES = ['videira', 'fraiburgo', 'cacador']; // a cidade do bombeiro deve ser setada na criação do usuário
+
+    public const SHIFTS = ['noturno', 'integral', 'diurno'];
 
     public function __construct()
     {
@@ -56,8 +59,12 @@ class AvailabilityEntity implements \JsonSerializable
         return $this;
     }
 
-    public function setShift(ShiftType $shift): AvailabilityEntity
+    public function setShift(string $shift): AvailabilityEntity
     {
+        if (!\in_array($shift, self::SHIFTS)) {
+            throw new DomainException('Turno inválido');
+        }
+
         $this->shift = $shift;
 
         return $this;
