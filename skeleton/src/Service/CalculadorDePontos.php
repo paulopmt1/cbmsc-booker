@@ -69,7 +69,7 @@ class CalculadorDePontos {
                 $bombeiro->setPontuacao(0);
 
                 // TODO: Melhorar essa tratativa
-                if ( $bombeiro->getNome() == 'BC CHEROBIN ' || $bombeiro->getCpf() === CbmscConstants::CPF_DO_QUERUBIN ) {
+                if ( $bombeiro->getNome() == 'BC CHEROBIN ' || intval($bombeiro->getCpf()) === CbmscConstants::CPF_DO_QUERUBIN ) {
                     $bombeiro->setPontuacao(CbmscConstants::PONTUACAO_QUERUBIN);
                 }
 
@@ -112,7 +112,7 @@ class CalculadorDePontos {
             $turnos = [];
             
             foreach ($this->quotasDe12hPorTurno as $turno => $cotas) {
-                $turnos[$turno] = $this->getBombeirosPorPrioridade($turnos_do_dia[$turno], $cotas);
+                $turnos[$turno] = $this->getBombeirosPorPrioridade($turnos_do_dia[$turno], $cotas, $dia);
             }
             
             $todosOsTurnos[$dia] = $turnos;
@@ -143,10 +143,10 @@ class CalculadorDePontos {
         return $todosOsTurnos;
     }
 
-    private function getBombeirosPorPrioridade(array $bombeiros, int $numberoBombeiros) {
+    private function getBombeirosPorPrioridade(array $bombeiros, int $numberoBombeiros, $dia = null) {
         $bombeirosPorPercentual = $this->ordenaBombeirosPorPercentualDeServicosAceitos($bombeiros);
 
-        $bombeirosOrdenados = $this->ordenaBombeirosPorPontuacao($bombeirosPorPercentual);
+        $bombeirosOrdenados = $this->ordenaBombeirosPorPontuacao($bombeirosPorPercentual, $dia);
         $bombeirosSelecionados = array_splice($bombeirosOrdenados, 0, $numberoBombeiros);
 
         foreach($bombeirosSelecionados as &$bombeiro) {
@@ -159,12 +159,32 @@ class CalculadorDePontos {
     /**
      * Aplica bubble sort para deixar bombeiros com a maior pontuação primeiro
      */
-    private function ordenaBombeirosPorPontuacao(&$bombeiros) {
+    private function ordenaBombeirosPorPontuacao(&$bombeiros, $dia = null) {
         $nowData = null;
 
+        // $this->computarPontuacaoBombeiros(true);
+
+        if ($dia === 5) {
+            $a = 1;
+        }
+
         for ($i = 0; $i < count($bombeiros); $i++) {
+            
+            
+            if ($bombeiros[$i]->getCarteiraAmbulancia() && $this->verificarSePrecisaMotoristaAdicional($dia)) {
+                // $bombeiros[$i]->setPontuacao($bombeiros[$i]->getPontuacao() + CbmscConstants::PONTUACAO_CARTEIRA_AMBULANCIA);
+            }
+            
             for ($j = 0; $j < count($bombeiros); $j++) {
-                if ($bombeiros[$i]->getPontuacao() > $bombeiros[$j]->getPontuacao()) {
+                $pontuacaoTemporariaDiaI = $bombeiros[$i]->getCarteiraAmbulancia() && $this->verificarSePrecisaMotoristaAdicional($dia) ? 100000 : 0;
+                $pontuacaoTemporariaDiaJ = $bombeiros[$j]->getCarteiraAmbulancia() && $this->verificarSePrecisaMotoristaAdicional($dia) ? 100000 : 0;
+
+                // if ($pontuacaoTemporariaDia > 0) {
+                //     // echo "nome: " . $bombeiros[$i]->getNome() . " - pontuacao: " . ($bombeiros[$i]->getPontuacao() + $pontuacaoTemporariaDia) . " - bombeiros[$j]->getPontuacao(): " . $bombeiros[$j]->getPontuacao() . "<br>";
+                // }
+
+                // echo "nome: " . $bombeiros[$i]->getNome() . " - pontuacao: " . ($bombeiros[$i]->getPontuacao() + $pontuacaoTemporariaDia) . " - bombeiros[$j]->getPontuacao(): " . $bombeiros[$j]->getPontuacao() . "<br>";
+                if ($bombeiros[$i]->getPontuacao() + $pontuacaoTemporariaDiaI > $bombeiros[$j]->getPontuacao() + $pontuacaoTemporariaDiaJ) {
                     $nowData = $bombeiros[$i];
                     $bombeiros[$i] = $bombeiros[$j];
                     $bombeiros[$j] = $nowData;
@@ -173,6 +193,14 @@ class CalculadorDePontos {
         }
 
         return $bombeiros;
+    }
+
+    private function verificarSePrecisaMotoristaAdicional(int $dia) {
+        $diasQuePrecisaMotoristaAdicional = [
+            1,5,8,9,13,16,17,20,21,25,29
+        ];
+
+        return in_array($dia, $diasQuePrecisaMotoristaAdicional);
     }
 
     /**

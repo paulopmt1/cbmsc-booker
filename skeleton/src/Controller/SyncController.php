@@ -46,9 +46,14 @@ class SyncController extends AbstractController
                 foreach ($bombeiros as $bombeiro) {
                     $servico->adicionarBombeiro($bombeiro);
                 }
-                $servico->distribuirTurnosParaMes();
+                $todosOsTurnos = $servico->distribuirTurnosParaMes();
 
+                /**
+                 * A linha abaixo apenas converte respostas para PME preliminar. A chamada seguinte gera a sugestão do algoritmo de distribuição de turnos.
+                 * TODO: Receber qual algoritmo queremos rodar no frontend.
+                 */
                 $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
+                // $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterTurnosDisponibilidadeParaPlanilha($todosOsTurnos, $bombeiros);
 
                 if ( count($dadosPlanilhaProcessados) == 0 ) {
                     $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');

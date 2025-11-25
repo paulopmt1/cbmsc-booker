@@ -82,6 +82,44 @@ class ConversorPlanilhasBombeiro
         return $planilha;
     }
 
+    public function converterTurnosDisponibilidadeParaPlanilha(array $todosOsTurnos, array $bombeiros): array
+    {
+        $planilha = [];
+        
+        /**
+         * @var Bombeiro $bombeiro
+         */
+        foreach ($bombeiros as $bombeiro) {
+            $bombeiroArray = [];
+            $bombeiroArray[CbmscConstants::PLANILHA_PME_COLUNA_NOME] = $bombeiro->getNome();
+            $bombeiroArray[CbmscConstants::PLANILHA_PME_COLUNA_CPF] = $bombeiro->getCpf();
+            $bombeiroArray[CbmscConstants::PLANILHA_PME_COLUNA_CARTEIRA_DE_AMBULANCIA] = $bombeiro->getCarteiraAmbulancia();
+
+            for ($dia = 1; $dia <= 31; $dia++) {
+                // -1 porque começamos com o indice do dia 1
+                $correcaoIndice = -1;
+                $indiceTurno = CbmscConstants::PLANILHA_PME_COLUNA_DIA_1 + $dia + $correcaoIndice;
+
+                $bombeiroSelecionadoEmAlgumTurno = false;
+                foreach ($todosOsTurnos[$dia] as $turno => $bombeiros) {
+                    if (in_array($bombeiro, $bombeiros)) {
+                        $bombeiroSelecionadoEmAlgumTurno = true;
+                        break;
+                    }
+                }
+                
+                $bombeiroArray[$indiceTurno] = 
+                    $bombeiroSelecionadoEmAlgumTurno ? 
+                        $this->converterTurnoParaLetra($bombeiro->getDisponibilidade($dia)->getTurno()) : 
+                        '';
+            }
+
+            $planilha[] = $bombeiroArray;
+        }
+        
+        return $planilha;
+    }
+
     private function converterTurnoParaLetra(string $turno): string
     {
         return match ($turno) {
