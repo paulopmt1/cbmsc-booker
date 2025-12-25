@@ -3,6 +3,8 @@
 namespace App\Controller;
 
 use App\Constants\CbmscConstants;
+use App\Service\CalculadorDeAntiguidade;
+use App\Service\CalculadorDePontos;
 use App\Service\GoogleSheetsService;
 use App\Service\ConversorPlanilhasBombeiro;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
@@ -16,7 +18,8 @@ class SyncController extends AbstractController
     public function handleSync(
         Request $request,
         GoogleSheetsService $googleSheetsService,
-        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro
+        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
+        CalculadorDeAntiguidade $calculadorDeAntiguidade
     ): Response {
         
         if ($request->isMethod('POST'))
@@ -35,9 +38,22 @@ class SyncController extends AbstractController
 
             try 
             {
-                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A2:AI100");
+                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
                 $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+
+
+                $servico = new CalculadorDePontos($calculadorDeAntiguidade);
+                foreach ($bombeiros as $bombeiro) {
+                    $servico->adicionarBombeiro($bombeiro);
+                }
+                $todosOsTurnos = $servico->distribuirTurnosParaMes();
+
+                /**
+                 * A linha abaixo apenas converte respostas para PME preliminar. A chamada seguinte gera a sugestão do algoritmo de distribuição de turnos.
+                 * TODO: Receber qual algoritmo queremos rodar no frontend.
+                 */
                 $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
+                // $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterTurnosDisponibilidadeParaPlanilha($todosOsTurnos, $bombeiros);
 
                 if ( count($dadosPlanilhaProcessados) == 0 ) {
                     $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');
@@ -48,9 +64,9 @@ class SyncController extends AbstractController
                 }
 
                 $numberOfLines = count($bombeiros);
-                $spreadsheetRange = CbmscConstants::PLANILHA_HORARIOS_COLUNA_NOMES . CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES . 
-                    ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_31 . 
-                    (CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES + $numberOfLines);
+                $spreadsheetRange = CbmscConstants::PLANILHA_PME_COLUNA_NOMES . CbmscConstants::PLANILHA_PME_PRIMEIRA_LINHA_NOMES . 
+                    ":" . CbmscConstants::PLANILHA_PME_COLUNA_DIA_31 . 
+                    (CbmscConstants::PLANILHA_PME_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
                 $googleSheetsService->updateData($sheetIdB, $spreadsheetRange, $dadosPlanilhaProcessados);
 

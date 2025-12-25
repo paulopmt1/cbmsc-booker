@@ -16,11 +16,13 @@ class CbmscConstants {
     public const PLANILHA_HORARIOS_COLUNA_CPF = 2; // C
     public const PLANILHA_HORARIOS_COLUNA_CARTEIRA_DE_AMBULANCIA = 3; // D
     public const PLANILHA_HORARIOS_COLUNA_DIA_1 = 4; // E
-    public const PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES = 13;
-    public const PLANILHA_HORARIOS_COLUNA_NOMES = 'A';
-    public const PLANILHA_HORARIOS_COLUNA_DIA_31 = 'AH';
 
     // Colunas da planilha PME
+    public const PLANILHA_PME_COLUNA_NOMES = 'A';
+    public const PLANILHA_PME_COLUNA_DIA_31 = 'AH';
+    public const PLANILHA_PME_PRIMEIRA_LINHA_NOMES = 13;
+    public const PLANILHA_HORARIOS_COLUNA_DATA_INITIAL = 'A2'; // A2 (primeira linha de dados)
+    public const PLANILHA_HORARIOS_COLUNA_DATA_FINAL = 'AI102'; // Suporta até 100 respostas
     public const PLANILHA_PME_COLUNA_NOME = 0; // A
     public const PLANILHA_PME_COLUNA_CPF = 1; // B
     public const PLANILHA_PME_COLUNA_CARTEIRA_DE_AMBULANCIA = 2; // C
@@ -32,20 +34,12 @@ class CbmscConstants {
     public const TURNO_DIURNO = "DIURNO";
     
     // Pontuações por cidade
-    public const PONTUACAO_VIDEIRA = 20;
-    public const PONTUACAO_FRAIBURGO = 15;
-    public const PONTUACAO_CACADOR = 10;
-    public const PONTUACAO_OUTRAS_CIDADES = 5;
+    public const PONTUACAO_VIDEIRA = 100;
+    public const PONTUACAO_OUTRAS_CIDADES = 0;
     
     // Pontuações por características
-    public const PONTUACAO_CARTEIRA_AMBULANCIA = 10;
-    public const PONTUACAO_QUERUBIN = 1000;
-    
-    // Pontuações por antiguidade
-    public const PONTUACAO_ANTIGUIDADE_MENOS_2_ANOS = 5;
-    public const PONTUACAO_ANTIGUIDADE_2_A_5_ANOS = 10;
-    public const PONTUACAO_ANTIGUIDADE_5_ANOS_OU_MAIS = 15;
-    public const PONTUACAO_ANTIGUIDADE_MENOS_10_ANOS = 20;
+    public const PONTUACAO_CARTEIRA_AMBULANCIA = 50;
+    public const PONTUACAO_QUERUBIN = 1000000;
     
     /**
      * Retorna um array com todas as cidades válidas
