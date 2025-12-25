@@ -8,11 +8,6 @@ use App\Entity\Disponibilidade;
 
 class ConversorPlanilhasBombeiro
 {
-    public function __construct(
-        private readonly GoogleSheetsService $googleSheetsService
-    ) {
-    }
-
 
     public function convertePlanilhaParaObjetosDeBombeiros(array $result): array
     {

@@ -38,7 +38,7 @@ class SyncController extends AbstractController
 
             try 
             {
-                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, "A2:AI100");
+                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
                 $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
 
 
@@ -64,9 +64,9 @@ class SyncController extends AbstractController
                 }
 
                 $numberOfLines = count($bombeiros);
-                $spreadsheetRange = CbmscConstants::PLANILHA_HORARIOS_COLUNA_NOMES . CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES . 
-                    ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DIA_31 . 
-                    (CbmscConstants::PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES + $numberOfLines);
+                $spreadsheetRange = CbmscConstants::PLANILHA_PME_COLUNA_NOMES . CbmscConstants::PLANILHA_PME_PRIMEIRA_LINHA_NOMES . 
+                    ":" . CbmscConstants::PLANILHA_PME_COLUNA_DIA_31 . 
+                    (CbmscConstants::PLANILHA_PME_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
                 $googleSheetsService->updateData($sheetIdB, $spreadsheetRange, $dadosPlanilhaProcessados);
 

@@ -16,11 +16,13 @@ class CbmscConstants {
     public const PLANILHA_HORARIOS_COLUNA_CPF = 2; // C
     public const PLANILHA_HORARIOS_COLUNA_CARTEIRA_DE_AMBULANCIA = 3; // D
     public const PLANILHA_HORARIOS_COLUNA_DIA_1 = 4; // E
-    public const PLANILHA_HORARIOS_PRIMEIRA_LINHA_NOMES = 13;
-    public const PLANILHA_HORARIOS_COLUNA_NOMES = 'A';
-    public const PLANILHA_HORARIOS_COLUNA_DIA_31 = 'AH';
 
     // Colunas da planilha PME
+    public const PLANILHA_PME_COLUNA_NOMES = 'A';
+    public const PLANILHA_PME_COLUNA_DIA_31 = 'AH';
+    public const PLANILHA_PME_PRIMEIRA_LINHA_NOMES = 13;
+    public const PLANILHA_HORARIOS_COLUNA_DATA_INITIAL = 'A2'; // A2 (primeira linha de dados)
+    public const PLANILHA_HORARIOS_COLUNA_DATA_FINAL = 'AI102'; // Suporta até 100 respostas
     public const PLANILHA_PME_COLUNA_NOME = 0; // A
     public const PLANILHA_PME_COLUNA_CPF = 1; // B
     public const PLANILHA_PME_COLUNA_CARTEIRA_DE_AMBULANCIA = 2; // C
