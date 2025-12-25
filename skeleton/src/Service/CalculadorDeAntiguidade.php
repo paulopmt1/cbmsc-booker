@@ -7,7 +7,8 @@ use App\Entity\Bombeiro;
 class CalculadorDeAntiguidade
 {
     private function readAntiguidadeFile() {
-        if (($handle = fopen('/tmp/antiguidade.csv', 'r')) === false) {
+        // TODO: Mudar para usar banco de dados ou um arquivo melhor.
+        if (($handle = fopen(__DIR__ . '/../../config/antiguidade.csv', 'r')) === false) {
             throw new \Exception('Não foi possível abrir o arquivo de antiguidade!');
         }
         
