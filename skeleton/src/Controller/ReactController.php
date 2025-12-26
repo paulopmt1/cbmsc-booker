@@ -30,6 +30,8 @@ class ReactController extends AbstractController
         int $dia): Response
     {
         $withCache = $request->query->get('withCache', false);
+        $diasSelecionados = $request->query->get('diasSelecionados', null);
+        $cotasPorDiaFloat = floatval($request->query->get('cotasPorDia', 2.5));
 
         if ($withCache && file_exists('/tmp/dadosPlanilhaBrutos.json')) {
             $dadosPlanilhaBrutos = json_decode(file_get_contents('/tmp/dadosPlanilhaBrutos.json'), true);
@@ -74,8 +76,12 @@ class ReactController extends AbstractController
 
         echo "<h3>Turnos do dia " . $dia . "</h3>";
         $servico->print_turnos_do_mes($dia);
+        $horasPorDia = $cotasPorDiaFloat * 24;
 
-        $turnosParaMes = $servico->distribuirTurnosParaMes();
+        // $diasSelecionados virá como numerico separado por virgula
+        $diasSelecionadosArray = explode(',', $diasSelecionados);
+
+        $turnosParaMes = $servico->distribuirTurnosParaMes($horasPorDia, $diasSelecionadosArray);
         $turnosParaDia = $turnosParaMes[$dia];
 
         // Exibir dos turnos aprovados
