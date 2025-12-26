@@ -33,6 +33,12 @@ class CalculadorDePontos {
     private $bombeiros = [];
 
     /**
+     * Array de dias que precisam de motorista adicional
+     * @var array|null
+     */
+    private ?array $diasQuePrecisaMotoristaAdicional = null;
+
+    /**
      * Computa os turnos dos bombeiros o mês inteiro e adiciona ao array de turnos
      * assim sabemos quantos bombeiros temos para cada turno
      */
@@ -146,17 +152,19 @@ class CalculadorDePontos {
     /**
      * Distribui todos os turnos para cada dia do mês baseado nas regras de prioridade
      * 
-     * @param int $horasPorDia Quantidade de horas por dia que desejamos distribuir
+     * @param int|float $horasPorDia Quantidade de horas por dia que desejamos distribuir
+     * @param array|null $diasSelecionados Array de dias do mês (1-31) para processar, ou null para processar todos os dias
      */
-    public function distribuirTurnosParaMes($horasPorDia = 60){
+    public function distribuirTurnosParaMes(int $horasPorDia = 60, ?array $diasSelecionados = null){
         $todosOsTurnos = [];
+
+        // Store selected days for motorista adicional verification
+        $this->diasQuePrecisaMotoristaAdicional = $diasSelecionados;
 
         // Para cada dia do mês, distribui serviços
         for ($dia = 1; $dia <= 31; $dia++) {
             $this->distribuirTurnosParaDia($dia, $horasPorDia, $todosOsTurnos);
         }
-
-        // $this->distribuirTurnosParaDia(3, $horasPorDia, $todosOsTurnos);
 
         /**
          * Revisa cada dia para ter certeza de que a distribuição ficou justa.
@@ -269,11 +277,12 @@ class CalculadorDePontos {
     }
 
     private function verificarSePrecisaMotoristaAdicional(int $dia) {
-        $diasQuePrecisaMotoristaAdicional = [
-            1,5,8,9,13,16,17,20,21,25,29
-        ];
+        // Use the selected days from distribuirTurnosParaMes, or return false if not set
+        if ($this->diasQuePrecisaMotoristaAdicional === null) {
+            return false;
+        }
 
-        return in_array($dia, $diasQuePrecisaMotoristaAdicional);
+        return in_array($dia, $this->diasQuePrecisaMotoristaAdicional);
     }
 
     /**
