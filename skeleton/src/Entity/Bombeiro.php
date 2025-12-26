@@ -70,7 +70,12 @@ class Bombeiro {
         $this->cidadeOrigem = $cidadeOrigem;
     }
 
-    public function getDisponibilidade($dia) {
+    /**
+     * Obtem a disponibilidade para um dia específico
+     * @param int $dia
+     * @return App\Entity\Disponibilidade|null
+     */
+    public function getDisponibilidade(int $dia): ?Disponibilidade {
         foreach ($this->disponibilidades as $disponibilidade) {
             if ($disponibilidade->getDia() == $dia) {
                 return $disponibilidade;
@@ -143,6 +148,15 @@ class Bombeiro {
     public function temDisponibilidade($dia, $turno) {
         foreach ($this->disponibilidades as $disponibilidade) {
             if ($disponibilidade->getDia() == $dia && $disponibilidade->getTurno() == $turno) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function temDisponibilidadeParaDia(int $dia) {
+        foreach ($this->disponibilidades as $disponibilidade) {
+            if ($disponibilidade->getDia() == $dia) {
                 return true;
             }
         }
