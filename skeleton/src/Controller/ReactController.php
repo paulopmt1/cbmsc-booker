@@ -2,7 +2,9 @@
 
 namespace App\Controller;
 
+use App\Constants\CbmscConstants;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
 use App\Service\CalculadorDeAntiguidade;
@@ -23,10 +25,21 @@ class ReactController extends AbstractController
         ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
         CalculadorDeAntiguidade $calculadorDeAntiguidade,
         CalculadorDePontos $calculadorDePontos,
+        Request $request,
         string $planilhaId, 
         int $dia): Response
     {
-        $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($planilhaId, "A2:AI100");
+        $withCache = $request->query->get('withCache', false);
+
+        if ($withCache && file_exists('/tmp/dadosPlanilhaBrutos.json')) {
+            $dadosPlanilhaBrutos = json_decode(file_get_contents('/tmp/dadosPlanilhaBrutos.json'), true);
+        } else {
+            $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($planilhaId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
+            if ($withCache) {
+                file_put_contents('/tmp/dadosPlanilhaBrutos.json', json_encode($dadosPlanilhaBrutos));
+            }
+        }
+
         $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
 
         // Exibe o total de bombeiros
