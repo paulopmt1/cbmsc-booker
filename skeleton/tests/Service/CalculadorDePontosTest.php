@@ -519,5 +519,89 @@ class CalculadorDePontosTest extends TestCase
         $this->assertEquals(0, $meiasCotasNoturno, 'Deve distribuir 0 meias cotas para turno noturno');
         $this->assertEquals(5, $meiasCotasDiurno + $meiasCotasNoturno, 'Total deve ser 5 meias cotas');
     }
+
+    /**
+     * Teste: Limite de cotas integrais
+     * Com 2.5 cotas por dia (60 horas), não podemos ter mais de 2 cotas integrais.
+     * Limite calculado: floor(60 / (2 * 12)) = floor(60 / 24) = 2
+     */
+    public function testLimiteCotasIntegrais(): void
+    {
+        // Cria 5 bombeiros disponíveis apenas para turno integral
+        // Mesmo tendo 5 disponíveis, com 60 horas só podemos ter 2 integrais (48 horas)
+        for ($i = 1; $i <= 5; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Integral $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+
+        // 60 horas = 2.5 cotas, limite de integrais = floor(60/24) = 2
+        $resultado = $this->calculador->distribuirTurnosParaMes(60);
+
+        // Verifica estrutura
+        $this->assertIsArray($resultado);
+        $this->assertArrayHasKey(1, $resultado);
+
+        // Verifica que o limite de 2 cotas integrais é respeitado
+        $cotasIntegrais = isset($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            ? count($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            : 0;
+
+        $this->assertEquals(2, $cotasIntegrais, 'Com 60 horas (2.5 cotas), deve ter no máximo 2 cotas integrais');
+        
+        // Verifica que as horas restantes (60 - 48 = 12) são distribuídas para outros turnos
+        $horasIntegrais = $cotasIntegrais * 24; // Cada integral = 24 horas
+        $this->assertEquals(48, $horasIntegrais, '2 cotas integrais = 48 horas');
+    }
+
+    /**
+     * Teste: Limite de cotas integrais com diferentes horas por dia
+     * Verifica o limite para diferentes configurações de horas
+     */
+    public function testLimiteCotasIntegraisDiferentesHoras(): void
+    {
+        // Teste com 24 horas (1 cota) - limite = floor(24/24) = 1
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        for ($i = 1; $i <= 3; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Integral $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+        $resultado24h = $this->calculador->distribuirTurnosParaMes(24);
+        $cotasIntegrais24h = isset($resultado24h[1][CbmscConstants::TURNO_INTEGRAL]) 
+            ? count($resultado24h[1][CbmscConstants::TURNO_INTEGRAL]) 
+            : 0;
+        $this->assertEquals(1, $cotasIntegrais24h, 'Com 24 horas, deve ter no máximo 1 cota integral');
+
+        // Teste com 48 horas (2 cotas) - limite = floor(48/24) = 2
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        for ($i = 1; $i <= 5; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Integral $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+        $resultado48h = $this->calculador->distribuirTurnosParaMes(48);
+        $cotasIntegrais48h = isset($resultado48h[1][CbmscConstants::TURNO_INTEGRAL]) 
+            ? count($resultado48h[1][CbmscConstants::TURNO_INTEGRAL]) 
+            : 0;
+        $this->assertEquals(2, $cotasIntegrais48h, 'Com 48 horas, deve ter no máximo 2 cotas integrais');
+
+        // Teste com 72 horas (3 cotas) - limite = floor(72/24) = 3
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        for ($i = 1; $i <= 5; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Integral $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+        $resultado72h = $this->calculador->distribuirTurnosParaMes(72);
+        $cotasIntegrais72h = isset($resultado72h[1][CbmscConstants::TURNO_INTEGRAL]) 
+            ? count($resultado72h[1][CbmscConstants::TURNO_INTEGRAL]) 
+            : 0;
+        $this->assertEquals(3, $cotasIntegrais72h, 'Com 72 horas, deve ter no máximo 3 cotas integrais');
+    }
 }
 

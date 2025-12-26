@@ -184,9 +184,11 @@ class CalculadorDePontos {
         $bombeirosDisponiveisParaDia = $this->obtemBombeirosDisponiveisParaDia($dia);
         $horasDoDiaDistribuidas = 0;
 
-
-        // Processa turnos integrais primeiro
-        $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_INTEGRAL, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos);
+        /**
+         * Limita a distribuição de cotas integrais, pois se tivermos 2.5 cotas por dia, não podemos ter mais de 2 cotas integrais.
+         */
+        $limiteCotasIntegral = floor($horasPorDia / (2 * CbmscConstants::MEIA_COTA_EM_HORAS));
+        $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_INTEGRAL, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos, $limiteCotasIntegral);
 
         $horasRestantes = $horasPorDia - $horasDoDiaDistribuidas;
         $meiasCotasRestantes = $horasRestantes / CbmscConstants::MEIA_COTA_EM_HORAS;
