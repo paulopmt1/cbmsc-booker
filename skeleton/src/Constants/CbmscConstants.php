@@ -32,6 +32,7 @@ class CbmscConstants {
     public const TURNO_NOTURNO = "NOTURNO";
     public const TURNO_INTEGRAL = "INTEGRAL";
     public const TURNO_DIURNO = "DIURNO";
+    public const MEIA_COTA_EM_HORAS = 12;
     
     // Pontuações por cidade
     public const PONTUACAO_VIDEIRA = 100;

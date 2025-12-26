@@ -119,21 +119,27 @@ class CalculadorDePontos {
      * @param int $horasDoDiaDistribuidas Referência à variável que armazena horas já distribuídas (será modificada)
      * @param array $todosOsTurnos Referência ao array que armazena todos os turnos (será modificado)
      */
-    private function distribuirTurnoParaDia(array $bombeirosDisponiveisParaDia, int $dia, string $turno, int $horasPorDia, int &$horasDoDiaDistribuidas, array &$todosOsTurnos): void {
+    private function distribuirTurnoParaDia(array $bombeirosDisponiveisParaDia, int $dia, string $turno, int $horasPorDia, int &$horasDoDiaDistribuidas, array &$todosOsTurnos, ?int $limiteCotasDistribuidas = null): void {
         $bombeirosDisponiveisParaTurno = array_values(array_filter($bombeirosDisponiveisParaDia, function(Bombeiro $bombeiro) use ($dia, $turno): bool {
             return $bombeiro->temDisponibilidade($dia, $turno);
         }));
         $bombeirosPorPercentual = $this->ordenaBombeirosPorPercentualDeServicosAceitos($bombeirosDisponiveisParaTurno);
         $bombeirosOrdenados = $this->ordenaBombeirosPorPontuacao($bombeirosPorPercentual, $dia);
+        $cotasDistribuidas = 0;
 
         foreach ($bombeirosOrdenados as $bombeiro) {
             if ($horasDoDiaDistribuidas >= $horasPorDia) {
                 break;
             }
 
+            if ($limiteCotasDistribuidas !== null && $cotasDistribuidas >= $limiteCotasDistribuidas) {
+                break;
+            }
+
             $horasDoDiaDistribuidas += $this->getHorasPorTurno($turno);
             $todosOsTurnos[$dia][$turno][] = $bombeiro;
             $bombeiro->increaseDiasAdquiridos();
+            $cotasDistribuidas++;
         }
     }
 
@@ -147,22 +153,10 @@ class CalculadorDePontos {
 
         // Para cada dia do mês, distribui serviços
         for ($dia = 1; $dia <= 31; $dia++) {
-            $bombeirosDisponiveisParaDia = $this->obtemBombeirosDisponiveisParaDia($dia);
-            $horasDoDiaDistribuidas = 0;
-
-
-            // Processa turnos integrais primeiro
-            $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_INTEGRAL, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos);
-
-            // Processa turnos diurnos
-            $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_DIURNO, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos);
-
-            // Processa turnos noturnos
-            $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_NOTURNO, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos);
-
-            // Precisamos recomputar a pontuação pois cada vez que um bombeiro é selecionado volta para o "fim da fila"
-            $this->computarPontuacaoBombeiros(true);
+            $this->distribuirTurnosParaDia($dia, $horasPorDia, $todosOsTurnos);
         }
+
+        // $this->distribuirTurnosParaDia(3, $horasPorDia, $todosOsTurnos);
 
         /**
          * Revisa cada dia para ter certeza de que a distribuição ficou justa.
@@ -184,6 +178,57 @@ class CalculadorDePontos {
         // }
 
         return $todosOsTurnos;
+    }
+
+    public function distribuirTurnosParaDia(int $dia, int $horasPorDia, array &$todosOsTurnos) {
+        $bombeirosDisponiveisParaDia = $this->obtemBombeirosDisponiveisParaDia($dia);
+        $horasDoDiaDistribuidas = 0;
+
+
+        // Processa turnos integrais primeiro
+        $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_INTEGRAL, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos);
+
+        $horasRestantes = $horasPorDia - $horasDoDiaDistribuidas;
+        $meiasCotasRestantes = $horasRestantes / CbmscConstants::MEIA_COTA_EM_HORAS;
+
+        $meiasCotasNecessariasParaTurnoNoturno = $this->getMeiasCotasNecessariasParaUmDiaETurno($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_NOTURNO);
+        
+        // Calcula quantas meias cotas queremos distribuir para o turno diurno e noturno
+        $meiasCotasDiurno = ceil($meiasCotasRestantes / 2);
+        $meiasCotasNoturno = floor($meiasCotasRestantes / 2);
+
+        // Se noturno pode consumir seu % de cotas, diurno será limitado ao seu % também.
+        if ( $meiasCotasNecessariasParaTurnoNoturno >= $meiasCotasNoturno) {
+            $limiteCotasDistribuidasParaTurnoDiurno = $meiasCotasDiurno;
+        } else {
+            // Senão, diurno consome o restante das cotas que o noturno não pode consumir
+            $limiteCotasDistribuidasParaTurnoDiurno = $meiasCotasRestantes - $meiasCotasNecessariasParaTurnoNoturno;
+        }
+
+
+        // Seta o consumo de meias cotas para o turno diurno baseado na oferta de trabalho de ambos os turnos DIURNO e NOTURNO
+        $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_DIURNO, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos, $limiteCotasDistribuidasParaTurnoDiurno);
+
+
+        // Noturno usa as cotas restantes que o diurno deixou para ele
+        $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_NOTURNO, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos);
+
+        // Precisamos recomputar a pontuação pois cada vez que um bombeiro é selecionado volta para o "fim da fila"
+        $this->computarPontuacaoBombeiros(true);
+
+        return $todosOsTurnos;
+    }
+
+    /**
+     * Obtém o número de cotas somadas para um array de bombeiros
+     * Só funciona para turno DIURNO e NOTURNO
+     */
+    private function getMeiasCotasNecessariasParaUmDiaETurno(array $bombeiros, int $dia, string $turno) {
+        $bombeirosDisponiveisParaTurno = array_values(array_filter($bombeiros, function(Bombeiro $bombeiro) use ($dia, $turno): bool {
+            return $bombeiro->temDisponibilidade($dia, $turno);
+        }));
+
+        return count($bombeirosDisponiveisParaTurno);
     }
 
     /**

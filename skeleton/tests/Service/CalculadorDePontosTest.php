@@ -372,5 +372,152 @@ class CalculadorDePontosTest extends TestCase
             $this->assertEquals('BC CHEROBIN ', $primeiroBombeiro->getNome());
         }
     }
+
+    /**
+     * Teste: Cenário 1 - Distribuição de meias cotas com demanda parcial
+     * - Meias cotas restantes: 5
+     * - Meias cotas necessárias para turno diurno: 3
+     * - Meias cotas necessárias para turno noturno: 10
+     * Solução esperada:
+     * - Meias cotas para distribuir para turno diurno: 3
+     * - Meias cotas para distribuir para turno noturno: 2
+     */
+    public function testDistribuicaoMeiasCotasCenario1(): void
+    {
+        // Cria 3 bombeiros disponíveis apenas para turno diurno
+        for ($i = 1; $i <= 3; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Diurno $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_DIURNO));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+
+        // Cria 10 bombeiros disponíveis apenas para turno noturno
+        for ($i = 1; $i <= 10; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Noturno $i", str_pad((string)(10 + $i), 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_NOTURNO));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+
+        // 60 horas = 5 meias cotas, sem turnos integrais (todos disponíveis apenas para diurno ou noturno)
+        $resultado = $this->calculador->distribuirTurnosParaMes(60);
+
+        // Verifica estrutura
+        $this->assertIsArray($resultado);
+        $this->assertArrayHasKey(1, $resultado);
+
+        // Verifica que não há turnos integrais
+        $turnosIntegrais = isset($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            ? count($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            : 0;
+        $this->assertEquals(0, $turnosIntegrais, 'Não deve haver turnos integrais');
+
+        // Verifica distribuição: 3 meias cotas para diurno, 2 para noturno
+        $meiasCotasDiurno = isset($resultado[1][CbmscConstants::TURNO_DIURNO]) 
+            ? count($resultado[1][CbmscConstants::TURNO_DIURNO]) 
+            : 0;
+        $meiasCotasNoturno = isset($resultado[1][CbmscConstants::TURNO_NOTURNO]) 
+            ? count($resultado[1][CbmscConstants::TURNO_NOTURNO]) 
+            : 0;
+
+        $this->assertEquals(3, $meiasCotasDiurno, 'Deve distribuir 3 meias cotas para turno diurno');
+        $this->assertEquals(2, $meiasCotasNoturno, 'Deve distribuir 2 meias cotas para turno noturno');
+        $this->assertEquals(5, $meiasCotasDiurno + $meiasCotasNoturno, 'Total deve ser 5 meias cotas');
+    }
+
+    /**
+     * Teste: Cenário 2 - Distribuição de meias cotas sem demanda diurna
+     * - Meias cotas restantes: 5
+     * - Meias cotas necessárias para turno diurno: 0
+     * - Meias cotas necessárias para turno noturno: 10
+     * Solução esperada:
+     * - Meias cotas para distribuir para turno diurno: 0
+     * - Meias cotas para distribuir para turno noturno: 5
+     */
+    public function testDistribuicaoMeiasCotasCenario2(): void
+    {
+        // Não cria bombeiros para turno diurno (0 disponíveis)
+
+        // Cria 10 bombeiros disponíveis apenas para turno noturno
+        for ($i = 1; $i <= 10; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Noturno $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_NOTURNO));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+
+        // 60 horas = 5 meias cotas, sem turnos integrais
+        $resultado = $this->calculador->distribuirTurnosParaMes(60);
+
+        // Verifica estrutura
+        $this->assertIsArray($resultado);
+        $this->assertArrayHasKey(1, $resultado);
+
+        // Verifica que não há turnos integrais
+        $turnosIntegrais = isset($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            ? count($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            : 0;
+        $this->assertEquals(0, $turnosIntegrais, 'Não deve haver turnos integrais');
+
+        // Verifica distribuição: 0 meias cotas para diurno, 5 para noturno
+        $meiasCotasDiurno = isset($resultado[1][CbmscConstants::TURNO_DIURNO]) 
+            ? count($resultado[1][CbmscConstants::TURNO_DIURNO]) 
+            : 0;
+        $meiasCotasNoturno = isset($resultado[1][CbmscConstants::TURNO_NOTURNO]) 
+            ? count($resultado[1][CbmscConstants::TURNO_NOTURNO]) 
+            : 0;
+
+        $this->assertEquals(0, $meiasCotasDiurno, 'Deve distribuir 0 meias cotas para turno diurno');
+        $this->assertEquals(5, $meiasCotasNoturno, 'Deve distribuir 5 meias cotas para turno noturno');
+        $this->assertEquals(5, $meiasCotasDiurno + $meiasCotasNoturno, 'Total deve ser 5 meias cotas');
+    }
+
+    /**
+     * Teste: Cenário 3 - Distribuição de meias cotas sem demanda noturna
+     * - Meias cotas restantes: 5
+     * - Meias cotas necessárias para turno diurno: 5
+     * - Meias cotas necessárias para turno noturno: 0
+     * Solução esperada:
+     * - Meias cotas para distribuir para turno diurno: 5
+     * - Meias cotas para distribuir para turno noturno: 0
+     */
+    public function testDistribuicaoMeiasCotasCenario3(): void
+    {
+        // Cria 5 bombeiros disponíveis apenas para turno diurno
+        for ($i = 1; $i <= 5; $i++) {
+            $bombeiro = new Bombeiro("Bombeiro Diurno $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
+            $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+            $bombeiro->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_DIURNO));
+            $this->calculador->adicionarBombeiro($bombeiro);
+        }
+
+        // Não cria bombeiros para turno noturno (0 disponíveis)
+
+        // 60 horas = 5 meias cotas, sem turnos integrais
+        $resultado = $this->calculador->distribuirTurnosParaMes(60);
+
+        // Verifica estrutura
+        $this->assertIsArray($resultado);
+        $this->assertArrayHasKey(1, $resultado);
+
+        // Verifica que não há turnos integrais
+        $turnosIntegrais = isset($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            ? count($resultado[1][CbmscConstants::TURNO_INTEGRAL]) 
+            : 0;
+        $this->assertEquals(0, $turnosIntegrais, 'Não deve haver turnos integrais');
+
+        // Verifica distribuição: 5 meias cotas para diurno, 0 para noturno
+        $meiasCotasDiurno = isset($resultado[1][CbmscConstants::TURNO_DIURNO]) 
+            ? count($resultado[1][CbmscConstants::TURNO_DIURNO]) 
+            : 0;
+        $meiasCotasNoturno = isset($resultado[1][CbmscConstants::TURNO_NOTURNO]) 
+            ? count($resultado[1][CbmscConstants::TURNO_NOTURNO]) 
+            : 0;
+
+        $this->assertEquals(5, $meiasCotasDiurno, 'Deve distribuir 5 meias cotas para turno diurno');
+        $this->assertEquals(0, $meiasCotasNoturno, 'Deve distribuir 0 meias cotas para turno noturno');
+        $this->assertEquals(5, $meiasCotasDiurno + $meiasCotasNoturno, 'Total deve ser 5 meias cotas');
+    }
 }
 
