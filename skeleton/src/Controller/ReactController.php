@@ -45,6 +45,25 @@ class ReactController extends AbstractController
         // Exibe o total de bombeiros
         echo "<h3>Total de bombeiros: " . count($bombeiros) . "</h3>";
 
+        // Exibe as regras de distribuição de turnos
+        echo "<h3>Regras de distribuição de turnos</h3>";
+        echo "<ul>";
+        echo "<li>2.5 Quotas ou 60 horas por dia. Opções possíveis:</li>";
+            echo "<ul>";
+                echo "<li>2 integral + 1 meia cota (24h * 2 + 12h = 60h)</li>";
+                echo "<li>1 integral + 3 meias cotas (24h + 12h * 3 = 60h)</li>";
+                echo "<li>5 meias cotas (12h * 5 = 60h)</li>";
+            echo "</ul>";
+        
+        echo "<li>Priorizamos quotas integrais???</li>";
+        echo "<li>Equilibramos a distribuição de turnos para o diurno e noturno ter quantidade de cotas similares</li>";
+        echo "<li>BCs que possuem carteira de ambulância recebem prioridade nos dias que precisamos de motorista adicional</li>";
+        echo "<li>BCs que possuem mais antiguidade recebem prioridade</li>";
+        echo "<li>BCs efetivos de Videira recebem prioridade sobre outras cidades</li>";
+        echo "<li>Todos os BCs que solicitaram serviço,recebem pelo menos 1 turno por mês</li>";
+
+        echo "</ul>";
+
         // Adicionar os bombeiros ao serviço
         $servico = new CalculadorDePontos($calculadorDeAntiguidade);
         foreach ($bombeiros as $bombeiro) {
