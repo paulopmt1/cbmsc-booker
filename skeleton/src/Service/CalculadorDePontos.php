@@ -127,13 +127,13 @@ class CalculadorDePontos {
         $bombeirosOrdenados = $this->ordenaBombeirosPorPontuacao($bombeirosPorPercentual, $dia);
 
         foreach ($bombeirosOrdenados as $bombeiro) {
-            $horasDoDiaDistribuidas += $this->getHorasPorTurno($turno);
-            $todosOsTurnos[$dia][$turno][] = $bombeiro;
-            $bombeiro->increaseDiasAdquiridos();
-
             if ($horasDoDiaDistribuidas >= $horasPorDia) {
                 break;
             }
+
+            $horasDoDiaDistribuidas += $this->getHorasPorTurno($turno);
+            $todosOsTurnos[$dia][$turno][] = $bombeiro;
+            $bombeiro->increaseDiasAdquiridos();
         }
     }
 
