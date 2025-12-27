@@ -5,6 +5,7 @@ namespace App\Tests\Service;
 use App\Constants\CbmscConstants;
 use App\Entity\Bombeiro;
 use App\Entity\Disponibilidade;
+use App\Entity\Turno;
 use App\Service\CalculadorDeAntiguidade;
 use App\Service\CalculadorDePontos;
 use PHPUnit\Framework\TestCase;
@@ -602,6 +603,53 @@ class CalculadorDePontosTest extends TestCase
             ? count($resultado72h[1][CbmscConstants::TURNO_INTEGRAL]) 
             : 0;
         $this->assertEquals(3, $cotasIntegrais72h, 'Com 72 horas, deve ter no máximo 3 cotas integrais');
+    }
+
+    /**
+     * Teste: Bombeiro que já atingiu o limite de turnos integrais deve ser pulado
+     * Verifica que um bombeiro com 3 turnos integrais já adquiridos não recebe mais turnos integrais
+     */
+    public function testBombeiroComLimiteTurnosIntegraisDeveSerPulado(): void
+    {
+        // Bombeiro que já tem 3 turnos integrais adquiridos (limite máximo)
+        $bombeiroComLimite = new Bombeiro('Bombeiro Com Limite', '11111111111', false);
+        $bombeiroComLimite->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+        $bombeiroComLimite->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+        
+        // Simula que ele já adquiriu 3 turnos integrais em dias anteriores
+        $bombeiroComLimite->adicionaTurnoAdquirido(new Turno(0, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiroComLimite->adicionaTurnoAdquirido(new Turno(0, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiroComLimite->adicionaTurnoAdquirido(new Turno(0, CbmscConstants::TURNO_INTEGRAL));
+
+        // Bombeiro que ainda não atingiu o limite
+        $bombeiroSemLimite = new Bombeiro('Bombeiro Sem Limite', '22222222222', false);
+        $bombeiroSemLimite->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+        $bombeiroSemLimite->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+
+        $this->calculador->adicionarBombeiro($bombeiroComLimite);
+        $this->calculador->adicionarBombeiro($bombeiroSemLimite);
+
+        $resultado = $this->calculador->distribuirTurnosParaMes(24);
+
+        // Verifica estrutura
+        $this->assertIsArray($resultado);
+        $this->assertArrayHasKey(1, $resultado);
+        $this->assertArrayHasKey(CbmscConstants::TURNO_INTEGRAL, $resultado[1]);
+
+        // Verifica que o bombeiro com limite não foi selecionado
+        $bombeirosSelecionados = $resultado[1][CbmscConstants::TURNO_INTEGRAL];
+        $nomesSelecionados = array_map(function($b) { return $b->getNome(); }, $bombeirosSelecionados);
+        
+        $this->assertNotContains('Bombeiro Com Limite', $nomesSelecionados, 
+            'Bombeiro com limite de turnos integrais não deve ser selecionado');
+        
+        // Verifica que o bombeiro sem limite foi selecionado
+        $this->assertContains('Bombeiro Sem Limite', $nomesSelecionados,
+            'Bombeiro sem limite deve ser selecionado');
+        
+        // Verifica que há exatamente 1 bombeiro selecionado (apenas o sem limite)
+        $this->assertCount(1, $bombeirosSelecionados, 
+            'Deve haver apenas 1 bombeiro selecionado (o sem limite)');
     }
 }
 

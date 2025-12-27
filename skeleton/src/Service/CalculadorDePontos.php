@@ -5,6 +5,7 @@ namespace App\Service;
 use App\Constants\CbmscConstants;
 use App\Entity\Bombeiro;
 use App\Service\CalculadorDeAntiguidade;
+use App\Entity\Turno;
 
 class CalculadorDePontos {
 
@@ -100,8 +101,8 @@ class CalculadorDePontos {
 
 
             // Cada dia que o bombeiro ganha joga ele 1000 pontos para trás
-            if ($bombeiro->getDiasAdquiridos() !== 0) {
-                $reducao = $bombeiro->getDiasAdquiridos() * 1000;
+            if (count($bombeiro->getTurnosAdquiridos()) !== 0) {
+                $reducao = count($bombeiro->getTurnosAdquiridos()) * 1000;
                 $bombeiro->setPontuacao($bombeiro->getPontuacao() - $reducao);
             }
         }
@@ -133,6 +134,9 @@ class CalculadorDePontos {
         $bombeirosOrdenados = $this->ordenaBombeirosPorPontuacao($bombeirosPorPercentual, $dia);
         $cotasDistribuidas = 0;
 
+        /**
+         * @var Bombeiro $bombeiro
+         */
         foreach ($bombeirosOrdenados as $bombeiro) {
             if ($horasDoDiaDistribuidas >= $horasPorDia) {
                 break;
@@ -142,9 +146,19 @@ class CalculadorDePontos {
                 break;
             }
 
+            // Verifica quantos turnos integrais o bombeiro já adquiriu
+            $turnosIntegraisAdquiridos = count(array_filter($bombeiro->getTurnosAdquiridos(), function(Turno $turno) {
+                return $turno->getTurno() == CbmscConstants::TURNO_INTEGRAL;
+            }));
+
+            // Se o bombeiro já atingiu o limite de turnos integrais, pula para o próximo bombeiro
+            if ($turnosIntegraisAdquiridos >= CbmscConstants::COTAS_INTEGRAIS_POR_MES) {
+                continue;
+            }
+
             $horasDoDiaDistribuidas += $this->getHorasPorTurno($turno);
             $todosOsTurnos[$dia][$turno][] = $bombeiro;
-            $bombeiro->increaseDiasAdquiridos();
+            $bombeiro->adicionaTurnoAdquirido(new Turno($dia, $turno));
             $cotasDistribuidas++;
         }
     }

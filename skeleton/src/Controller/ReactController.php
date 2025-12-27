@@ -97,7 +97,7 @@ class ReactController extends AbstractController
 
         echo "<h3>BCs sem horário</h3>";
         foreach ($bombeiros as $bombeiro) {
-            if ($bombeiro->getDiasAdquiridos() == 0) {
+            if (count($bombeiro->getTurnosAdquiridos()) == 0) {
                 echo $bombeiro->getNome() . '<br>';
             }
         }
@@ -106,7 +106,7 @@ class ReactController extends AbstractController
 
         foreach ($calculadorDePontos->ordenaBombeirosPorPercentualDeServicosAceitos($bombeiros) as $bombeiro) {
             echo $bombeiro->getNome() . ' - ' . 
-            $bombeiro->getDiasAdquiridos() . ' de ' . $bombeiro->getDiasSolicitados() . ' dias - ' . 
+            count($bombeiro->getTurnosAdquiridos()) . ' de ' . $bombeiro->getDiasSolicitados() . ' dias - ' . 
             round($bombeiro->getPercentualDeServicosAceitos()) . '%<br>';
             
         }
