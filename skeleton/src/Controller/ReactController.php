@@ -57,12 +57,14 @@ class ReactController extends AbstractController
                 echo "<li>5 meias cotas (12h * 5 = 60h)</li>";
             echo "</ul>";
         
-        echo "<li>Priorizamos quotas integrais???</li>";
         echo "<li>Equilibramos a distribuição de turnos para o diurno e noturno ter quantidade de cotas similares</li>";
         echo "<li>BCs que possuem carteira de ambulância recebem prioridade nos dias que precisamos de motorista adicional</li>";
+        echo "<li>Dias que precisam de motorista adicional são processados primeiro para garantir que se houver motorista disponível, esse seja alocado</li>";
         echo "<li>BCs que possuem mais antiguidade recebem prioridade</li>";
         echo "<li>BCs efetivos de Videira recebem prioridade sobre outras cidades</li>";
-        echo "<li>Todos os BCs que solicitaram serviço,recebem pelo menos 1 turno por mês</li>";
+        echo "<li>Cada BC pode adquirir no máximo " . CbmscConstants::COTAS_INTEGRAIS_POR_MES . " turnos integrais por mês</li>";
+        echo "<li>Todos os BCs que solicitaram serviço, recebem pelo menos 1 turno por mês (falta implementar)</li>";
+        echo "<li>Priorizamos BC e convertemos cota integral em meia cota se necessário (falta implementar)</li>";
 
         echo "</ul>";
 
@@ -73,16 +75,15 @@ class ReactController extends AbstractController
         }
         
         $servico->computarPontuacaoBombeiros(true);
-
-        echo "<h3>Turnos do dia " . $dia . "</h3>";
-        $servico->print_turnos_do_mes($dia);
-        $horasPorDia = $cotasPorDiaFloat * 24;
-
         // $diasSelecionados virá como numerico separado por virgula
         $diasSelecionadosArray = explode(',', $diasSelecionados);
 
-        $turnosParaMes = $servico->distribuirTurnosParaMes($horasPorDia, $diasSelecionadosArray);
+        $horasPorDia = $cotasPorDiaFloat * 24;
+        $turnosParaMes = $servico->distribuirTurnosParaMes($horasPorDia , $diasSelecionadosArray);
         $turnosParaDia = $turnosParaMes[$dia];
+
+        echo "<h3>Turnos do dia " . $dia . "</h3>";
+        $servico->print_turnos_do_mes($dia, $turnosParaMes);
 
         // Exibir dos turnos aprovados
         echo "<h3>Turnos aprovados</h3>";

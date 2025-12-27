@@ -40,8 +40,7 @@ class CalculadorDePontos {
     private ?array $diasQuePrecisaMotoristaAdicional = null;
 
     /**
-     * Computa os turnos dos bombeiros o mês inteiro e adiciona ao array de turnos
-     * assim sabemos quantos bombeiros temos para cada turno
+     * Usada para debugging mostrando quais são todos os bombeiros disponíveis para cada dia do mês.
      */
     public function computarTodosOsTurnos() {
         $todosOsTurnos = [];
@@ -175,9 +174,18 @@ class CalculadorDePontos {
         // Store selected days for motorista adicional verification
         $this->diasQuePrecisaMotoristaAdicional = $diasSelecionados;
 
-        // Para cada dia do mês, distribui serviços
+        // Primeiro processa turnos dos dias que precisam de motorista adicional
+        if ($this->diasQuePrecisaMotoristaAdicional !== null && count($this->diasQuePrecisaMotoristaAdicional) > 0) {
+            foreach ($this->diasQuePrecisaMotoristaAdicional as $dia) {
+                $this->distribuirTurnosParaDia($dia, $horasPorDia, $todosOsTurnos);
+            }
+        }
+        
+        // Depois processa turnos dos dias que não precisam de motorista adicional
         for ($dia = 1; $dia <= 31; $dia++) {
-            $this->distribuirTurnosParaDia($dia, $horasPorDia, $todosOsTurnos);
+            if (!in_array($dia, $this->diasQuePrecisaMotoristaAdicional ?? [])) {
+                $this->distribuirTurnosParaDia($dia, $horasPorDia, $todosOsTurnos);
+            }
         }
 
         /**
@@ -350,6 +358,7 @@ class CalculadorDePontos {
         }));
     }
 
+    // TODO: Remover este método daqui, afinal ele é usado apenas para debugging e não pertence ao cálculo de turnos.
     public function print_turnos_do_mes(int $dia) {
         $todosOsTurnos = $this->computarTodosOsTurnos();
         
@@ -358,21 +367,19 @@ class CalculadorDePontos {
             return;
         }
         
-        $dadosDia = $todosOsTurnos[$dia];
-        
         echo "<div style='width: 45%; float: left; border: 1px solid #ddd; margin: 10px 20px 0 0; padding: 15px;'>";
         echo "<h3 style='color: #333; margin-top: 0;'>📅 DIA {$dia} - ESCALAÇÃO DE TURNOS</h3>";
         
         // Contar total de bombeiros
         $totalBombeiros = 0;
-        foreach ($dadosDia['turnos'] as $bombeiros) {
+        foreach ($todosOsTurnos[$dia]['turnos'] as $bombeiros) {
             $totalBombeiros += count($bombeiros);
         }
         
         echo "<p><strong>Total de bombeiros disponíveis:</strong> {$totalBombeiros}</p>";
         
         // Mostrar cada turno e seus bombeiros
-        foreach ($dadosDia['turnos'] as $turno => $bombeiros) {
+        foreach ($todosOsTurnos[$dia]['turnos'] as $turno => $bombeiros) {
             $icon = $this->getTurnoIcon($turno);
             $count = count($bombeiros);
             

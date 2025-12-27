@@ -651,5 +651,32 @@ class CalculadorDePontosTest extends TestCase
         $this->assertCount(1, $bombeirosSelecionados, 
             'Deve haver apenas 1 bombeiro selecionado (o sem limite)');
     }
+
+    /**
+     * Teste: Dias com motorista adicional devem ser processados antes dos dias normais
+     * Verifica que quando há dias que precisam de motorista adicional, eles são processados primeiro
+     */
+    public function testDiasComMotoristaAdicionalDevemSerProcessadosAntes(): void
+    {
+
+        // Cria um bombeiro disponível dias 1,2,3 e 4 com carteira de ambulância e turno integral
+        $bombeiro1 = new Bombeiro('Bombeiro 1', '11111111111', true);
+        $bombeiro1->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(2, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(3, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(4, CbmscConstants::TURNO_INTEGRAL));
+        $this->calculador->adicionarBombeiro($bombeiro1);
+
+        // Define dia 4 como o único dia que precisa de motorista adicional
+        $diasComMotoristaAdicional = [4];
+        $resultado = $this->calculador->distribuirTurnosParaMes(24, $diasComMotoristaAdicional);
+
+        // Verifica estrutura
+        $this->assertIsArray($resultado);
+        $this->assertArrayHasKey(4, $resultado, 'Dia 4 (com motorista adicional) deve estar no resultado');
+        $this->assertArrayHasKey(CbmscConstants::TURNO_INTEGRAL, $resultado[4], 
+            'Dia 4 deve ter turnos integrais atribuídos');
+    }
 }
 
