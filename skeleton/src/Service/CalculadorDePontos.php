@@ -215,6 +215,7 @@ class CalculadorDePontos {
     public function distribuirTurnosParaDia(int $dia, int $horasPorDia, array &$todosOsTurnos) {
         $bombeirosDisponiveisParaDia = $this->obtemBombeirosDisponiveisParaDia($dia);
         $horasDoDiaDistribuidas = 0;
+        $this->computarPontuacaoBombeiros(true);
 
         /**
          * Limita a distribuição de cotas integrais, pois se tivermos 2.5 cotas por dia, não podemos ter mais de 2 cotas integrais.
@@ -246,6 +247,36 @@ class CalculadorDePontos {
 
         // Noturno usa as cotas restantes que o diurno deixou para ele
         $this->distribuirTurnoParaDia($bombeirosDisponiveisParaDia, $dia, CbmscConstants::TURNO_NOTURNO, $horasPorDia, $horasDoDiaDistribuidas, $todosOsTurnos);
+
+        // // Após fazer a distribuição do dia, verifica se precisávamos de motorista adicional e valida se atingimos o objtivo.
+        // if ($this->verificarSePrecisaMotoristaAdicional($dia)) {
+        //     // Filtra bombeiros que possuem o turno escolhido para o dia
+        //     $bomberiosSelcionadosParaDiaComCarteira = array_values(array_filter($bombeirosDisponiveisParaDia, function(Bombeiro $bombeiro) use ($dia): bool {
+        //         // verifica no getTurnosAdquiridos do bombeiro se ele foi alocado para o dia
+        //         return in_array($dia, array_map(function(Turno $turno) {
+        //             return $turno->getDia();
+        //         }, $bombeiro->getTurnosAdquiridos())) && $bombeiro->getCarteiraAmbulancia();
+        //     }));
+            
+        //     // Se nenhum bombeiro escolhido possui carteira, troca algum deles por um que possui e atende o dia e turno escolhido
+        //     if (empty($bomberiosSelcionadosParaDiaComCarteira)) {
+        //         // Filtra bombeiros que possuem carteira de ambulância
+        //         $bomberiosSelcionadosParaDiaComCarteira = array_values(array_filter($bombeirosDisponiveisParaDia, function(Bombeiro $bombeiro) use ($dia): bool {
+        //             return $bombeiro->getCarteiraAmbulancia() && $bombeiro->getDisponibilidade($dia);
+        //         }));
+
+        //         // Algum deles possui período integral?
+        //         $bombeiroComPeriodoIntegral = array_values(array_filter($bomberiosSelcionadosParaDiaComCarteira, function(Bombeiro $bombeiro) use ($dia): bool {
+        //             return $bombeiro->getDisponibilidade($dia)->getTurno() == CbmscConstants::TURNO_INTEGRAL;
+        //         }));
+
+        //         if (empty($bombeiroComPeriodoIntegral)) {
+        //             // Nenhum deles possui período integral, troca algum deles por um que possui e atende o dia e turno escolhido
+        //             $bombeiroComPeriodoIntegral = $bomberiosSelcionadosParaDiaComCarteira[0];
+        //         }
+        //         // Está muito específico isso, precisa ficar mais genérico.
+        //     }
+        // }
 
         // Precisamos recomputar a pontuação pois cada vez que um bombeiro é selecionado volta para o "fim da fila"
         $this->computarPontuacaoBombeiros(true);
@@ -365,6 +396,7 @@ class CalculadorDePontos {
                 // $bombeiros[$i]->setPontuacao($bombeiros[$i]->getPontuacao() + CbmscConstants::PONTUACAO_CARTEIRA_AMBULANCIA);
             }
             
+            // TODO: Refatorar esse código.
             for ($j = 0; $j < count($bombeiros); $j++) {
                 $pontuacaoTemporariaDiaI = $bombeiros[$i]->getCarteiraAmbulancia() && $this->verificarSePrecisaMotoristaAdicional($dia) ? 100000 : 0;
                 $pontuacaoTemporariaDiaJ = $bombeiros[$j]->getCarteiraAmbulancia() && $this->verificarSePrecisaMotoristaAdicional($dia) ? 100000 : 0;
