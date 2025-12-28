@@ -64,7 +64,10 @@ class ReactController extends AbstractController
         echo "<li>BCs efetivos de Videira recebem prioridade sobre outras cidades</li>";
         echo "<li>Cada BC pode adquirir no máximo " . CbmscConstants::COTAS_INTEGRAIS_POR_MES . " turnos integrais por mês</li>";
         echo "<li>Todos os BCs que solicitaram serviço, recebem pelo menos 1 turno por mês</li>";
+        echo "<li>Garante que se houver um BC com carteira disponível no dia que precisamos de motorista adicional, esse seja alocado mesmo que ele já tenha atingido o limite de turnos integrais (falta implementar)</li>";
         echo "<li>Priorizamos ordem de BC e convertemos cota integral em meia cota se necessário (falta implementar)</li>";
+        echo "<li>Se tivermos apenas 3 cotas integrais disponíveis, convertemos uma delas em meia cota se necessário para manter o limite de 2.5 cotas por dia (falta implementar)</li>";
+
 
         echo "</ul>";
 
@@ -103,13 +106,16 @@ class ReactController extends AbstractController
             }
         }
 
-        echo "<h3>Serviços recebidos por BC</h3>";
+        echo "<h3 style='padding-top: 20px; clear: both;'>Serviços recebidos por BC</h3>";
 
         foreach ($calculadorDePontos->ordenaBombeirosPorPercentualDeServicosAceitos($bombeiros) as $bombeiro) {
             echo $bombeiro->getNome() . ' - ' . 
             count($bombeiro->getTurnosAdquiridos()) . ' de ' . $bombeiro->getDiasSolicitados() . ' dias - ' . 
-            round($bombeiro->getPercentualDeServicosAceitos()) . '%<br>';
-            
+            round($bombeiro->getPercentualDeServicosAceitos()) . '% - Dias adquiridos: ' . count($bombeiro->getTurnosAdquiridos()) . '<br><small>(';
+            foreach ($bombeiro->getTurnosAdquiridos() as $turno) {
+                echo $turno->getDia() . ' - ' . $turno->getTurno() . ' | ';
+            }
+            echo ')</small><br><br>';
         }
         return new Response("");
     }
