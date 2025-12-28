@@ -63,8 +63,8 @@ class ReactController extends AbstractController
         echo "<li>BCs que possuem mais antiguidade recebem prioridade</li>";
         echo "<li>BCs efetivos de Videira recebem prioridade sobre outras cidades</li>";
         echo "<li>Cada BC pode adquirir no máximo " . CbmscConstants::COTAS_INTEGRAIS_POR_MES . " turnos integrais por mês</li>";
-        echo "<li>Todos os BCs que solicitaram serviço, recebem pelo menos 1 turno por mês (falta implementar)</li>";
-        echo "<li>Priorizamos BC e convertemos cota integral em meia cota se necessário (falta implementar)</li>";
+        echo "<li>Todos os BCs que solicitaram serviço, recebem pelo menos 1 turno por mês</li>";
+        echo "<li>Priorizamos ordem de BC e convertemos cota integral em meia cota se necessário (falta implementar)</li>";
 
         echo "</ul>";
 

@@ -93,6 +93,12 @@ class Bombeiro {
         $this->turnosAdquiridos[] = $turno;
     }
 
+    public function removerTurnoAdquirido(Turno $turno): void {
+        $this->turnosAdquiridos = array_values(array_filter($this->turnosAdquiridos, function(Turno $t) use ($turno) {
+            return $t->getDia() != $turno->getDia() || $t->getTurno() != $turno->getTurno();
+        }));
+    }
+
     public function getTurnosAdquiridos(): array {
         return $this->turnosAdquiridos;
     }

@@ -678,5 +678,64 @@ class CalculadorDePontosTest extends TestCase
         $this->assertArrayHasKey(CbmscConstants::TURNO_INTEGRAL, $resultado[4], 
             'Dia 4 deve ter turnos integrais atribuídos');
     }
+
+    /**
+     * Teste: Garantir que bombeiros sem turno recebam pelo menos um turno
+     * Verifica que a função garantirTurnoParaBombeirosSemTurno funciona corretamente
+     */
+    public function testGarantirTurnoParaBombeirosSemTurno(): void
+    {
+        // Cria bombeiros com alta pontuação (Videira + carteira) que receberão turnos facilmente
+        $bombeiro1 = new Bombeiro('Bombeiro Alta Pontuação 1', '11111111111', true);
+        $bombeiro1->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(2, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiro1->adicionarDisponibilidade(new Disponibilidade(3, CbmscConstants::TURNO_INTEGRAL));
+
+        $bombeiro2 = new Bombeiro('Bombeiro Alta Pontuação 2', '22222222222', true);
+        $bombeiro2->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
+        $bombeiro2->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiro2->adicionarDisponibilidade(new Disponibilidade(2, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiro2->adicionarDisponibilidade(new Disponibilidade(3, CbmscConstants::TURNO_INTEGRAL));
+
+        // Cria um bombeiro com baixa pontuação (outra cidade, sem carteira) que pode não receber turno inicialmente
+        $bombeiroSemTurno = new Bombeiro('Bombeiro Sem Turno', '33333333333', false);
+        $bombeiroSemTurno->setCidadeOrigem(CbmscConstants::CIDADE_FRAIBURGO);
+        // Disponibilidade limitada apenas para alguns dias
+        $bombeiroSemTurno->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_DIURNO));
+        $bombeiroSemTurno->adicionarDisponibilidade(new Disponibilidade(2, CbmscConstants::TURNO_NOTURNO));
+        $bombeiroSemTurno->adicionarDisponibilidade(new Disponibilidade(3, CbmscConstants::TURNO_DIURNO));
+
+        $this->calculador->adicionarBombeiro($bombeiro1);
+        $this->calculador->adicionarBombeiro($bombeiro2);
+        $this->calculador->adicionarBombeiro($bombeiroSemTurno);
+
+        // Distribui turnos com poucas horas por dia para que o bombeiro de baixa pontuação possa não receber inicialmente
+        $resultado = $this->calculador->distribuirTurnosParaMes(24);
+
+        // Verifica que todos os bombeiros têm pelo menos um turno após a garantia
+        $this->assertGreaterThanOrEqual(1, count($bombeiro1->getTurnosAdquiridos()), 
+            'Bombeiro 1 deve ter pelo menos um turno');
+        $this->assertGreaterThanOrEqual(1, count($bombeiro2->getTurnosAdquiridos()), 
+            'Bombeiro 2 deve ter pelo menos um turno');
+        $this->assertGreaterThanOrEqual(1, count($bombeiroSemTurno->getTurnosAdquiridos()), 
+            'Bombeiro sem turno deve receber pelo menos um turno após garantirTurnoParaBombeirosSemTurno');
+
+        // Verifica que o bombeiro sem turno está presente no resultado
+        $bombeiroSemTurnoEncontrado = false;
+        foreach ($resultado as $dia => $turnos) {
+            foreach ($turnos as $turno => $bombeiros) {
+                foreach ($bombeiros as $bombeiro) {
+                    if ($bombeiro->getNome() === 'Bombeiro Sem Turno') {
+                        $bombeiroSemTurnoEncontrado = true;
+                        break 3;
+                    }
+                }
+            }
+        }
+        $this->assertTrue($bombeiroSemTurnoEncontrado, 
+            'Bombeiro sem turno deve estar presente no resultado após garantirTurnoParaBombeirosSemTurno');
+    }
+
 }
 

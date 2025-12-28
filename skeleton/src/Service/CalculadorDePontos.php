@@ -188,6 +188,8 @@ class CalculadorDePontos {
             }
         }
 
+        $this->garantirTurnoParaBombeirosSemTurno($todosOsTurnos, $horasPorDia);
+
         /**
          * Revisa cada dia para ter certeza de que a distribuição ficou justa.
          * Idealmente desejamos que cada bombeiro tenha uma distribuição equivalente de horários,
@@ -249,6 +251,91 @@ class CalculadorDePontos {
         $this->computarPontuacaoBombeiros(true);
 
         return $todosOsTurnos;
+    }
+
+    /**
+     * Garante que todos os bombeiros tenham pelo menos um turno
+     * 
+     * @param array $todosOsTurnos Referência ao array que armazena todos os turnos (será modificado)
+     * @param int $horasPorDia Quantidade de horas por dia que desejamos distribuir
+     */
+    private function garantirTurnoParaBombeirosSemTurno(array &$todosOsTurnos, int $horasPorDia): void {
+        // Encontra todos os bombeiros que não receberam nenhum turno
+        $bombeirosSemTurno = array_filter($this->bombeiros, function(Bombeiro $bombeiro): bool {
+            return count($bombeiro->getTurnosAdquiridos()) === 0;
+        });
+
+        if (empty($bombeirosSemTurno)) {
+            return; // Todos os bombeiros já têm pelo menos um turno
+        }
+
+        // Para cada bombeiro sem turno, tenta encontrar um dia e turno disponível
+        foreach ($bombeirosSemTurno as $bombeiro) {
+            $turnoAtribuido = false;
+
+            // Tenta encontrar um dia onde o bombeiro tem disponibilidade
+            for ($dia = 1; $dia <= 31 && !$turnoAtribuido; $dia++) {
+                if (!$bombeiro->temDisponibilidadeParaDia($dia)) {
+                    continue; // Bombeiro não tem disponibilidade neste dia
+                }
+
+                // Tenta atribuir um turno, priorizando turnos menores primeiro para minimizar o impacto
+                // e preferindo dias onde ainda há espaço disponível
+                $turnosParaTentar = [
+                    CbmscConstants::TURNO_DIURNO,    // 12h
+                    CbmscConstants::TURNO_NOTURNO,   // 12h
+                    CbmscConstants::TURNO_INTEGRAL    // 24h
+                ];
+
+                // Primeiro, tenta encontrar um turno que caiba perfeitamente no limite de horas
+                foreach ($turnosParaTentar as $turno) {
+                    if ($bombeiro->temDisponibilidade($dia, $turno)) {                        
+                        // Verifica se alguém desse turno já teve mais que 1 turno no mês e troca essa pessoa pelo bombeiro
+                        // Obtém todos os bombeiros daquele dia 
+
+                        // Extrais todos os bombeiros do dia a partir dos array de turnos
+                        $bombeirosDoDia = [];
+                        foreach ($todosOsTurnos[$dia] as $turno => $bombeiros) {
+                            foreach ($bombeiros as $b) {
+                                $bombeirosDoDia[] = $b;
+                            }
+                        }
+
+                        // Verifica se alguém desse turno já teve mais que 1 turno no mês e troca essa pessoa pelo bombeiro
+                        $bombeirosComMaisDeUmTurno = array_filter($bombeirosDoDia, function($bombeiro) {
+                            return count($bombeiro->getTurnosAdquiridos()) > 1;
+                        });
+                        
+                        if (count($bombeirosComMaisDeUmTurno) > 0) {
+                            // Verifica se algum deles tem o mesmo turno que o bombeiro sem turno e troca essa pessoa pelo bombeiro
+                            $bombeirosComMismoTurno = array_values(array_filter($bombeirosComMaisDeUmTurno, function($bombeiro) use ($dia, $turno) {
+                                return $bombeiro->getDisponibilidade($dia)->getTurno() == $turno;
+                            }));
+                            
+                            /**
+                             * Aplicar isso globalmente, pois aqui temos uma cópia de dados do array de turnos.
+                             * Idealmente deveríamos apenas trabalhar com o objeto original de bombeiros e a partir dele converter para o array de turnos.
+                             */
+                            if (count($bombeirosComMismoTurno) > 0) {
+                                // TODO: Por hora estamos aplicando tudo ao bombeiro e ao objeto de todosOsTurnos. Temos que trabalhar com o array de objetos de bombeiros para evitar cópias de dados e ter uma única source of truth.
+                                $bombeirosComMismoTurno[0]->removerTurnoAdquirido(new Turno($dia, $turno));
+                                // Remove o bombeiro do array de turnos
+                                $todosOsTurnos[$dia][$turno] = array_values(array_filter($todosOsTurnos[$dia][$turno], function($b) use ($bombeirosComMismoTurno) {
+                                    return $b->getNome() != $bombeirosComMismoTurno[0]->getNome();
+                                }));
+
+                                $bombeiro->adicionaTurnoAdquirido(new Turno($dia, $turno));
+                                $todosOsTurnos[$dia][$turno][] = $bombeiro;
+                                break 2;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        // Recomputa a pontuação após atribuir turnos adicionais
+        $this->computarPontuacaoBombeiros(true);
     }
 
     /**
