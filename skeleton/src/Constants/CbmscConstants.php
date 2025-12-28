@@ -3,6 +3,9 @@
 namespace App\Constants;
 
 class CbmscConstants {
+    // Limite de cotas integrais por mês por bombeiro
+    public const COTAS_INTEGRAIS_POR_MES = 3;
+
     // Cidades
     public const CIDADE_FRAIBURGO = "Fraiburgo";
     public const CIDADE_VIDEIRA = "Videira";
@@ -32,6 +35,7 @@ class CbmscConstants {
     public const TURNO_NOTURNO = "NOTURNO";
     public const TURNO_INTEGRAL = "INTEGRAL";
     public const TURNO_DIURNO = "DIURNO";
+    public const MEIA_COTA_EM_HORAS = 12;
     
     // Pontuações por cidade
     public const PONTUACAO_VIDEIRA = 100;

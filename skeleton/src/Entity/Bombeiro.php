@@ -5,7 +5,6 @@ namespace App\Entity;
 use App\Entity\Disponibilidade;
 
 
-
 class Bombeiro {
     // Atributos
     private $nome;
@@ -16,6 +15,12 @@ class Bombeiro {
     private $disponibilidades = []; // Array de objetos Disponibilidade
     private $diasAdquiridos = 0;
     private $pontuacao = 0;
+
+    /**
+     * Array de turnos adquiridos
+     * @var array<App\Entity\Turno>
+     */
+    private $turnosAdquiridos = [];
 
     // Construtor
     public function __construct($nome, $cpf, $carteiraAmbulancia){
@@ -70,7 +75,12 @@ class Bombeiro {
         $this->cidadeOrigem = $cidadeOrigem;
     }
 
-    public function getDisponibilidade($dia) {
+    /**
+     * Obtem a disponibilidade para um dia específico
+     * @param int $dia
+     * @return App\Entity\Disponibilidade|null
+     */
+    public function getDisponibilidade(int $dia): ?Disponibilidade {
         foreach ($this->disponibilidades as $disponibilidade) {
             if ($disponibilidade->getDia() == $dia) {
                 return $disponibilidade;
@@ -79,16 +89,18 @@ class Bombeiro {
         return null;
     }
 
-    public function getDiasAdquiridos() {
-        return $this->diasAdquiridos;
+    public function adicionaTurnoAdquirido(Turno $turno): void {
+        $this->turnosAdquiridos[] = $turno;
     }
 
-    public function increaseDiasAdquiridos() {
-        $this->diasAdquiridos++;
+    public function removerTurnoAdquirido(Turno $turno): void {
+        $this->turnosAdquiridos = array_values(array_filter($this->turnosAdquiridos, function(Turno $t) use ($turno) {
+            return $t->getDia() != $turno->getDia() || $t->getTurno() != $turno->getTurno();
+        }));
     }
 
-    public function decreaseDiasAdquiridos() {
-        $this->diasAdquiridos--;
+    public function getTurnosAdquiridos(): array {
+        return $this->turnosAdquiridos;
     }
 
     public function getDiasSolicitados() {
@@ -109,7 +121,7 @@ class Bombeiro {
     }
 
     public function getPercentualDeServicosAceitos() {
-        return round($this->getDiasAdquiridos() * 100 / $this->getDiasSolicitados(), 2);
+        return round(count($this->getTurnosAdquiridos()) * 100 / $this->getDiasSolicitados(), 2);
     }
 
     public function setDisponibilidade(array $disponibilidade) {
@@ -143,6 +155,15 @@ class Bombeiro {
     public function temDisponibilidade($dia, $turno) {
         foreach ($this->disponibilidades as $disponibilidade) {
             if ($disponibilidade->getDia() == $dia && $disponibilidade->getTurno() == $turno) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public function temDisponibilidadeParaDia(int $dia) {
+        foreach ($this->disponibilidades as $disponibilidade) {
+            if ($disponibilidade->getDia() == $dia) {
                 return true;
             }
         }

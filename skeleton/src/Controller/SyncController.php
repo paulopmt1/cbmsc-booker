@@ -26,13 +26,39 @@ class SyncController extends AbstractController
         {
             $sheetId = $request->request->get('sheetId');
             $sheetIdB = $request->request->get('sheetIdB');
+            $cotasPorDia = $request->request->get('cotasPorDia');
+            $diasMotoristaHidden = $request->request->get('diasMotoristaHidden');
 
             if (!$sheetId || !$sheetIdB) 
             {
                 $this->addFlash('error', 'Os IDs corretos das planilhas são necessários para realizar a sincronização!');
+            }
+
+            // Validate cotasPorDia
+            if ($cotasPorDia === null || $cotasPorDia === '') {
+                $this->addFlash('error', 'O campo "Cotas por dia" é obrigatório! 2.5 é o padrão.');
+            }
+
+            $cotasPorDiaFloat = floatval($cotasPorDia);
+            if ($cotasPorDiaFloat <= 0 || !is_numeric($cotasPorDia)) {
+                $this->addFlash('error', 'O campo "Cotas por dia" deve ser um número positivo maior que zero!');
                 return $this->render('home.html.twig', [
                     'sheetId' => $sheetId,
-                    'sheetIdB' => $sheetIdB
+                    'sheetIdB' => $sheetIdB,
+                    'cotasPorDia' => $cotasPorDia,
+                    'diasMotorista' => $diasMotoristaHidden
+                ]);
+            }
+
+            $diasSelecionados = $this->parseSelectedDays($diasMotoristaHidden);
+            
+            if ($diasSelecionados === null || empty($diasSelecionados)) {
+                $this->addFlash('error', 'É necessário selecionar pelo menos um dia válido no campo "Quais dias precisamos de motorista?"!');
+                return $this->render('home.html.twig', [
+                    'sheetId' => $sheetId,
+                    'sheetIdB' => $sheetIdB,
+                    'cotasPorDia' => $cotasPorDia,
+                    'diasMotorista' => $diasMotoristaHidden
                 ]);
             }
 
@@ -41,25 +67,29 @@ class SyncController extends AbstractController
                 $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
                 $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
 
+                // Convert cotasPorDia to hours (1 cota = 24 hours)
+                $horasPorDia = $cotasPorDiaFloat * 24;
 
                 $servico = new CalculadorDePontos($calculadorDeAntiguidade);
                 foreach ($bombeiros as $bombeiro) {
                     $servico->adicionarBombeiro($bombeiro);
                 }
-                $todosOsTurnos = $servico->distribuirTurnosParaMes();
+                $todosOsTurnos = $servico->distribuirTurnosParaMes($horasPorDia, $diasSelecionados);
 
                 /**
                  * A linha abaixo apenas converte respostas para PME preliminar. A chamada seguinte gera a sugestão do algoritmo de distribuição de turnos.
                  * TODO: Receber qual algoritmo queremos rodar no frontend.
                  */
-                $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
-                // $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterTurnosDisponibilidadeParaPlanilha($todosOsTurnos, $bombeiros);
+                // $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
+                $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterTurnosDisponibilidadeParaPlanilha($todosOsTurnos, $bombeiros);
 
                 if ( count($dadosPlanilhaProcessados) == 0 ) {
                     $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');
                     return $this->render('home.html.twig', [
                         'sheetId' => $sheetId,
-                        'sheetIdB' => $sheetIdB
+                        'sheetIdB' => $sheetIdB,
+                        'cotasPorDia' => $cotasPorDia,
+                        'diasMotorista' => $diasMotoristaHidden
                     ]);
                 }
 
@@ -73,7 +103,9 @@ class SyncController extends AbstractController
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [
                     'sheetId' => $sheetId,
-                    'sheetIdB' => $sheetIdB
+                    'sheetIdB' => $sheetIdB,
+                    'cotasPorDia' => $cotasPorDia,
+                    'diasMotorista' => $diasMotoristaHidden
                 ]);
             }
 
@@ -83,11 +115,51 @@ class SyncController extends AbstractController
                 $this->addFlash('dev_error', $e->getMessage());
                 return $this->render('home.html.twig', [
                     'sheetId' => $sheetId,
-                    'sheetIdB' => $sheetIdB
+                    'sheetIdB' => $sheetIdB,
+                    'cotasPorDia' => $cotasPorDia,
+                    'diasMotorista' => $diasMotoristaHidden
                 ]);
             }
         }
 
         return $this->render('home.html.twig');
+    }
+
+    /**
+     * Parse selected days from comma-separated YYYY-MM-DD dates and return array of day numbers (1-31)
+     * 
+     * @param string $diasMotoristaHidden Comma-separated dates in YYYY-MM-DD format
+     * @return array|null Array of day numbers (1-31) or null if no days selected
+     */
+    private function parseSelectedDays(string $diasMotoristaHidden): ?array
+    {
+        if (empty($diasMotoristaHidden)) {
+            return null;
+        }
+
+        $dates = explode(',', $diasMotoristaHidden);
+        $dias = [];
+
+        foreach ($dates as $dateStr) {
+            $dateStr = trim($dateStr);
+            if (empty($dateStr)) {
+                continue;
+            }
+
+            // Parse YYYY-MM-DD format
+            $parts = explode('-', $dateStr);
+            if (count($parts) === 3) {
+                $year = intval($parts[0]);
+                $month = intval($parts[1]);
+                $day = intval($parts[2]);
+
+                // Validate date
+                if (checkdate($month, $day, $year)) {
+                    $dias[] = $day;
+                }
+            }
+        }
+
+        return !empty($dias) ? array_unique($dias) : null;
     }
 }
