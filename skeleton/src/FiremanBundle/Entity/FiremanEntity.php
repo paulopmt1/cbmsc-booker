@@ -18,9 +18,9 @@ class FiremanEntity implements UserInterface, JsonSerializable
 {
 
     #[ORM\Id]
-    #[ORM\Column(name: 'uid', type: 'integer')]
+    #[ORM\Column(name: 'id', type: 'integer')]
     #[ORM\GeneratedValue(strategy: 'AUTO')]
-    private int $uid;
+    private int $id;
 
     #[ORM\Column(name: 'nome', type: 'string', length: 100)]
     private string $name;
