@@ -4,10 +4,13 @@
         <meta charset="UTF-8">
         <title>{% block title %}Sincronizar Planilhas{% endblock %}</title>
         <link rel="icon" href="images/fogo.png">
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
         {% block stylesheets %}
-            <link rel="stylesheet" href="{{ asset('style/home.css',) }}">
+            <link rel="stylesheet" href="{{ asset('style/home.css') }}?v={{ "now"|date('U') }}">
         {% endblock %}
 
         {% block javascripts %}
@@ -31,12 +34,11 @@
                 <div class="form-group">
                     <label for="sheetIdB">Planilha Preliminar</label>
                     <input type="text" id="sheetIdB" name="sheetIdB" value="{{ sheetIdB|default('') }}">
-                    <i class="fa-solid fa-question" title="ID: estÃ¡ localizado na URL da planilha. SÃ£o os caracteres entre '/d/' e '/edit?'" style="text-align: right;"></i>
                 </div>
 
                 <div class="form-group">
-                    <label for="cotasPorDia">Cotas por dia</label>
-                    <input type="number" id="cotasPorDia" name="cotasPorDia" value="{{ cotasPorDia|default('') }}" step="any">
+                    <label for="cotasPorDia">Cotas por dia (geralmente 2,5)</label>
+                    <input type="number" value="2.5" id="cotasPorDia" name="cotasPorDia" value="{{ cotasPorDia|default('') }}" step="any">
                 </div>
 
                 <div class="form-group">
@@ -44,6 +46,19 @@
                     <input type="text" id="diasMotorista" name="diasMotorista" placeholder="Selecione os dias" readonly>
                     <input type="hidden" id="diasMotoristaHidden" name="diasMotoristaHidden" value="{{ diasMotorista|default('') }}">
                 </div>
+
+                <div class="form-group">
+                    <label>Tipo de processamento</label>
+                    <div class="toggle-container">
+                        <span class="toggle-label {% if tipoProcessamento|default('algoritmo') == 'simples' %}active{% endif %}">ConversÃ£o simples</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" name="tipoProcessamento" value="algoritmo" {% if tipoProcessamento|default('algoritmo') == 'algoritmo' %}checked{% endif %}>
+                            <span class="toggle-slider"></span>
+                        </label>
+                        <span class="toggle-label {% if tipoProcessamento|default('algoritmo') == 'algoritmo' %}active{% endif %}">Processar com Algoritmo</span>
+                    </div>
+                </div>
+
                 <input type="submit" value="SINCRONIZAR" class="submit-btn">
                 <br><br>
                 <div>
@@ -77,12 +92,12 @@
                         locale: {
                             firstDayOfWeek: 1,
                             weekdays: {
-                                shorthand: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'],
-                                longhand: ['Domingo', 'Segunda-feira', 'Terça-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sábado']
+                                shorthand: ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sï¿½b'],
+                                longhand: ['Domingo', 'Segunda-feira', 'Terï¿½a-feira', 'Quarta-feira', 'Quinta-feira', 'Sexta-feira', 'Sï¿½bado']
                             },
                             months: {
                                 shorthand: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
-                                longhand: ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
+                                longhand: ['Janeiro', 'Fevereiro', 'Marï¿½o', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro']
                             }
                         },
                         allowInput: false,
@@ -107,6 +122,22 @@
                         });
                         flatpickrInstance.setDate(parsedDates, false);
                     }
+
+                    // Toggle switch label highlighting
+                    const toggleSwitch = document.querySelector('.toggle-switch input');
+                    const toggleLabels = document.querySelectorAll('.toggle-label');
+                    
+                    function updateToggleLabels() {
+                        if (toggleSwitch.checked) {
+                            toggleLabels[0].classList.remove('active');
+                            toggleLabels[1].classList.add('active');
+                        } else {
+                            toggleLabels[0].classList.add('active');
+                            toggleLabels[1].classList.remove('active');
+                        }
+                    }
+                    
+                    toggleSwitch.addEventListener('change', updateToggleLabels);
                 });
             </script>
 

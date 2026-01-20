@@ -28,6 +28,7 @@ class SyncController extends AbstractController
             $sheetIdB = $request->request->get('sheetIdB');
             $cotasPorDia = $request->request->get('cotasPorDia');
             $diasMotoristaHidden = $request->request->get('diasMotoristaHidden');
+            $tipoProcessamento = $request->request->get('tipoProcessamento') ? 'algoritmo' : 'simples';
 
             if (!$sheetId || !$sheetIdB) 
             {
@@ -46,7 +47,8 @@ class SyncController extends AbstractController
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
                     'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden
+                    'diasMotorista' => $diasMotoristaHidden,
+                    'tipoProcessamento' => $tipoProcessamento
                 ]);
             }
 
@@ -58,7 +60,8 @@ class SyncController extends AbstractController
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
                     'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden
+                    'diasMotorista' => $diasMotoristaHidden,
+                    'tipoProcessamento' => $tipoProcessamento
                 ]);
             }
 
@@ -76,12 +79,14 @@ class SyncController extends AbstractController
                 }
                 $todosOsTurnos = $servico->distribuirTurnosParaMes($horasPorDia, $diasSelecionados);
 
-                /**
-                 * A linha abaixo apenas converte respostas para PME preliminar. A chamada seguinte gera a sugestão do algoritmo de distribuição de turnos.
-                 * TODO: Receber qual algoritmo queremos rodar no frontend.
-                 */
-                // $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
-                $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterTurnosDisponibilidadeParaPlanilha($todosOsTurnos, $bombeiros);
+                // Escolha do tipo de processamento baseado na seleção do usuário
+                if ($tipoProcessamento === 'simples') {
+                    // Conversão simples: apenas converte respostas para PME preliminar
+                    $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
+                } else {
+                    // Processar com Algoritmo: gera a sugestão do algoritmo de distribuição de turnos
+                    $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterTurnosDisponibilidadeParaPlanilha($todosOsTurnos, $bombeiros);
+                }
 
                 if ( count($dadosPlanilhaProcessados) == 0 ) {
                     $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');
@@ -89,7 +94,8 @@ class SyncController extends AbstractController
                         'sheetId' => $sheetId,
                         'sheetIdB' => $sheetIdB,
                         'cotasPorDia' => $cotasPorDia,
-                        'diasMotorista' => $diasMotoristaHidden
+                        'diasMotorista' => $diasMotoristaHidden,
+                        'tipoProcessamento' => $tipoProcessamento
                     ]);
                 }
 
@@ -105,7 +111,8 @@ class SyncController extends AbstractController
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
                     'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden
+                    'diasMotorista' => $diasMotoristaHidden,
+                    'tipoProcessamento' => $tipoProcessamento
                 ]);
             }
 
@@ -117,7 +124,8 @@ class SyncController extends AbstractController
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
                     'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden
+                    'diasMotorista' => $diasMotoristaHidden,
+                    'tipoProcessamento' => $tipoProcessamento
                 ]);
             }
         }
