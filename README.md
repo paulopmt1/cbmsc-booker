@@ -19,7 +19,7 @@ Tenha o Docker e docker-compose instalado e rodando.
 
 Acesse a aplicação no navegador: http://localhost:8084
 
-<img width="1441" height="826" alt="image" src="https://github.com/user-attachments/assets/f77d86b5-48eb-4381-a4c5-6ab76c7882c4" />
+<img width="2168" height="1652" alt="image" src="https://github.com/user-attachments/assets/d694e437-7666-4dec-917a-a564a73ff4fd" />
 
 
 ### Acesse debugger para algoritmo de priorização
