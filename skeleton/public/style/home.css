@@ -1,9 +1,20 @@
+* {
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+}
+
 header {
     background-color: rgb(210, 10, 46);
     padding: 15px 20px;
     display: flex;
     align-items: center;
-    border-radius: 8px;
 }
 
 .logo-container {
@@ -21,17 +32,24 @@ header {
 .logo-container span {
     color: white;
     font-size: 20px;
-    font-weight: bold;
-    font-family: Arial, sans-serif;
+    font-weight: 600;
+    letter-spacing: -0.01em;
 }
 
 form {
     max-width: 400px;
     margin: 20px auto;
-    padding: 20px;
+    padding: 30px;
     background: #f9f9f9;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    box-sizing: border-box;
+}
+
+form *,
+form *::before,
+form *::after {
+    box-sizing: border-box;
 }
 
 .form-group {
@@ -42,56 +60,148 @@ form {
 }
 
 label {
-    font-size: 16px;
-    font-weight: bold;
-    margin-bottom: 5px;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #374151;
 }
 
 input[type="text"] {
     width: 100%;
-    padding: 8px;
+    padding: 10px 12px;
     margin-bottom: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     font-size: 14px;
-    
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="text"]:focus {
+    outline: none;
+    border-color: rgb(210, 10, 46);
+    box-shadow: 0 0 0 3px rgba(210, 10, 46, 0.1);
 }
 
 input[type="number"] {
     width: 100%;
-    padding: 8px;
+    padding: 10px 12px;
     margin-bottom: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     font-size: 14px;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+input[type="number"]:focus {
+    outline: none;
+    border-color: rgb(210, 10, 46);
+    box-shadow: 0 0 0 3px rgba(210, 10, 46, 0.1);
 }
 
 .flatpickr-input {
     width: 100%;
-    padding: 8px;
+    padding: 10px 12px;
     margin-bottom: 8px;
-    border: 1px solid #ccc;
-    border-radius: 4px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
     font-size: 14px;
     cursor: pointer;
     background-color: white;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.flatpickr-input:focus {
+    outline: none;
+    border-color: rgb(210, 10, 46);
+    box-shadow: 0 0 0 3px rgba(210, 10, 46, 0.1);
 }
 
 .submit-btn {
-    background-color: green;
+    background-color: #16a34a;
     color: white;
     border: none;
-    padding: 10px 15px;
-    font-size: 16px;
+    padding: 12px 16px;
+    font-size: 15px;
+    font-weight: 600;
     cursor: pointer;
-    border-radius: 4px;
+    border-radius: 6px;
     display: block;
     width: 100%;
     text-align: center;
+    letter-spacing: 0.02em;
+    transition: background-color 0.2s ease, transform 0.1s ease;
 }
 
 .submit-btn:hover {
-    background-color: darkgreen;
+    background-color: #15803d;
 }
 
+.submit-btn:active {
+    transform: scale(0.98);
+}
 
+/* Toggle Switch Styles */
+.toggle-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 8px;
+}
+
+.toggle-label {
+    font-size: 13px;
+    color: #9ca3af;
+    transition: color 0.3s ease;
+    font-weight: 400;
+}
+
+.toggle-label.active {
+    color: #1f2937;
+    font-weight: 500;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+}
+
+.toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: 0.3s;
+    border-radius: 26px;
+}
+
+.toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+    background-color: rgb(210, 10, 46);
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+}
