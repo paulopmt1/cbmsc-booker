@@ -205,3 +205,48 @@ input[type="number"]:focus {
 .toggle-switch input:checked + .toggle-slider:before {
     transform: translateX(24px);
 }
+
+/* Advanced Section Styles */
+.advanced-section {
+    margin-bottom: 15px;
+    border: 1px solid #e5e7eb;
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+.advanced-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 15px;
+    background-color: #f3f4f6;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #374151;
+    transition: background-color 0.2s ease;
+}
+
+.advanced-header:hover {
+    background-color: #e5e7eb;
+}
+
+.advanced-icon {
+    transition: transform 0.3s ease;
+}
+
+.advanced-icon.rotated {
+    transform: rotate(180deg);
+}
+
+.advanced-content {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    padding: 0 15px;
+}
+
+.advanced-content.open {
+    max-height: 300px;
+    padding: 15px;
+}

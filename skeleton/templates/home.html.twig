@@ -37,11 +37,6 @@
                 </div>
 
                 <div class="form-group">
-                    <label for="cotasPorDia">Cotas por dia (geralmente 2,5)</label>
-                    <input type="number" value="2.5" id="cotasPorDia" name="cotasPorDia" value="{{ cotasPorDia|default('') }}" step="any">
-                </div>
-
-                <div class="form-group">
                     <label for="diasMotorista">Quais dias precisamos de motorista?</label>
                     <input type="text" id="diasMotorista" name="diasMotorista" placeholder="Selecione os dias" readonly>
                     <input type="hidden" id="diasMotoristaHidden" name="diasMotoristaHidden" value="{{ diasMotorista|default('') }}">
@@ -56,6 +51,24 @@
                             <span class="toggle-slider"></span>
                         </label>
                         <span class="toggle-label {% if tipoProcessamento|default('algoritmo') == 'algoritmo' %}active{% endif %}">Processar com Algoritmo</span>
+                    </div>
+                </div>
+
+                <div class="advanced-section">
+                    <div class="advanced-header" onclick="toggleAdvanced()">
+                        <span>Avançado</span>
+                        <i class="fas fa-chevron-down advanced-icon"></i>
+                    </div>
+                    <div class="advanced-content">
+                        <div class="form-group">
+                            <label for="cotasPorDia">Cotas por dia (geralmente 2,5)</label>
+                            <input type="number" value="2.5" id="cotasPorDia" name="cotasPorDia" value="{{ cotasPorDia|default('') }}" step="any">
+                        </div>
+                        <div class="form-group">
+                            <label for="sheetIdAntiguidade">Planilha de Antiguidade</label>
+                            <input type="text" id="sheetIdAntiguidade" name="sheetIdAntiguidade" 
+                                   value="{{ sheetIdAntiguidade|default('1X0ddhFFQIsxBUE58HFfLd0PLBqT-UGLQxgd-A1E5XD4') }}">
+                        </div>
                     </div>
                 </div>
 
@@ -139,6 +152,13 @@
                     
                     toggleSwitch.addEventListener('change', updateToggleLabels);
                 });
+
+                function toggleAdvanced() {
+                    const content = document.querySelector('.advanced-content');
+                    const icon = document.querySelector('.advanced-icon');
+                    content.classList.toggle('open');
+                    icon.classList.toggle('rotated');
+                }
             </script>
 
         {% endblock %}

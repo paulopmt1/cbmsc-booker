@@ -6,20 +6,15 @@ use App\Entity\Bombeiro;
 
 class CalculadorDeAntiguidade
 {
-    private function readAntiguidadeFile() {
-        // TODO: Mudar para usar banco de dados ou um arquivo melhor.
-        if (($handle = fopen(__DIR__ . '/../../config/antiguidade.csv', 'r')) === false) {
-            throw new \Exception('Não foi possível abrir o arquivo de antiguidade!');
-        }
-        
-        $antiguidadeItems = [];
+    private array $antiguidadeData = [];
 
-        while (($data = fgetcsv($handle, 1000, ',')) !== false) {
-            $antiguidadeItems[] = $data;
-        }
-
-        fclose($handle);
-        return $antiguidadeItems;
+    /**
+     * Injeta os dados de antiguidade carregados da planilha do Google Sheets.
+     * Formato esperado: array de arrays onde [0] = CPF, [1] = posição de antiguidade
+     */
+    public function setAntiguidadeData(array $data): void
+    {
+        $this->antiguidadeData = $data;
     }
 
     /**
@@ -35,9 +30,7 @@ class CalculadorDeAntiguidade
      */
     public function getAntiguidade(Bombeiro $bombeiro): int
     {
-        $antiguidadeItems = $this->readAntiguidadeFile();
-
-        foreach ($antiguidadeItems as $antiguidade) {
+        foreach ($this->antiguidadeData as $antiguidade) {
             if (! isset($antiguidade[0]) || ! isset($antiguidade[1]) ) {
                 continue;
             }
