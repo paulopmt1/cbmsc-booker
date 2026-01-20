@@ -26,6 +26,7 @@ class SyncController extends AbstractController
         {
             $sheetId = $request->request->get('sheetId');
             $sheetIdB = $request->request->get('sheetIdB');
+            $sheetIdAntiguidade = $request->request->get('sheetIdAntiguidade');
             $cotasPorDia = $request->request->get('cotasPorDia');
             $diasMotoristaHidden = $request->request->get('diasMotoristaHidden');
             $tipoProcessamento = $request->request->get('tipoProcessamento') ? 'algoritmo' : 'simples';
@@ -46,6 +47,7 @@ class SyncController extends AbstractController
                 return $this->render('home.html.twig', [
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
+                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,
                     'tipoProcessamento' => $tipoProcessamento
@@ -59,6 +61,7 @@ class SyncController extends AbstractController
                 return $this->render('home.html.twig', [
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
+                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,
                     'tipoProcessamento' => $tipoProcessamento
@@ -69,6 +72,12 @@ class SyncController extends AbstractController
             {
                 $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
                 $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+
+                // Load antiguidade data from spreadsheet (A2:B to skip header row)
+                if ($sheetIdAntiguidade) {
+                    $antiguidadeData = $googleSheetsService->getSheetData($sheetIdAntiguidade, 'A2:B');
+                    $calculadorDeAntiguidade->setAntiguidadeData($antiguidadeData);
+                }
 
                 // Convert cotasPorDia to hours (1 cota = 24 hours)
                 $horasPorDia = $cotasPorDiaFloat * 24;
@@ -93,6 +102,7 @@ class SyncController extends AbstractController
                     return $this->render('home.html.twig', [
                         'sheetId' => $sheetId,
                         'sheetIdB' => $sheetIdB,
+                        'sheetIdAntiguidade' => $sheetIdAntiguidade,
                         'cotasPorDia' => $cotasPorDia,
                         'diasMotorista' => $diasMotoristaHidden,
                         'tipoProcessamento' => $tipoProcessamento
@@ -110,6 +120,7 @@ class SyncController extends AbstractController
                 return $this->render('home.html.twig', [
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
+                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,
                     'tipoProcessamento' => $tipoProcessamento
@@ -123,6 +134,7 @@ class SyncController extends AbstractController
                 return $this->render('home.html.twig', [
                     'sheetId' => $sheetId,
                     'sheetIdB' => $sheetIdB,
+                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,
                     'tipoProcessamento' => $tipoProcessamento
