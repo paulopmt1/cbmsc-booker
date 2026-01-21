@@ -1,0 +1,55 @@
+version: '3.8'
+
+services:
+  # PHP + Apache service
+  web:
+    container_name: cbmsc_booker_web_prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: production
+    ports:
+      - "5001:80"
+    volumes:
+      - ${GOOGLE_CREDENTIALS_PATH:-./secrets/cbmsc-booker-credentials.json}:/var/www/html/config/cbmsc-booker-credentials.json:ro
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      - APP_ENV=prod
+      - APP_DEBUG=0
+      - APP_SECRET=${APP_SECRET}
+      - MYSQL_HOST=db
+      - MYSQL_USER=${MYSQL_USER:-cbmsc_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-cbmsc_booker}
+      - GOOGLE_AUTH_CONFIG=/var/www/html/config/cbmsc-booker-credentials.json
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+  # MySQL service
+  db:
+    container_name: cbmsc_booker_db_prod
+    image: mysql:8.0
+    environment:
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-cbmsc_booker}
+      - MYSQL_USER=${MYSQL_USER:-cbmsc_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+    volumes:
+      - mysql_data_prod:/var/lib/mysql
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+volumes:
+  mysql_data_prod:

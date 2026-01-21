@@ -60,4 +60,95 @@ O arquivo `.env` deve possuir o path para o arquivo `cbmsc-booker-credentials.js
 
 ```
 GOOGLE_AUTH_CONFIG=/var/www/html/config/cbmsc-booker-credentials.json
+```
+
+---
+
+## Deploy em Produção
+
+O deploy em produção utiliza Docker com configurações otimizadas.
+
+### Pré-requisitos
+
+- Docker e docker-compose instalados no servidor
+- Arquivo `cbmsc-booker-credentials.json` (credenciais do Google Service Account)
+
+### Passo 1: Configurar credenciais do Google
+
+Copie o arquivo de credenciais para a pasta `secrets/` do projeto:
+
+```bash
+mkdir -p ./secrets
+cp cbmsc-booker-credentials.json ./secrets/
+chmod 600 ./secrets/cbmsc-booker-credentials.json
+```
+
+> **Nota:** A pasta `secrets/` está no `.gitignore` e não será commitada.
+
+### Passo 2: Configurar variáveis de ambiente
+
+Defina as variáveis de ambiente necessárias:
+
+```bash
+export MYSQL_ROOT_PASSWORD="sua-senha-root-segura"
+export MYSQL_DATABASE="cbmsc_booker"
+export MYSQL_USER="cbmsc_user"
+export MYSQL_PASSWORD="sua-senha-segura"
+export APP_SECRET="$(openssl rand -hex 32)"
+```
+
+> **Dica:** Para persistir as variáveis, adicione-as ao arquivo `/etc/environment` ou crie um script de inicialização.
+
+### Passo 3: Executar o deploy
+
+```bash
+./deploy.sh
+```
+
+A aplicação estará disponível em: `http://seu-servidor:5001`
+
+### Configuração com HTTPS (Opcional, Recomendado)
+
+Para configurar HTTPS com Nginx e Let's Encrypt:
+
+1. Instale Nginx e Certbot:
+   ```bash
+   sudo apt install nginx certbot python3-certbot-nginx
+   ```
+
+2. Copie a configuração do Nginx:
+   ```bash
+   sudo cp nginx.prod.conf /etc/nginx/sites-available/cbmsc-booker
+   sudo ln -s /etc/nginx/sites-available/cbmsc-booker /etc/nginx/sites-enabled/
+   ```
+
+3. Edite o arquivo e substitua `YOUR_DOMAIN` pelo seu domínio:
+   ```bash
+   sudo nano /etc/nginx/sites-available/cbmsc-booker
+   ```
+
+4. Obtenha o certificado SSL:
+   ```bash
+   sudo certbot --nginx -d seu-dominio.com
+   ```
+
+5. Reinicie o Nginx:
+   ```bash
+   sudo systemctl reload nginx
+   ```
+
+### Comandos úteis
+
+```bash
+# Ver logs da aplicação
+docker compose -f docker-compose.prod.yml logs -f
+
+# Parar a aplicação
+docker compose -f docker-compose.prod.yml down
+
+# Reiniciar a aplicação
+docker compose -f docker-compose.prod.yml restart
+
+# Reconstruir e reiniciar
+docker compose -f docker-compose.prod.yml up -d --build
 ``` 
