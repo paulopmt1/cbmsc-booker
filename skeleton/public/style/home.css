@@ -250,3 +250,65 @@ input[type="number"]:focus {
     max-height: 300px;
     padding: 15px;
 }
+
+/* Alert Styles */
+.alerts-container {
+    margin-bottom: 20px;
+}
+
+.alerts-container:empty {
+    display: none;
+}
+
+.alert {
+    padding: 16px 20px;
+    border-radius: 8px;
+    margin-bottom: 12px;
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.alert:last-child {
+    margin-bottom: 0;
+}
+
+.alert-danger {
+    background-color: #fef2f2;
+    border: 2px solid #dc2626;
+    color: #991b1b;
+    animation: shake 0.5s ease-in-out;
+}
+
+.alert-danger::before {
+    content: "\f071";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 18px;
+    color: #dc2626;
+    flex-shrink: 0;
+}
+
+.alert-success {
+    background-color: #f0fdf4;
+    border: 2px solid #16a34a;
+    color: #166534;
+}
+
+.alert-success::before {
+    content: "\f058";
+    font-family: "Font Awesome 6 Free";
+    font-weight: 900;
+    font-size: 18px;
+    color: #16a34a;
+    flex-shrink: 0;
+}
+
+@keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+    20%, 40%, 60%, 80% { transform: translateX(5px); }
+}
