@@ -26,14 +26,23 @@
     <body>
         {% block body %}
             <form action="{{ path('home_page') }}" method="post">
-                <div class="form-group">
-                    <label for="sheetId">Planilha da Escolha de Horários</label>
-                    <input type="text" id="sheetId" name="sheetId" value="{{ sheetId|default('') }}">
+                <div class="alerts-container">
+                    {% for message in app.flashes('error') %}
+                        <div class="alert alert-danger">{{ message }}</div>
+                    {% endfor %}
+                    {% for message in app.flashes('success') %}
+                        <div class="alert alert-success">{{ message }}</div>
+                    {% endfor %}
                 </div>
 
                 <div class="form-group">
-                    <label for="sheetIdB">Planilha Preliminar</label>
-                    <input type="text" id="sheetIdB" name="sheetIdB" value="{{ sheetIdB|default('') }}">
+                    <label for="sheetIdEscolhaHorarios">Planilha da Escolha de Horários</label>
+                    <input type="text" id="sheetIdEscolhaHorarios" name="sheetIdEscolhaHorarios" value="{{ sheetIdEscolhaHorarios|default('') }}">
+                </div>
+
+                <div class="form-group">
+                    <label for="sheetIdPreliminar">Planilha PME Preliminar</label>
+                    <input type="text" id="sheetIdPreliminar" name="sheetIdPreliminar" value="{{ sheetIdPreliminar|default('') }}">
                 </div>
 
                 <div class="form-group">
@@ -73,24 +82,14 @@
                 </div>
 
                 <input type="submit" value="SINCRONIZAR" class="submit-btn">
-                <br><br>
-                <div>
-                    {% for message in app.flashes('success') %}
-                        <div class="alert alert-success">{{ message }}</div>
+                
+                {% if app.environment == 'dev' %}
+                    {% for message in app.flashes('dev_error') %}
+                        <div class="dev-error-content">
+                            <div class="alert alert-danger">{{ message|raw }}</div>
+                        </div>
                     {% endfor %}
-
-                    {% for message in app.flashes('error') %}
-                        <div class="alert alert-danger">{{ message }}</div>
-                    {% endfor %}
-                    
-                    {% if app.environment == 'dev' %}
-                        {% for message in app.flashes('dev_error') %}
-                            <div class="dev-error-content">
-                                <div class="alert alert-danger">{{ message }}</div>
-                            </div>
-                        {% endfor %}
-                    {% endif %}
-                </div>
+                {% endif %}
             </form>
 
             <script>

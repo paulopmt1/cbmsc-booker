@@ -66,6 +66,9 @@ FROM base AS builder
 # Copy application files
 COPY skeleton/ /var/www/html/
 
+# Create minimal .env file for Symfony (required for composer install scripts)
+RUN echo "APP_ENV=prod" > /var/www/html/.env
+
 # Install PHP dependencies (production only)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
@@ -91,11 +94,8 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "realpath_cache_size=4096K" >> /usr/local/etc/php/conf.d/opcache.ini \
     && echo "realpath_cache_ttl=600" >> /usr/local/etc/php/conf.d/opcache.ini
 
-# Copy built application from builder
+# Copy built application from builder (includes .env created in builder stage)
 COPY --from=builder /var/www/html /var/www/html
-
-# Create minimal .env file for Symfony (required for cache:clear during composer install)
-RUN echo "APP_ENV=prod" > /var/www/html/.env
 
 # Copy Apache config
 COPY apache.conf /etc/apache2/sites-available/000-default.conf

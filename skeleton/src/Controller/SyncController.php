@@ -24,14 +24,14 @@ class SyncController extends AbstractController
         
         if ($request->isMethod('POST'))
         {
-            $sheetId = $request->request->get('sheetId');
-            $sheetIdB = $request->request->get('sheetIdB');
+            $sheetIdEscolhaHorarios = $request->request->get('sheetIdEscolhaHorarios');
+            $sheetIdPreliminar = $request->request->get('sheetIdPreliminar');
             $sheetIdAntiguidade = $request->request->get('sheetIdAntiguidade');
             $cotasPorDia = $request->request->get('cotasPorDia');
             $diasMotoristaHidden = $request->request->get('diasMotoristaHidden');
             $tipoProcessamento = $request->request->get('tipoProcessamento') ? 'algoritmo' : 'simples';
 
-            if (!$sheetId || !$sheetIdB) 
+            if (!$sheetIdEscolhaHorarios || !$sheetIdPreliminar) 
             {
                 $this->addFlash('error', 'Os IDs corretos das planilhas são necessários para realizar a sincronização!');
             }
@@ -45,8 +45,8 @@ class SyncController extends AbstractController
             if ($cotasPorDiaFloat <= 0 || !is_numeric($cotasPorDia)) {
                 $this->addFlash('error', 'O campo "Cotas por dia" deve ser um número positivo maior que zero!');
                 return $this->render('home.html.twig', [
-                    'sheetId' => $sheetId,
-                    'sheetIdB' => $sheetIdB,
+                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                    'sheetIdPreliminar' => $sheetIdPreliminar,
                     'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,
@@ -59,8 +59,8 @@ class SyncController extends AbstractController
             if ($diasSelecionados === null || empty($diasSelecionados)) {
                 $this->addFlash('error', 'É necessário selecionar pelo menos um dia válido no campo "Quais dias precisamos de motorista?"!');
                 return $this->render('home.html.twig', [
-                    'sheetId' => $sheetId,
-                    'sheetIdB' => $sheetIdB,
+                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                    'sheetIdPreliminar' => $sheetIdPreliminar,
                     'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,
@@ -70,11 +70,53 @@ class SyncController extends AbstractController
 
             try 
             {
-                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
+                // Validate that the sheet title contains "escolha de horários" to prevent miscopying
+                $escolhaHorariosTitle = $googleSheetsService->getSpreadsheetTitle($sheetIdEscolhaHorarios);
+                if (stripos($escolhaHorariosTitle, 'escolha de horários') === false && stripos($escolhaHorariosTitle, 'escolha de horarios') === false) {
+                    $this->addFlash('error', 'A planilha de escolha de horários deve conter "escolha de horários" no título. Título encontrado: "' . $escolhaHorariosTitle . '"');
+                    return $this->render('home.html.twig', [
+                        'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                        'sheetIdPreliminar' => $sheetIdPreliminar,
+                        'sheetIdAntiguidade' => $sheetIdAntiguidade,
+                        'cotasPorDia' => $cotasPorDia,
+                        'diasMotorista' => $diasMotoristaHidden,
+                        'tipoProcessamento' => $tipoProcessamento
+                    ]);
+                }
+
+                // Validate that the sheet title contains "PME Preliminar" to prevent miscopying
+                $preliminarTitle = $googleSheetsService->getSpreadsheetTitle($sheetIdPreliminar);
+                if (stripos($preliminarTitle, 'PME Preliminar') === false) {
+                    $this->addFlash('error', 'A planilha preliminar deve conter "PME Preliminar" no título. Título encontrado: "' . $preliminarTitle . '"');
+                    return $this->render('home.html.twig', [
+                        'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                        'sheetIdPreliminar' => $sheetIdPreliminar,
+                        'sheetIdAntiguidade' => $sheetIdAntiguidade,
+                        'cotasPorDia' => $cotasPorDia,
+                        'diasMotorista' => $diasMotoristaHidden,
+                        'tipoProcessamento' => $tipoProcessamento
+                    ]);
+                }
+
+                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetIdEscolhaHorarios, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
                 $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
 
                 // Load antiguidade data from spreadsheet (A2:B to skip header row)
                 if ($sheetIdAntiguidade) {
+                    // Validate that the sheet title contains "antiguidade" to prevent miscopying
+                    $antiguidadeTitle = $googleSheetsService->getSpreadsheetTitle($sheetIdAntiguidade);
+                    if (stripos($antiguidadeTitle, 'antiguidade') === false) {
+                        $this->addFlash('error', 'A planilha de antiguidade deve conter "antiguidade" no título. Título encontrado: "' . $antiguidadeTitle . '"');
+                        return $this->render('home.html.twig', [
+                            'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                            'sheetIdPreliminar' => $sheetIdPreliminar,
+                            'sheetIdAntiguidade' => $sheetIdAntiguidade,
+                            'cotasPorDia' => $cotasPorDia,
+                            'diasMotorista' => $diasMotoristaHidden,
+                            'tipoProcessamento' => $tipoProcessamento
+                        ]);
+                    }
+                    
                     $antiguidadeData = $googleSheetsService->getSheetData($sheetIdAntiguidade, 'A2:B');
                     $calculadorDeAntiguidade->setAntiguidadeData($antiguidadeData);
                 }
@@ -100,8 +142,8 @@ class SyncController extends AbstractController
                 if ( count($dadosPlanilhaProcessados) == 0 ) {
                     $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');
                     return $this->render('home.html.twig', [
-                        'sheetId' => $sheetId,
-                        'sheetIdB' => $sheetIdB,
+                        'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                        'sheetIdPreliminar' => $sheetIdPreliminar,
                         'sheetIdAntiguidade' => $sheetIdAntiguidade,
                         'cotasPorDia' => $cotasPorDia,
                         'diasMotorista' => $diasMotoristaHidden,
@@ -114,12 +156,12 @@ class SyncController extends AbstractController
                     ":" . CbmscConstants::PLANILHA_PME_COLUNA_DIA_31 . 
                     (CbmscConstants::PLANILHA_PME_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
-                $googleSheetsService->updateData($sheetIdB, $spreadsheetRange, $dadosPlanilhaProcessados);
+                $googleSheetsService->updateData($sheetIdPreliminar, $spreadsheetRange, $dadosPlanilhaProcessados);
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [
-                    'sheetId' => $sheetId,
-                    'sheetIdB' => $sheetIdB,
+                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                    'sheetIdPreliminar' => $sheetIdPreliminar,
                     'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,
@@ -132,8 +174,8 @@ class SyncController extends AbstractController
                 $this->addFlash('error', 'Erro ao sincronizar planilhas. Verifique se os IDs das planilhas estão corretos e tente novamente.');
                 $this->addFlash('dev_error', $e->getMessage());
                 return $this->render('home.html.twig', [
-                    'sheetId' => $sheetId,
-                    'sheetIdB' => $sheetIdB,
+                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
+                    'sheetIdPreliminar' => $sheetIdPreliminar,
                     'sheetIdAntiguidade' => $sheetIdAntiguidade,
                     'cotasPorDia' => $cotasPorDia,
                     'diasMotorista' => $diasMotoristaHidden,

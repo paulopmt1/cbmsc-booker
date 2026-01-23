@@ -35,6 +35,22 @@ class GoogleSheetsService
     }
     
 
+    /**
+     * Get the title of a spreadsheet
+     */
+    public function getSpreadsheetTitle(string $sheetId): string
+    {
+        try {
+            $spreadsheet = $this->getSheetsService()->spreadsheets->get($sheetId);
+            return $spreadsheet->getProperties()->getTitle();
+        } catch (\Google\Service\Exception $e) {
+            $error = json_decode($e->getMessage(), true);
+            throw new Exception("Erro da API do Google Sheets: " . ($error['error']['message'] ?? $e->getMessage()));
+        } catch (Exception $e) {
+            throw new Exception("Erro ao acessar a planilha: " . $e->getMessage());
+        }
+    }
+
     public function getSheetData(string $sheetId, string $range = 'A:Z'): array
     {
         try {
