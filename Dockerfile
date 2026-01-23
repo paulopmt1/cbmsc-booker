@@ -94,6 +94,9 @@ RUN echo "opcache.enable=1" >> /usr/local/etc/php/conf.d/opcache.ini \
 # Copy built application from builder
 COPY --from=builder /var/www/html /var/www/html
 
+# Create minimal .env file for Symfony (required for cache:clear during composer install)
+RUN echo "APP_ENV=prod" > /var/www/html/.env
+
 # Copy Apache config
 COPY apache.conf /etc/apache2/sites-available/000-default.conf
 

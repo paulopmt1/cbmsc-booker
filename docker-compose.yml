@@ -22,6 +22,7 @@ services:
       - MYSQL_PASSWORD=mypassword
       - MYSQL_DATABASE=mydatabase
       - APP_RUNTIME_ENV=dev
+      - GOOGLE_CREDENTIALS_JSON=${GOOGLE_CREDENTIALS_JSON:-}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 

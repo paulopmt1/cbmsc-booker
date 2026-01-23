@@ -10,8 +10,6 @@ services:
       target: production
     ports:
       - "5001:80"
-    volumes:
-      - ${GOOGLE_CREDENTIALS_PATH:-./secrets/cbmsc-booker-credentials.json}:/var/www/html/config/cbmsc-booker-credentials.json:ro
     depends_on:
       db:
         condition: service_healthy
@@ -23,7 +21,7 @@ services:
       - MYSQL_USER=${MYSQL_USER:-cbmsc_user}
       - MYSQL_PASSWORD=${MYSQL_PASSWORD}
       - MYSQL_DATABASE=${MYSQL_DATABASE:-cbmsc_booker}
-      - GOOGLE_AUTH_CONFIG=/var/www/html/config/cbmsc-booker-credentials.json
+      - GOOGLE_CREDENTIALS_JSON=${GOOGLE_CREDENTIALS_JSON}
     restart: unless-stopped
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost/"]

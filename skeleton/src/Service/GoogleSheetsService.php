@@ -12,10 +12,15 @@ class GoogleSheetsService
     private ?Sheets $sheetsService = null;
 
     public function __construct(
-        private readonly string $credentialsPath
+        private readonly string $credentialsJson
     ) {
+        $credentials = json_decode($credentialsJson, true);
+        if ($credentials === null) {
+            throw new Exception("Credenciais do Google inválidas: JSON malformado");
+        }
+
         $client = new Client();
-        $client->setAuthConfig($credentialsPath);
+        $client->setAuthConfig($credentials);
         $client->addScope(Sheets::SPREADSHEETS);
         $this->sheetsService = new Sheets($client);
     }
