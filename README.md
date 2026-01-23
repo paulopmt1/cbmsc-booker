@@ -9,11 +9,15 @@ O ambiente de desenvolvimento é feito com Docker.
 ### Fazendo setup com docker
 Tenha o Docker e docker-compose instalado e rodando.
 
-1. Em sua máquina, abra o terminal e rode o comando: `docker compose up -d`
-2. Agora entre no container da aplicação: `docker exec -it cbmsc_booker_web bash`
-3. Instale as dependências do projeto (rodando dentro do container): `composer install`
-4. Instale os pacotes frontend: `yarn install`
-5. Rode a aplicação node do ambiente `dev` com: `npm run dev-server`
+1. Copie o arquivo de credenciais do aplicativo do google dentro da pasta `secrets` que não é versionada
+
+2. Popule a variável de ambiente GOOGLE_CREDENTIALS_JSON com esse comando (a partir do host): `export GOOGLE_CREDENTIALS_JSON=$(cat secrets/cbmsc-booker-credentials.json)`
+
+3. Em sua máquina, abra o terminal e rode o comando: `docker compose up -d`
+4. Agora entre no container da aplicação: `docker exec -it cbmsc_booker_web bash`
+5. Instale as dependências do projeto (rodando dentro do container): `composer install`
+6. Instale os pacotes frontend: `yarn install`
+7. Rode a aplicação node do ambiente `dev` com: `npm run dev-server`
 
 ### Acesse a aplicação
 
@@ -56,10 +60,10 @@ A planilha de origem deve:
 A planilha de destino deve:
 - Estar com o email do robô tendo permissão de edição (planilha-rob@cbmsc-booker.iam.gserviceaccount.com)
 
-O arquivo `.env` deve possuir o path para o arquivo `cbmsc-booker-credentials.json`. Aqui um exemplo de path:
+A variável de ambiente `GOOGLE_CREDENTIALS_JSON` deve conter o conteúdo JSON das credenciais do Google Service Account. Exemplo:
 
-```
-GOOGLE_AUTH_CONFIG=/var/www/html/config/cbmsc-booker-credentials.json
+```bash
+export GOOGLE_CREDENTIALS_JSON='{"type":"service_account","project_id":"...","private_key":"..."}'
 ```
 
 ---
@@ -71,21 +75,9 @@ O deploy em produção utiliza Docker com configurações otimizadas.
 ### Pré-requisitos
 
 - Docker e docker-compose instalados no servidor
-- Arquivo `cbmsc-booker-credentials.json` (credenciais do Google Service Account)
+- Credenciais JSON do Google Service Account
 
-### Passo 1: Configurar credenciais do Google
-
-Copie o arquivo de credenciais para a pasta `secrets/` do projeto:
-
-```bash
-mkdir -p ./secrets
-cp cbmsc-booker-credentials.json ./secrets/
-chmod 600 ./secrets/cbmsc-booker-credentials.json
-```
-
-> **Nota:** A pasta `secrets/` está no `.gitignore` e não será commitada.
-
-### Passo 2: Configurar variáveis de ambiente
+### Passo 1: Configurar variáveis de ambiente
 
 Defina as variáveis de ambiente necessárias:
 
@@ -95,11 +87,16 @@ export MYSQL_DATABASE="cbmsc_booker"
 export MYSQL_USER="cbmsc_user"
 export MYSQL_PASSWORD="sua-senha-segura"
 export APP_SECRET="$(openssl rand -hex 32)"
+
+# Credenciais do Google (conteúdo JSON do arquivo de service account)
+export GOOGLE_CREDENTIALS_JSON='{"type":"service_account","project_id":"cbmsc-booker","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n","client_email":"planilha-rob@cbmsc-booker.iam.gserviceaccount.com","client_id":"...","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"..."}'
 ```
+
+> **Dica:** Você pode carregar o JSON de um arquivo com: `export GOOGLE_CREDENTIALS_JSON=$(cat cbmsc-booker-credentials.json)`
 
 > **Dica:** Para persistir as variáveis, adicione-as ao arquivo `/etc/environment` ou crie um script de inicialização.
 
-### Passo 3: Executar o deploy
+### Passo 2: Executar o deploy
 
 ```bash
 ./deploy.sh
