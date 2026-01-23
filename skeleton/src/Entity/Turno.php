@@ -7,8 +7,9 @@ use App\Constants\CbmscConstants;
 class Turno {
     private int $dia;
     private string $turno;
+    private bool $turno_integral_decomposto;
 
-    public function __construct(int $dia, string $turno) {
+    public function __construct(int $dia, string $turno, bool $turno_integral_decomposto = false) {
         $turnosValidos = CbmscConstants::getTurnosValidos();
         
         if (!in_array($turno, $turnosValidos, true)) {
@@ -23,6 +24,7 @@ class Turno {
         
         $this->dia = $dia;
         $this->turno = $turno;
+        $this->turno_integral_decomposto = $turno_integral_decomposto;
     }
 
     public function getDia(): int {
@@ -31,5 +33,9 @@ class Turno {
 
     public function getTurno(): string {
         return $this->turno;
+    }
+
+    public function getETurnoIntegralDecomposto() {
+        return $this->turno_integral_decomposto;
     }
 }
