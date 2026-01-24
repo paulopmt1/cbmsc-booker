@@ -22,7 +22,7 @@ class DistribuicaoTurnosTest extends TestCase
         $this->calculadorDeAntiguidade->method('getAntiguidade')
             ->willReturn(50); // Retorna uma antiguidade padrão de 50
 
-        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade, 10010010001);
     }
 
     /**

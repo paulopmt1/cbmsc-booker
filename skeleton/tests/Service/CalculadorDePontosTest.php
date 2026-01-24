@@ -22,7 +22,7 @@ class CalculadorDePontosTest extends TestCase
         $this->calculadorDeAntiguidade->method('getAntiguidade')
             ->willReturn(50); // Retorna uma antiguidade padrão de 50
 
-        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade, 10010010001);
     }
 
     /**
@@ -72,7 +72,7 @@ class CalculadorDePontosTest extends TestCase
      */
     public function testDistribuirTurnosParaMesComQuerubim(): void
     {
-        $querubim = new Bombeiro('BC CHEROBIN ', strval(CbmscConstants::getCpfDoQuerubin()), false);
+        $querubim = new Bombeiro('BC CHEROBIN ', strval(10010010001), false);
         $querubim->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
         $querubim->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
         $querubim->adicionarDisponibilidade(new Disponibilidade(2, CbmscConstants::TURNO_INTEGRAL));
@@ -316,7 +316,7 @@ class CalculadorDePontosTest extends TestCase
     public function testDistribuirTurnosParaMesCombinacaoComplexa(): void
     {
         // Querubim com carteira
-        $querubim = new Bombeiro('BC CHEROBIN ', strval(CbmscConstants::getCpfDoQuerubin()), true);
+        $querubim = new Bombeiro('BC CHEROBIN ', strval(10010010001), true);
         $querubim->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
         for ($dia = 1; $dia <= 5; $dia++) {
             $querubim->adicionarDisponibilidade(new Disponibilidade($dia, CbmscConstants::TURNO_INTEGRAL));
@@ -563,7 +563,7 @@ class CalculadorDePontosTest extends TestCase
     public function testLimiteCotasIntegraisDiferentesHoras(): void
     {
         // Teste com 24 horas (1 cota) - limite = floor(24/24) = 1
-        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade, 10010010001);
         for ($i = 1; $i <= 3; $i++) {
             $bombeiro = new Bombeiro("Bombeiro Integral $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
             $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
@@ -577,7 +577,7 @@ class CalculadorDePontosTest extends TestCase
         $this->assertEquals(1, $cotasIntegrais24h, 'Com 24 horas, deve ter no máximo 1 cota integral');
 
         // Teste com 48 horas (2 cotas) - limite = floor(48/24) = 2
-        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade, 10010010001);
         for ($i = 1; $i <= 5; $i++) {
             $bombeiro = new Bombeiro("Bombeiro Integral $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
             $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
@@ -591,7 +591,7 @@ class CalculadorDePontosTest extends TestCase
         $this->assertEquals(2, $cotasIntegrais48h, 'Com 48 horas, deve ter no máximo 2 cotas integrais');
 
         // Teste com 72 horas (3 cotas) - limite = floor(72/24) = 3
-        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade);
+        $this->calculador = new CalculadorDePontos($this->calculadorDeAntiguidade, 10010010001);
         for ($i = 1; $i <= 5; $i++) {
             $bombeiro = new Bombeiro("Bombeiro Integral $i", str_pad((string)$i, 11, '0', STR_PAD_LEFT), false);
             $bombeiro->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
