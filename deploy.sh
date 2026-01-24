@@ -9,8 +9,12 @@ NC='\033[0m' # No Color
 
 echo -e "${GREEN}=== CBMSC Booker Production Deployment ===${NC}"
 
+# Set default MySQL credentials
+export MYSQL_ROOT_PASSWORD="${MYSQL_ROOT_PASSWORD:-root}"
+export MYSQL_PASSWORD="${MYSQL_PASSWORD:-root}"
+
 # Check required environment variables
-REQUIRED_VARS=("MYSQL_ROOT_PASSWORD" "MYSQL_PASSWORD" "APP_SECRET")
+REQUIRED_VARS=("APP_SECRET" "GOOGLE_CREDENTIALS_JSON" "CPF_DO_QUERUBIN")
 MISSING_VARS=()
 
 for var in "${REQUIRED_VARS[@]}"; do
@@ -25,28 +29,11 @@ if [ ${#MISSING_VARS[@]} -ne 0 ]; then
         echo -e "  - $var"
     done
     echo ""
-    echo "Please set these variables before running the deployment:"
+    echo "Este é o padrão de variáveis de ambiente para o deploy:"
     echo ""
-    echo "  export MYSQL_ROOT_PASSWORD=\"your-secure-root-password\""
-    echo "  export MYSQL_PASSWORD=\"your-secure-password\""
     echo "  export APP_SECRET=\"\$(openssl rand -hex 32)\""
-    echo ""
-    echo "Optional variables (with defaults):"
-    echo "  export MYSQL_DATABASE=\"cbmsc_booker\""
-    echo "  export MYSQL_USER=\"cbmsc_user\""
-    echo "  export GOOGLE_CREDENTIALS_PATH=\"/opt/secrets/cbmsc-booker-credentials.json\""
-    exit 1
-fi
-
-# Check if Google credentials file exists
-CREDS_PATH="${GOOGLE_CREDENTIALS_PATH:-./secrets/cbmsc-booker-credentials.json}"
-if [ ! -f "$CREDS_PATH" ]; then
-    echo -e "${RED}Error: Google credentials file not found at: $CREDS_PATH${NC}"
-    echo ""
-    echo "Please place the credentials file:"
-    echo "  mkdir -p ./secrets"
-    echo "  cp cbmsc-booker-credentials.json ./secrets/"
-    echo "  chmod 600 ./secrets/cbmsc-booker-credentials.json"
+    echo "  export GOOGLE_CREDENTIALS_JSON=\"'{"type":"service_account","project_id":"cbmsc-book...\"
+    echo "  export CPF_DO_QUERUBIN=\"000000000\" # (somente números do CPF do Querubin)"
     exit 1
 fi
 
