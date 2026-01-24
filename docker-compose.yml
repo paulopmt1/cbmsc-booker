@@ -18,11 +18,12 @@ services:
       - db
     environment:
       - MYSQL_HOST=db
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypassword
-      - MYSQL_DATABASE=mydatabase
+      - MYSQL_USER=${MYSQL_USER:-cbmsc_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-cbmsc_booker}
       - APP_RUNTIME_ENV=dev
       - GOOGLE_CREDENTIALS_JSON=${GOOGLE_CREDENTIALS_JSON:-}
+      - CPF_DO_QUERUBIN=${CPF_DO_QUERUBIN:-000000000}
     extra_hosts:
       - "host.docker.internal:host-gateway"
 
@@ -33,10 +34,10 @@ services:
     ports:
       - "3306:3306"
     environment:
-      - MYSQL_ROOT_PASSWORD=rootpassword
-      - MYSQL_DATABASE=mydatabase
-      - MYSQL_USER=myuser
-      - MYSQL_PASSWORD=mypassword
+      - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD:-root}
+      - MYSQL_DATABASE=${MYSQL_DATABASE:-cbmsc_booker}
+      - MYSQL_USER=${MYSQL_USER:-cbmsc_user}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
     volumes:
       - mysql_data:/var/lib/mysql
 
