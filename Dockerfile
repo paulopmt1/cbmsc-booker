@@ -69,6 +69,9 @@ FROM base AS builder
 # Copy application files
 COPY skeleton/ /var/www/html/
 
+# Create minimal .env file for Symfony to avoid errors
+RUN touch /var/www/html/.env
+
 # Install PHP dependencies (production only)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
@@ -82,9 +85,6 @@ RUN if [ -f "package.json" ]; then \
 # PRODUCTION TARGET
 # ============================================================
 FROM base AS production
-
-# Create minimal .env file for Symfony (required for composer install scripts)
-RUN echo "APP_ENV=prod" > /var/www/html/.env
 
 # Use production PHP settings
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"
