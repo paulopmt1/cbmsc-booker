@@ -11,7 +11,8 @@ class CalculadorDePontos {
 
     
     public function __construct(
-        private readonly CalculadorDeAntiguidade $calculadorDeAntiguidade
+        private readonly CalculadorDeAntiguidade $calculadorDeAntiguidade,
+        private readonly int $cpfDoQuerubin
     ) {
     }
 
@@ -75,8 +76,8 @@ class CalculadorDePontos {
             if ($zerarPontuacao) {
                 $bombeiro->setPontuacao(0);
 
-                // TODO: Melhorar essa tratativa
-                if ( $bombeiro->getNome() == 'BC CHEROBIN ' || intval($bombeiro->getCpf()) === CbmscConstants::CPF_DO_QUERUBIN ) {
+
+                if (intval($bombeiro->getCpf()) === $this->cpfDoQuerubin) {
                     $bombeiro->setPontuacao(CbmscConstants::PONTUACAO_QUERUBIN);
                 }
 

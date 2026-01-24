@@ -8,6 +8,7 @@ use App\Service\CalculadorDePontos;
 use App\Service\GoogleSheetsService;
 use App\Service\ConversorPlanilhasBombeiro;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
@@ -19,7 +20,8 @@ class SyncController extends AbstractController
         Request $request,
         GoogleSheetsService $googleSheetsService,
         ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
-        CalculadorDeAntiguidade $calculadorDeAntiguidade
+        CalculadorDeAntiguidade $calculadorDeAntiguidade,
+        ParameterBagInterface $parameterBag
     ): Response {
         
         if ($request->isMethod('POST'))
@@ -124,7 +126,8 @@ class SyncController extends AbstractController
                 // Convert cotasPorDia to hours (1 cota = 24 hours)
                 $horasPorDia = $cotasPorDiaFloat * 24;
 
-                $servico = new CalculadorDePontos($calculadorDeAntiguidade);
+                $cpfDoQuerubin = $parameterBag->get('cpf_do_querubin');
+                $servico = new CalculadorDePontos($calculadorDeAntiguidade, $cpfDoQuerubin);
                 foreach ($bombeiros as $bombeiro) {
                     $servico->adicionarBombeiro($bombeiro);
                 }

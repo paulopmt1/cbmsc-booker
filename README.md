@@ -82,11 +82,8 @@ O deploy em produção utiliza Docker com configurações otimizadas.
 Defina as variáveis de ambiente necessárias:
 
 ```bash
-export MYSQL_ROOT_PASSWORD="sua-senha-root-segura"
-export MYSQL_DATABASE="cbmsc_booker"
-export MYSQL_USER="cbmsc_user"
-export MYSQL_PASSWORD="sua-senha-segura"
 export APP_SECRET="$(openssl rand -hex 32)"
+export CPF_DO_QUERUBIN=000000000 (somente números do CPF do Querubin)
 
 # Credenciais do Google (conteúdo JSON do arquivo de service account)
 export GOOGLE_CREDENTIALS_JSON='{"type":"service_account","project_id":"cbmsc-booker","private_key_id":"...","private_key":"-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n","client_email":"planilha-rob@cbmsc-booker.iam.gserviceaccount.com","client_id":"...","auth_uri":"https://accounts.google.com/o/oauth2/auth","token_uri":"https://oauth2.googleapis.com/token","auth_provider_x509_cert_url":"https://www.googleapis.com/oauth2/v1/certs","client_x509_cert_url":"..."}'

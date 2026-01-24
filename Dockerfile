@@ -52,6 +52,9 @@ RUN pecl install xdebug \
 # Use development PHP settings
 RUN mv "$PHP_INI_DIR/php.ini-development" "$PHP_INI_DIR/php.ini"
 
+# Disable OPcache in development
+RUN printf "opcache.enable=0\nopcache.enable_cli=0\n" > /usr/local/etc/php/conf.d/zz-opcache-dev.ini
+
 # Development environment
 ENV APP_ENV=dev
 ENV APP_DEBUG=1
@@ -66,9 +69,6 @@ FROM base AS builder
 # Copy application files
 COPY skeleton/ /var/www/html/
 
-# Create minimal .env file for Symfony (required for composer install scripts)
-RUN echo "APP_ENV=prod" > /var/www/html/.env
-
 # Install PHP dependencies (production only)
 RUN composer install --no-dev --optimize-autoloader --no-interaction --no-progress
 
@@ -82,6 +82,9 @@ RUN if [ -f "package.json" ]; then \
 # PRODUCTION TARGET
 # ============================================================
 FROM base AS production
+
+# Create minimal .env file for Symfony (required for composer install scripts)
+RUN echo "APP_ENV=prod" > /var/www/html/.env
 
 # Use production PHP settings
 RUN mv "$PHP_INI_DIR/php.ini-production" "$PHP_INI_DIR/php.ini"

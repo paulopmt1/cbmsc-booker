@@ -5,11 +5,16 @@
 # https://symfony.com/doc/current/best_practices.html#use-parameters-for-application-configuration
 parameters:
     google_credentials_json: '%env(GOOGLE_CREDENTIALS_JSON)%'
+    cpf_do_querubin: '%env(int:CPF_DO_QUERUBIN)%'
 
 services:
     App\Service\GoogleSheetsService:
         arguments:
             $credentialsJson: '%google_credentials_json%'
+    
+    App\Service\CalculadorDePontos:
+        arguments:
+            $cpfDoQuerubin: '%cpf_do_querubin%'
 
     App\Service\ConversorPlanilhasBombeiro:
         autowire: true
