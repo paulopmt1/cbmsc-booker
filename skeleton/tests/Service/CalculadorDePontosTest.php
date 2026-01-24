@@ -72,7 +72,7 @@ class CalculadorDePontosTest extends TestCase
      */
     public function testDistribuirTurnosParaMesComQuerubim(): void
     {
-        $querubim = new Bombeiro('BC CHEROBIN ', strval(CbmscConstants::CPF_DO_QUERUBIN), false);
+        $querubim = new Bombeiro('BC CHEROBIN ', strval(CbmscConstants::getCpfDoQuerubin()), false);
         $querubim->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
         $querubim->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_INTEGRAL));
         $querubim->adicionarDisponibilidade(new Disponibilidade(2, CbmscConstants::TURNO_INTEGRAL));
@@ -316,7 +316,7 @@ class CalculadorDePontosTest extends TestCase
     public function testDistribuirTurnosParaMesCombinacaoComplexa(): void
     {
         // Querubim com carteira
-        $querubim = new Bombeiro('BC CHEROBIN ', strval(CbmscConstants::CPF_DO_QUERUBIN), true);
+        $querubim = new Bombeiro('BC CHEROBIN ', strval(CbmscConstants::getCpfDoQuerubin()), true);
         $querubim->setCidadeOrigem(CbmscConstants::CIDADE_VIDEIRA);
         for ($dia = 1; $dia <= 5; $dia++) {
             $querubim->adicionarDisponibilidade(new Disponibilidade($dia, CbmscConstants::TURNO_INTEGRAL));

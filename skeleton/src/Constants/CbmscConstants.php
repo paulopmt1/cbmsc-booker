@@ -12,7 +12,9 @@ class CbmscConstants {
     public const CIDADE_CACADOR = "Caçador";
     
     // CPFs especiais
-    public const CPF_DO_QUERUBIN = 10010010001; // CPF do Querubin
+    public static function getCpfDoQuerubin(): int {
+        return (int) ($_ENV['CPF_DO_QUERUBIN'] ?? 10010010001);
+    }
 
     // Colunas da planilha de respostas
     public const PLANILHA_HORARIOS_COLUNA_NOME = 1; // B (coluna 0 (A) é a data da resposta)
