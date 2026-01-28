@@ -57,18 +57,6 @@ class SyncController extends AbstractController
             }
 
             $diasSelecionados = $this->parseSelectedDays($diasMotoristaHidden);
-            
-            if ($diasSelecionados === null || empty($diasSelecionados)) {
-                $this->addFlash('error', 'É necessário selecionar pelo menos um dia válido no campo "Quais dias precisamos de motorista?"!');
-                return $this->render('home.html.twig', [
-                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                    'sheetIdPreliminar' => $sheetIdPreliminar,
-                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                    'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden,
-                    'tipoProcessamento' => $tipoProcessamento
-                ]);
-            }
 
             try 
             {

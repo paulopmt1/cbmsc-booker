@@ -96,10 +96,12 @@ class ConversorPlanilhasBombeiro
                 $indiceTurno = CbmscConstants::PLANILHA_PME_COLUNA_DIA_1 + $dia + $correcaoIndice;
 
                 $bombeiroSelecionadoEmAlgumTurno = false;
-                foreach ($todosOsTurnos[$dia] as $turno => $bombeiros) {
-                    if (in_array($bombeiro, $bombeiros)) {
-                        $bombeiroSelecionadoEmAlgumTurno = true;
-                        break;
+                if (isset($todosOsTurnos[$dia])) {
+                    foreach ($todosOsTurnos[$dia] as $turno => $bombeiros) {
+                        if (in_array($bombeiro, $bombeiros)) {
+                            $bombeiroSelecionadoEmAlgumTurno = true;
+                            break;
+                        }
                     }
                 }
                 
