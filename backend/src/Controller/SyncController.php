@@ -3,10 +3,10 @@
 namespace App\Controller;
 
 use App\Constants\CbmscConstants;
-use App\Service\CalculadorDeAntiguidade;
-use App\Service\CalculadorDePontos;
-use App\Service\GoogleSheetsService;
-use App\Service\ConversorPlanilhasBombeiro;
+use App\FiremanBundle\Service\FiremanSpreadsheetConverter;
+use App\FiremanBundle\Service\SeniorityCalculator;
+use App\GoogleSheetsBundle\Service\GoogleSheetsService;
+use App\ShiftBundle\Service\ShiftAllocator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBagInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -19,144 +19,144 @@ class SyncController extends AbstractController
     public function handleSync(
         Request $request,
         GoogleSheetsService $googleSheetsService,
-        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
-        CalculadorDeAntiguidade $calculadorDeAntiguidade,
+        FiremanSpreadsheetConverter $firemanSpreadsheetConverter,
+        SeniorityCalculator $seniorityCalculator,
         ParameterBagInterface $parameterBag
     ): Response {
         
         if ($request->isMethod('POST'))
         {
-            $sheetIdEscolhaHorarios = $request->request->get('sheetIdEscolhaHorarios');
-            $sheetIdPreliminar = $request->request->get('sheetIdPreliminar');
-            $sheetIdAntiguidade = $request->request->get('sheetIdAntiguidade');
-            $cotasPorDia = $request->request->get('cotasPorDia');
-            $diasMotoristaHidden = $request->request->get('diasMotoristaHidden');
-            $tipoProcessamento = $request->request->get('tipoProcessamento') ? 'algoritmo' : 'simples';
+            $scheduleSelectionSheetId = $request->request->get('sheetIdEscolhaHorarios');
+            $preliminarySheetId = $request->request->get('sheetIdPreliminar');
+            $senioritySheetId = $request->request->get('sheetIdAntiguidade');
+            $dailyQuotas = $request->request->get('cotasPorDia');
+            $driverDaysValue = $request->request->get('diasMotoristaHidden');
+            $processingType = $request->request->get('tipoProcessamento') ? 'algoritmo' : 'simples';
 
-            if (!$sheetIdEscolhaHorarios || !$sheetIdPreliminar) 
+            if (!$scheduleSelectionSheetId || !$preliminarySheetId)
             {
                 $this->addFlash('error', 'Os IDs corretos das planilhas são necessários para realizar a sincronização!');
             }
 
-            // Validate cotasPorDia
-            if ($cotasPorDia === null || $cotasPorDia === '') {
+            // Validate dailyQuotas
+            if ($dailyQuotas === null || $dailyQuotas === '') {
                 $this->addFlash('error', 'O campo "Cotas por dia" é obrigatório! 2.5 é o padrão.');
             }
 
-            $cotasPorDiaFloat = floatval($cotasPorDia);
-            if ($cotasPorDiaFloat <= 0 || !is_numeric($cotasPorDia)) {
+            $dailyQuotasValue = floatval($dailyQuotas);
+            if ($dailyQuotasValue <= 0 || !is_numeric($dailyQuotas)) {
                 $this->addFlash('error', 'O campo "Cotas por dia" deve ser um número positivo maior que zero!');
                 return $this->render('home.html.twig', [
-                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                    'sheetIdPreliminar' => $sheetIdPreliminar,
-                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                    'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden,
-                    'tipoProcessamento' => $tipoProcessamento
+                    'scheduleSelectionSheetId' => $scheduleSelectionSheetId,
+                    'preliminarySheetId' => $preliminarySheetId,
+                    'senioritySheetId' => $senioritySheetId,
+                    'dailyQuotas' => $dailyQuotas,
+                    'driverDaysValue' => $driverDaysValue,
+                    'processingType' => $processingType
                 ]);
             }
 
-            $diasSelecionados = $this->parseSelectedDays($diasMotoristaHidden);
+            $selectedDays = $this->parseSelectedDays($driverDaysValue);
 
             try 
             {
                 // Validate that the sheet title contains "escolha de horários" to prevent miscopying
-                $escolhaHorariosTitle = $googleSheetsService->getSpreadsheetTitle($sheetIdEscolhaHorarios);
-                if (stripos($escolhaHorariosTitle, 'escolha de horários') === false && stripos($escolhaHorariosTitle, 'escolha de horarios') === false) {
-                    $this->addFlash('error', 'A planilha de escolha de horários deve conter "escolha de horários" no título. Título encontrado: "' . $escolhaHorariosTitle . '"');
+                $scheduleSelectionTitle = $googleSheetsService->getSpreadsheetTitle($scheduleSelectionSheetId);
+                if (stripos($scheduleSelectionTitle, 'escolha de horários') === false && stripos($scheduleSelectionTitle, 'escolha de horarios') === false) {
+                    $this->addFlash('error', 'A planilha de escolha de horários deve conter "escolha de horários" no título. Título encontrado: "' . $scheduleSelectionTitle . '"');
                     return $this->render('home.html.twig', [
-                        'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                        'sheetIdPreliminar' => $sheetIdPreliminar,
-                        'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                        'cotasPorDia' => $cotasPorDia,
-                        'diasMotorista' => $diasMotoristaHidden,
-                        'tipoProcessamento' => $tipoProcessamento
+                        'scheduleSelectionSheetId' => $scheduleSelectionSheetId,
+                        'preliminarySheetId' => $preliminarySheetId,
+                        'senioritySheetId' => $senioritySheetId,
+                        'dailyQuotas' => $dailyQuotas,
+                        'driverDaysValue' => $driverDaysValue,
+                        'processingType' => $processingType
                     ]);
                 }
 
                 // Validate that the sheet title contains "PME Preliminar" to prevent miscopying
-                $preliminarTitle = $googleSheetsService->getSpreadsheetTitle($sheetIdPreliminar);
-                if (stripos($preliminarTitle, 'PME Preliminar') === false) {
-                    $this->addFlash('error', 'A planilha preliminar deve conter "PME Preliminar" no título. Título encontrado: "' . $preliminarTitle . '"');
+                $preliminaryTitle = $googleSheetsService->getSpreadsheetTitle($preliminarySheetId);
+                if (stripos($preliminaryTitle, 'PME Preliminar') === false) {
+                    $this->addFlash('error', 'A planilha preliminar deve conter "PME Preliminar" no título. Título encontrado: "' . $preliminaryTitle . '"');
                     return $this->render('home.html.twig', [
-                        'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                        'sheetIdPreliminar' => $sheetIdPreliminar,
-                        'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                        'cotasPorDia' => $cotasPorDia,
-                        'diasMotorista' => $diasMotoristaHidden,
-                        'tipoProcessamento' => $tipoProcessamento
+                        'scheduleSelectionSheetId' => $scheduleSelectionSheetId,
+                        'preliminarySheetId' => $preliminarySheetId,
+                        'senioritySheetId' => $senioritySheetId,
+                        'dailyQuotas' => $dailyQuotas,
+                        'driverDaysValue' => $driverDaysValue,
+                        'processingType' => $processingType
                     ]);
                 }
 
-                $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($sheetIdEscolhaHorarios, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
-                $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+                $rawSpreadsheetData = $googleSheetsService->getSheetData($scheduleSelectionSheetId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
+                $firefighters = $firemanSpreadsheetConverter->convertePlanilhaParaObjetosDeBombeiros($rawSpreadsheetData);
 
                 // Load antiguidade data from spreadsheet (A2:B to skip header row)
-                if ($sheetIdAntiguidade) {
+                if ($senioritySheetId) {
                     // Validate that the sheet title contains "antiguidade" to prevent miscopying
-                    $antiguidadeTitle = $googleSheetsService->getSpreadsheetTitle($sheetIdAntiguidade);
-                    if (stripos($antiguidadeTitle, 'antiguidade') === false) {
-                        $this->addFlash('error', 'A planilha de antiguidade deve conter "antiguidade" no título. Título encontrado: "' . $antiguidadeTitle . '"');
+                    $seniorityTitle = $googleSheetsService->getSpreadsheetTitle($senioritySheetId);
+                    if (stripos($seniorityTitle, 'antiguidade') === false) {
+                        $this->addFlash('error', 'A planilha de antiguidade deve conter "antiguidade" no título. Título encontrado: "' . $seniorityTitle . '"');
                         return $this->render('home.html.twig', [
-                            'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                            'sheetIdPreliminar' => $sheetIdPreliminar,
-                            'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                            'cotasPorDia' => $cotasPorDia,
-                            'diasMotorista' => $diasMotoristaHidden,
-                            'tipoProcessamento' => $tipoProcessamento
+                            'scheduleSelectionSheetId' => $scheduleSelectionSheetId,
+                            'preliminarySheetId' => $preliminarySheetId,
+                            'senioritySheetId' => $senioritySheetId,
+                            'dailyQuotas' => $dailyQuotas,
+                            'driverDaysValue' => $driverDaysValue,
+                            'processingType' => $processingType
                         ]);
                     }
                     
-                    $antiguidadeData = $googleSheetsService->getSheetData($sheetIdAntiguidade, 'A2:B');
-                    $calculadorDeAntiguidade->setAntiguidadeData($antiguidadeData);
+                    $seniorityData = $googleSheetsService->getSheetData($senioritySheetId, 'A2:B');
+                    $seniorityCalculator->setAntiguidadeData($seniorityData);
                 }
 
-                // Convert cotasPorDia to hours (1 cota = 24 hours)
-                $horasPorDia = $cotasPorDiaFloat * 24;
+                // Convert dailyQuotas to hours (1 quota = 24 hours)
+                $dailyHours = $dailyQuotasValue * 24;
 
-                $cpfDoQuerubin = $parameterBag->get('cpf_do_querubin');
-                $servico = new CalculadorDePontos($calculadorDeAntiguidade, $cpfDoQuerubin);
-                foreach ($bombeiros as $bombeiro) {
-                    $servico->adicionarBombeiro($bombeiro);
+                $priorityFirefighterCpf = $parameterBag->get('cpf_do_querubin');
+                $allocatorService = new ShiftAllocator($seniorityCalculator, $priorityFirefighterCpf);
+                foreach ($firefighters as $firefighter) {
+                    $allocatorService->adicionarBombeiro($firefighter);
                 }
-                $todosOsTurnos = $servico->distribuirTurnosParaMes($horasPorDia, $diasSelecionados);
+                $allShifts = $allocatorService->distribuirTurnosParaMes($dailyHours, $selectedDays);
 
                 // Escolha do tipo de processamento baseado na seleção do usuário
-                if ($tipoProcessamento === 'simples') {
+                if ($processingType === 'simples') {
                     // Conversão simples: apenas converte respostas para PME preliminar
-                    $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterBombeirosParaPlanilha($bombeiros);
+                    $processedSpreadsheetData = $firemanSpreadsheetConverter->converterBombeirosParaPlanilha($firefighters);
                 } else {
                     // Processar com Algoritmo: gera a sugestão do algoritmo de distribuição de turnos
-                    $dadosPlanilhaProcessados = $conversorPlanilhasBombeiro->converterTurnosDisponibilidadeParaPlanilha($todosOsTurnos, $bombeiros);
+                    $processedSpreadsheetData = $firemanSpreadsheetConverter->converterTurnosDisponibilidadeParaPlanilha($allShifts, $firefighters);
                 }
 
-                if ( count($dadosPlanilhaProcessados) == 0 ) {
+                if ( count($processedSpreadsheetData) == 0 ) {
                     $this->addFlash('error', 'Nenhum dado foi processado. Por favor, verifique se os IDs das planilhas estão corretos ou se há dados nas planilhas.');
                     return $this->render('home.html.twig', [
-                        'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                        'sheetIdPreliminar' => $sheetIdPreliminar,
-                        'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                        'cotasPorDia' => $cotasPorDia,
-                        'diasMotorista' => $diasMotoristaHidden,
-                        'tipoProcessamento' => $tipoProcessamento
+                        'scheduleSelectionSheetId' => $scheduleSelectionSheetId,
+                        'preliminarySheetId' => $preliminarySheetId,
+                        'senioritySheetId' => $senioritySheetId,
+                        'dailyQuotas' => $dailyQuotas,
+                        'driverDaysValue' => $driverDaysValue,
+                        'processingType' => $processingType
                     ]);
                 }
 
-                $numberOfLines = count($bombeiros);
+                $numberOfLines = count($firefighters);
                 $spreadsheetRange = CbmscConstants::PLANILHA_PME_COLUNA_NOMES . CbmscConstants::PLANILHA_PME_PRIMEIRA_LINHA_NOMES . 
                     ":" . CbmscConstants::PLANILHA_PME_COLUNA_DIA_31 . 
                     (CbmscConstants::PLANILHA_PME_PRIMEIRA_LINHA_NOMES + $numberOfLines);
 
-                $googleSheetsService->updateData($sheetIdPreliminar, $spreadsheetRange, $dadosPlanilhaProcessados);
+                $googleSheetsService->updateData($preliminarySheetId, $spreadsheetRange, $processedSpreadsheetData);
 
                 $this->addFlash('success', 'Dados sincronizados com sucesso!');
                 return $this->render('home.html.twig', [
-                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                    'sheetIdPreliminar' => $sheetIdPreliminar,
-                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                    'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden,
-                    'tipoProcessamento' => $tipoProcessamento
+                    'scheduleSelectionSheetId' => $scheduleSelectionSheetId,
+                    'preliminarySheetId' => $preliminarySheetId,
+                    'senioritySheetId' => $senioritySheetId,
+                    'dailyQuotas' => $dailyQuotas,
+                    'driverDaysValue' => $driverDaysValue,
+                    'processingType' => $processingType
                 ]);
             }
 
@@ -165,12 +165,12 @@ class SyncController extends AbstractController
                 $this->addFlash('error', 'Erro ao sincronizar planilhas. Verifique se os IDs das planilhas estão corretos e tente novamente.');
                 $this->addFlash('dev_error', $e->getMessage());
                 return $this->render('home.html.twig', [
-                    'sheetIdEscolhaHorarios' => $sheetIdEscolhaHorarios,
-                    'sheetIdPreliminar' => $sheetIdPreliminar,
-                    'sheetIdAntiguidade' => $sheetIdAntiguidade,
-                    'cotasPorDia' => $cotasPorDia,
-                    'diasMotorista' => $diasMotoristaHidden,
-                    'tipoProcessamento' => $tipoProcessamento
+                    'scheduleSelectionSheetId' => $scheduleSelectionSheetId,
+                    'preliminarySheetId' => $preliminarySheetId,
+                    'senioritySheetId' => $senioritySheetId,
+                    'dailyQuotas' => $dailyQuotas,
+                    'driverDaysValue' => $driverDaysValue,
+                    'processingType' => $processingType
                 ]);
             }
         }
@@ -181,17 +181,17 @@ class SyncController extends AbstractController
     /**
      * Parse selected days from comma-separated YYYY-MM-DD dates and return array of day numbers (1-31)
      * 
-     * @param string $diasMotoristaHidden Comma-separated dates in YYYY-MM-DD format
+     * @param string $driverDaysValue Comma-separated dates in YYYY-MM-DD format
      * @return array|null Array of day numbers (1-31) or null if no days selected
      */
-    private function parseSelectedDays(string $diasMotoristaHidden): ?array
+    private function parseSelectedDays(string $driverDaysValue): ?array
     {
-        if (empty($diasMotoristaHidden)) {
+        if (empty($driverDaysValue)) {
             return null;
         }
 
-        $dates = explode(',', $diasMotoristaHidden);
-        $dias = [];
+        $dates = explode(',', $driverDaysValue);
+        $days = [];
 
         foreach ($dates as $dateStr) {
             $dateStr = trim($dateStr);
@@ -208,11 +208,11 @@ class SyncController extends AbstractController
 
                 // Validate date
                 if (checkdate($month, $day, $year)) {
-                    $dias[] = $day;
+                    $days[] = $day;
                 }
             }
         }
 
-        return !empty($dias) ? array_unique($dias) : null;
+        return !empty($days) ? array_unique($days) : null;
     }
 }

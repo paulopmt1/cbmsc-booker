@@ -3,14 +3,14 @@
 namespace App\Controller;
 
 use App\Constants\CbmscConstants;
+use App\FiremanBundle\Service\FiremanSpreadsheetConverter;
+use App\FiremanBundle\Service\SeniorityCalculator;
+use App\GoogleSheetsBundle\Service\GoogleSheetsService;
+use App\ShiftBundle\Service\ShiftAllocator;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use App\Service\CalculadorDeAntiguidade;
-use App\Service\CalculadorDePontos;
-use App\Service\ConversorPlanilhasBombeiro;
-use App\Service\GoogleSheetsService;
 class ReactController extends AbstractController
 {
     #[Route('/react', name: 'app_react')]
@@ -21,31 +21,32 @@ class ReactController extends AbstractController
 
     #[Route('/consulta_escala_por_dia/{planilhaId}/{dia}', name: 'consulta_escala_por_dia')]
     public function consultaEscalaPorDia(
-        GoogleSheetsService $googleSheetsService, 
-        ConversorPlanilhasBombeiro $conversorPlanilhasBombeiro,
-        CalculadorDeAntiguidade $calculadorDeAntiguidade,
-        CalculadorDePontos $calculadorDePontos,
+        GoogleSheetsService $googleSheetsService,
+        FiremanSpreadsheetConverter $firemanSpreadsheetConverter,
+        SeniorityCalculator $seniorityCalculator,
+        ShiftAllocator $shiftAllocator,
         Request $request,
-        string $planilhaId, 
-        int $dia): Response
+    ): Response
     {
+        $spreadsheetId = (string) $request->attributes->get('planilhaId');
+        $day = (int) $request->attributes->get('dia');
         $withCache = $request->query->get('withCache', false);
-        $diasSelecionados = $request->query->get('diasSelecionados', null);
-        $cotasPorDiaFloat = floatval($request->query->get('cotasPorDia', 2.5));
+        $selectedDays = $request->query->get('diasSelecionados', null);
+        $dailyQuotasValue = floatval($request->query->get('cotasPorDia', 2.5));
 
         if ($withCache && file_exists('/tmp/dadosPlanilhaBrutos.json')) {
-            $dadosPlanilhaBrutos = json_decode(file_get_contents('/tmp/dadosPlanilhaBrutos.json'), true);
+            $rawSpreadsheetData = json_decode(file_get_contents('/tmp/dadosPlanilhaBrutos.json'), true);
         } else {
-            $dadosPlanilhaBrutos = $googleSheetsService->getSheetData($planilhaId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
+            $rawSpreadsheetData = $googleSheetsService->getSheetData($spreadsheetId, CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_INITIAL . ":" . CbmscConstants::PLANILHA_HORARIOS_COLUNA_DATA_FINAL);
             if ($withCache) {
-                file_put_contents('/tmp/dadosPlanilhaBrutos.json', json_encode($dadosPlanilhaBrutos));
+                file_put_contents('/tmp/dadosPlanilhaBrutos.json', json_encode($rawSpreadsheetData));
             }
         }
 
-        $bombeiros = $conversorPlanilhasBombeiro->convertePlanilhaParaObjetosDeBombeiros($dadosPlanilhaBrutos);
+        $firefighters = $firemanSpreadsheetConverter->convertePlanilhaParaObjetosDeBombeiros($rawSpreadsheetData);
 
         // Exibe o total de bombeiros
-        echo "<h3>Total de bombeiros: " . count($bombeiros) . "</h3>";
+        echo "<h3>Total de bombeiros: " . count($firefighters) . "</h3>";
 
         // Exibe as regras de distribuição de turnos
         echo "<h3>Regras de distribuição de turnos</h3>";
@@ -72,51 +73,51 @@ class ReactController extends AbstractController
         echo "</ul>";
 
         // Adicionar os bombeiros ao serviço
-        $servico = new CalculadorDePontos($calculadorDeAntiguidade);
-        foreach ($bombeiros as $bombeiro) {
-            $servico->adicionarBombeiro($bombeiro);
+        $allocatorService = $shiftAllocator;
+        foreach ($firefighters as $firefighter) {
+            $allocatorService->adicionarBombeiro($firefighter);
         }
         
-        $servico->computarPontuacaoBombeiros(true);
-        // $diasSelecionados virá como numerico separado por virgula
-        $diasSelecionadosArray = explode(',', $diasSelecionados);
+        $allocatorService->computarPontuacaoBombeiros(true);
+        // $selectedDays virá como numerico separado por virgula
+        $selectedDaysArray = explode(',', $selectedDays);
 
-        $horasPorDia = $cotasPorDiaFloat * 24;
-        $turnosParaMes = $servico->distribuirTurnosParaMes($horasPorDia , $diasSelecionadosArray);
-        $turnosParaDia = $turnosParaMes[$dia];
+        $dailyHours = $dailyQuotasValue * 24;
+        $shiftsForMonth = $allocatorService->distribuirTurnosParaMes($dailyHours , $selectedDaysArray);
+        $shiftsForDay = $shiftsForMonth[$day];
 
-        echo "<h3>Turnos do dia " . $dia . "</h3>";
-        $servico->print_turnos_do_mes($dia, $turnosParaMes);
+        echo "<h3>Turnos do dia " . $day . "</h3>";
+        $allocatorService->print_turnos_do_mes($day, $shiftsForMonth);
 
         // Exibir dos turnos aprovados
         echo "<h3>Turnos aprovados</h3>";
         
-        foreach ($turnosParaDia as $key => $conflito) {
+        foreach ($shiftsForDay as $key => $shiftGroup) {
             echo '<strong>' . $key . '</strong><br>';
-            foreach ($conflito as $bombeiro) {
-                echo $bombeiro->getNome() . ' - Pontuação: ' . $bombeiro->getPontuacao() . '<br>';
+            foreach ($shiftGroup as $firefighter) {
+                echo $firefighter->getNome() . ' - Pontuação: ' . $firefighter->getPontuacao() . '<br>';
             }
             echo "<br>";
         }
 
         echo "<h3>BCs sem horário</h3>";
-        foreach ($bombeiros as $bombeiro) {
-            if (count($bombeiro->getTurnosAdquiridos()) == 0) {
-                echo $bombeiro->getNome() . '<br>';
+        foreach ($firefighters as $firefighter) {
+            if (count($firefighter->getTurnosAdquiridos()) == 0) {
+                echo $firefighter->getNome() . '<br>';
             }
         }
 
         echo "<h3 style='padding-top: 20px; clear: both;'>Serviços recebidos por BC</h3>";
 
-        foreach ($calculadorDePontos->ordenaBombeirosPorPercentualDeServicosAceitos($bombeiros) as $bombeiro) {
-            echo $bombeiro->getNome() . ' - ' . 
-            count($bombeiro->getTurnosAdquiridos()) . ' de ' . $bombeiro->getDiasSolicitados() . ' dias - ' . 
-            round($bombeiro->getPercentualDeServicosAceitos()) . '% - Dias adquiridos: ' . count($bombeiro->getTurnosAdquiridos()) . '<br><small>(';
-            foreach ($bombeiro->getTurnosAdquiridos() as $turno) {
-                echo $turno->getDia() . ' - ' . $turno->getTurno() . ' | ';
+        foreach ($shiftAllocator->ordenaBombeirosPorPercentualDeServicosAceitos($firefighters) as $firefighter) {
+            echo $firefighter->getNome() . ' - ' .
+            count($firefighter->getTurnosAdquiridos()) . ' de ' . $firefighter->getDiasSolicitados() . ' dias - ' .
+            round($firefighter->getPercentualDeServicosAceitos()) . '% - Dias adquiridos: ' . count($firefighter->getTurnosAdquiridos()) . '<br><small>(';
+            foreach ($firefighter->getTurnosAdquiridos() as $shift) {
+                echo $shift->getDia() . ' - ' . $shift->getTurno() . ' | ';
             }
             echo ')</small><br><br>';
         }
         return new Response("");
     }
-} 
+}

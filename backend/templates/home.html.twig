@@ -37,29 +37,29 @@
 
                 <div class="form-group">
                     <label for="sheetIdEscolhaHorarios">Planilha da Escolha de Horários</label>
-                    <input type="text" id="sheetIdEscolhaHorarios" name="sheetIdEscolhaHorarios" value="{{ sheetIdEscolhaHorarios|default('') }}">
+                    <input type="text" id="sheetIdEscolhaHorarios" name="sheetIdEscolhaHorarios" value="{{ scheduleSelectionSheetId|default('') }}">
                 </div>
 
                 <div class="form-group">
                     <label for="sheetIdPreliminar">Planilha PME Preliminar</label>
-                    <input type="text" id="sheetIdPreliminar" name="sheetIdPreliminar" value="{{ sheetIdPreliminar|default('') }}">
+                    <input type="text" id="sheetIdPreliminar" name="sheetIdPreliminar" value="{{ preliminarySheetId|default('') }}">
                 </div>
 
                 <div class="form-group">
                     <label for="diasMotorista">Quais dias precisamos de motorista?</label>
                     <input type="text" id="diasMotorista" name="diasMotorista" placeholder="Selecione os dias" readonly>
-                    <input type="hidden" id="diasMotoristaHidden" name="diasMotoristaHidden" value="{{ diasMotorista|default('') }}">
+                    <input type="hidden" id="diasMotoristaHidden" name="diasMotoristaHidden" value="{{ driverDaysValue|default('') }}">
                 </div>
 
                 <div class="form-group">
                     <label>Tipo de processamento</label>
                     <div class="toggle-container">
-                        <span class="toggle-label {% if tipoProcessamento|default('algoritmo') == 'simples' %}active{% endif %}">Conversão simples</span>
+                        <span class="toggle-label {% if processingType|default('algoritmo') == 'simples' %}active{% endif %}">Conversão simples</span>
                         <label class="toggle-switch">
-                            <input type="checkbox" name="tipoProcessamento" value="algoritmo" {% if tipoProcessamento|default('algoritmo') == 'algoritmo' %}checked{% endif %}>
+                            <input type="checkbox" name="tipoProcessamento" value="algoritmo" {% if processingType|default('algoritmo') == 'algoritmo' %}checked{% endif %}>
                             <span class="toggle-slider"></span>
                         </label>
-                        <span class="toggle-label {% if tipoProcessamento|default('algoritmo') == 'algoritmo' %}active{% endif %}">Processar com Algoritmo</span>
+                        <span class="toggle-label {% if processingType|default('algoritmo') == 'algoritmo' %}active{% endif %}">Processar com Algoritmo</span>
                     </div>
                 </div>
 
@@ -71,12 +71,12 @@
                     <div class="advanced-content">
                         <div class="form-group">
                             <label for="cotasPorDia">Cotas por dia (geralmente 2,5)</label>
-                            <input type="number" value="2.5" id="cotasPorDia" name="cotasPorDia" value="{{ cotasPorDia|default('') }}" step="any">
+                            <input type="number" id="cotasPorDia" name="cotasPorDia" value="{{ dailyQuotas|default('2.5') }}" step="any">
                         </div>
                         <div class="form-group">
                             <label for="sheetIdAntiguidade">Planilha de Antiguidade</label>
-                            <input type="text" id="sheetIdAntiguidade" name="sheetIdAntiguidade" 
-                                   value="{{ sheetIdAntiguidade|default('1X0ddhFFQIsxBUE58HFfLd0PLBqT-UGLQxgd-A1E5XD4') }}">
+                            <input type="text" id="sheetIdAntiguidade" name="sheetIdAntiguidade"
+                                   value="{{ senioritySheetId|default('1X0ddhFFQIsxBUE58HFfLd0PLBqT-UGLQxgd-A1E5XD4') }}">
                         </div>
                     </div>
                 </div>
@@ -94,11 +94,11 @@
 
             <script>
                 document.addEventListener('DOMContentLoaded', function() {
-                    const diasMotoristaInput = document.getElementById('diasMotorista');
-                    const diasMotoristaHidden = document.getElementById('diasMotoristaHidden');
+                    const driverDaysInput = document.getElementById('diasMotorista');
+                    const driverDaysValue = document.getElementById('diasMotoristaHidden');
                     
                     // Initialize Flatpickr with multiple date selection
-                    const flatpickrInstance = flatpickr(diasMotoristaInput, {
+                    const flatpickrInstance = flatpickr(driverDaysInput, {
                         mode: "multiple",
                         dateFormat: "d/m/Y",
                         locale: {
@@ -121,13 +121,13 @@
                                 const year = date.getFullYear();
                                 return `${year}-${month}-${day}`;
                             });
-                            diasMotoristaHidden.value = datesArray.join(',');
+                            driverDaysValue.value = datesArray.join(',');
                         }
                     });
 
                     // If there's a pre-existing value, parse and set it
-                    if (diasMotoristaHidden.value) {
-                        const dates = diasMotoristaHidden.value.split(',');
+                    if (driverDaysValue.value) {
+                        const dates = driverDaysValue.value.split(',');
                         const parsedDates = dates.map(dateStr => {
                             const [year, month, day] = dateStr.split('-');
                             return new Date(parseInt(year), parseInt(month) - 1, parseInt(day));

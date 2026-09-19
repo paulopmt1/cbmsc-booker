@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # PHP + Apache service
   web:
@@ -15,7 +13,8 @@ services:
       - ./backend/:/var/www/html
       - ./apache.conf:/etc/apache2/sites-available/000-default.conf
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     environment:
       - MYSQL_HOST=db
       - MYSQL_USER=${MYSQL_USER:-cbmsc_user}
@@ -40,6 +39,12 @@ services:
       - MYSQL_PASSWORD=${MYSQL_PASSWORD:-root}
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -p\"$$MYSQL_ROOT_PASSWORD\" --silent"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
 
   # phpMyAdmin service
   phpmyadmin:
@@ -49,10 +54,11 @@ services:
       - "8085:80"
     environment:
       - PMA_HOST=db
-      - PMA_USER=myuser
-      - PMA_PASSWORD=mypassword
+      - PMA_USER=${MYSQL_USER:-cbmsc_user}
+      - PMA_PASSWORD=${MYSQL_PASSWORD:-root}
     depends_on:
-      - db
+      db:
+        condition: service_healthy
 
 volumes:
-  mysql_data: 
+  mysql_data:

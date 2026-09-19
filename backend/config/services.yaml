@@ -8,15 +8,15 @@ parameters:
     cpf_do_querubin: '%env(int:CPF_DO_QUERUBIN)%'
 
 services:
-    App\Service\GoogleSheetsService:
+    App\GoogleSheetsBundle\Service\GoogleSheetsService:
         arguments:
             $credentialsJson: '%google_credentials_json%'
     
-    App\Service\CalculadorDePontos:
+    App\ShiftBundle\Service\ShiftAllocator:
         arguments:
-            $cpfDoQuerubin: '%cpf_do_querubin%'
+            $priorityFirefighterCpf: '%cpf_do_querubin%'
 
-    App\Service\ConversorPlanilhasBombeiro:
+    App\FiremanBundle\Service\FiremanSpreadsheetConverter:
         autowire: true
 
     # default configuration for services in *this* file
@@ -30,9 +30,11 @@ services:
         resource: '../src/'
         exclude:
             - '../src/DependencyInjection/'
-            - '../src/Entity/'
+            - '../src/FiremanBundle/Entity/'
+            - '../src/AvailabilityBundle/Entity/'
+            - '../src/ShiftBundle/Entity/'
             - '../src/Kernel.php'
-            - '../src/Service/GoogleSheetsService.php'
+            - '../src/GoogleSheetsBundle/Service/GoogleSheetsService.php'
 
     # add more service definitions when explicit configuration is needed
     # please note that last definitions always *replace* previous ones

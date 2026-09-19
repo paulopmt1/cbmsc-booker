@@ -67,15 +67,15 @@ class CbmscConstants {
     /**
      * Verifica se uma cidade é válida
      */
-    public static function isCidadeValida(string $cidade): bool {
-        return in_array($cidade, self::getCidadesValidas());
+    public static function isCidadeValida(string $city): bool {
+        return in_array($city, self::getCidadesValidas());
     }
     
     /**
      * Retorna a pontuação para uma cidade específica
      */
-    public static function getPontuacaoPorCidade(string $cidade): int {
-        switch ($cidade) {
+    public static function getPontuacaoPorCidade(string $city): int {
+        switch ($city) {
             case self::CIDADE_VIDEIRA:
                 return self::PONTUACAO_VIDEIRA;
             case self::CIDADE_FRAIBURGO:

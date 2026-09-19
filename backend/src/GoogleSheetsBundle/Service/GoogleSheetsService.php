@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Service;
+namespace App\GoogleSheetsBundle\Service;
 
 use Exception;
 use Google\Client;
