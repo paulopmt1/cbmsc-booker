@@ -9,6 +9,17 @@
         beStrictAboutTestsThatDoNotTestAnything="true"
         failOnRisky="true"
         failOnWarning="true">
+    <php>
+        <ini name="display_errors" value="1" />
+        <ini name="error_reporting" value="-1" />
+        <server name="APP_ENV" value="test" force="true" />
+        <server name="KERNEL_CLASS" value="App\Kernel" />
+        <env name="APP_SECRET" value="test-secret" />
+        <!-- GoogleSheetsService é substituído por um mock nos testes; estes valores só permitem compilar o container -->
+        <env name="GOOGLE_CREDENTIALS_JSON" value="{}" />
+        <env name="CPF_DO_QUERUBIN" value="10010010001" />
+    </php>
+
     <testsuites>
         <testsuite name="Project Test Suite">
             <directory>tests</directory>
