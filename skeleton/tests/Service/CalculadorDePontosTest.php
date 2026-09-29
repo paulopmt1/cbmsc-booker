@@ -653,6 +653,26 @@ class CalculadorDePontosTest extends TestCase
     }
 
     /**
+     * Comportamento atual (a confirmar): o limite de turnos integrais bloqueia também turnos
+     * DIURNO e NOTURNO. Um bombeiro com 3 integrais não recebe mais nenhum turno no mês.
+     * Se isso mudar intencionalmente, atualize este teste.
+     */
+    public function testLimiteTurnosIntegraisBloqueiaTambemMeiosTurnos(): void
+    {
+        $bombeiroComLimite = new Bombeiro('Bombeiro Com Limite', '11111111111', false);
+        $bombeiroComLimite->adicionarDisponibilidade(new Disponibilidade(1, CbmscConstants::TURNO_DIURNO));
+        $bombeiroComLimite->adicionaTurnoAdquirido(new Turno(0, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiroComLimite->adicionaTurnoAdquirido(new Turno(0, CbmscConstants::TURNO_INTEGRAL));
+        $bombeiroComLimite->adicionaTurnoAdquirido(new Turno(0, CbmscConstants::TURNO_INTEGRAL));
+
+        $this->calculador->adicionarBombeiro($bombeiroComLimite);
+
+        $resultado = $this->calculador->distribuirTurnosParaMes(60);
+
+        $this->assertEmpty($resultado[1][CbmscConstants::TURNO_DIURNO] ?? []);
+    }
+
+    /**
      * Teste: Dias com motorista adicional devem ser processados antes dos dias normais
      * Verifica que quando há dias que precisam de motorista adicional, eles são processados primeiro
      */
