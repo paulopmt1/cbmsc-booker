@@ -18,6 +18,11 @@
         <!-- GoogleSheetsService é substituído por um mock nos testes; estes valores só permitem compilar o container -->
         <env name="GOOGLE_CREDENTIALS_JSON" value="{}" />
         <env name="CPF_DO_QUERUBIN" value="10010010001" />
+        <!-- Os testes de controller compilam o container Doctrine sem abrir conexão com o banco. -->
+        <env name="MYSQL_HOST" value="127.0.0.1" />
+        <env name="MYSQL_DATABASE" value="cbmsc_booker" />
+        <env name="MYSQL_USER" value="test" />
+        <env name="MYSQL_PASSWORD" value="test" />
     </php>
 
     <testsuites>
