@@ -43,3 +43,9 @@ framework:
 #when@test:
 #    webpack_encore:
 #        strict_mode: false
+
+when@test:
+    framework:
+        assets:
+            # public/build não é versionado; os testes não dependem dos assets compilados
+            json_manifest_path: null

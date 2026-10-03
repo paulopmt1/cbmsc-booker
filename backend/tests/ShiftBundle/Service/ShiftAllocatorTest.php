@@ -656,6 +656,21 @@ class ShiftAllocatorTest extends TestCase
      * Teste: Dias com motorista adicional devem ser processados antes dos dias normais
      * Verifica que quando há dias que precisam de motorista adicional, eles são processados primeiro
      */
+    public function testLimiteTurnosIntegraisBloqueiaTambemMeiosTurnos(): void
+    {
+        $firefighterAtLimit = new FiremanEntity('Bombeiro Com Limite', '11111111111', false);
+        $firefighterAtLimit->adicionarDisponibilidade(new AvailabilityEntity(1, CbmscConstants::TURNO_DIURNO));
+        for ($i = 0; $i < 3; $i++) {
+            $firefighterAtLimit->adicionaTurnoAdquirido(new ShiftEntity(0, CbmscConstants::TURNO_INTEGRAL));
+        }
+
+        $this->allocator->adicionarBombeiro($firefighterAtLimit);
+
+        $result = $this->allocator->distribuirTurnosParaMes(60);
+
+        $this->assertEmpty($result[1][CbmscConstants::TURNO_DIURNO] ?? []);
+    }
+
     public function testDiasComMotoristaAdicionalDevemSerProcessadosAntes(): void
     {
 
