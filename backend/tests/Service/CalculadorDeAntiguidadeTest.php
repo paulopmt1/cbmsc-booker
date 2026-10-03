@@ -2,7 +2,7 @@
 
 namespace App\Tests\Service;
 
-use App\Entity\Bombeiro;
+use App\Entity\Legacy\Bombeiro;
 use App\Service\CalculadorDeAntiguidade;
 use PHPUnit\Framework\TestCase;
 

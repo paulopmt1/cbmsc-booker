@@ -14,6 +14,26 @@ doctrine:
 
         profiling_collect_backtrace: '%kernel.debug%'
         use_savepoints: true
+    orm:
+        mappings:
+            Fireman:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/FiremanBundle/Entity'
+                prefix: 'App\FiremanBundle\Entity'
+                alias: Fireman
+            Availability:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/AvailabilityBundle/Entity'
+                prefix: 'App\AvailabilityBundle\Entity'
+                alias: Availability
+            Shift:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/ShiftBundle/Entity'
+                prefix: 'App\ShiftBundle\Entity'
+                alias: Shift
 when@test:
     doctrine:
         dbal:

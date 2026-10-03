@@ -2,7 +2,7 @@
 
 namespace App\Service;
 
-use App\Entity\Bombeiro;
+use App\Entity\Legacy\Bombeiro;
 
 class CalculadorDeAntiguidade
 {

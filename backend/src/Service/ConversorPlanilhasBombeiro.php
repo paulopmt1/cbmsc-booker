@@ -3,8 +3,8 @@
 namespace App\Service;
 
 use App\Constants\CbmscConstants;
-use App\Entity\Bombeiro;
-use App\Entity\Disponibilidade;
+use App\Entity\Legacy\Bombeiro;
+use App\Entity\Legacy\Disponibilidade;
 
 class ConversorPlanilhasBombeiro
 {

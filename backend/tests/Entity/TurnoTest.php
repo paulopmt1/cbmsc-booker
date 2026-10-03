@@ -3,7 +3,7 @@
 namespace App\Tests\Entity;
 
 use App\Constants\CbmscConstants;
-use App\Entity\Turno;
+use App\Entity\Legacy\Turno;
 use PHPUnit\Framework\TestCase;
 
 class TurnoTest extends TestCase
