@@ -1,0 +1,41 @@
+doctrine:
+    dbal:
+        driver: pdo_mysql
+        host: '%env(MYSQL_HOST)%'
+        port: 3306
+        dbname: '%env(MYSQL_DATABASE)%'
+        user: '%env(MYSQL_USER)%'
+        password: '%env(MYSQL_PASSWORD)%'
+        server_version: '8.0'
+        charset: utf8mb4
+        default_table_options:
+            charset: utf8mb4
+            collate: utf8mb4_unicode_ci
+
+        profiling_collect_backtrace: '%kernel.debug%'
+        use_savepoints: true
+    orm:
+        mappings:
+            Fireman:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/FiremanBundle/Entity'
+                prefix: 'App\FiremanBundle\Entity'
+                alias: Fireman
+            Availability:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/AvailabilityBundle/Entity'
+                prefix: 'App\AvailabilityBundle\Entity'
+                alias: Availability
+            Shift:
+                type: attribute
+                is_bundle: false
+                dir: '%kernel.project_dir%/src/ShiftBundle/Entity'
+                prefix: 'App\ShiftBundle\Entity'
+                alias: Shift
+when@test:
+    doctrine:
+        dbal:
+            # "TEST_TOKEN" is typically set by ParaTest
+            dbname_suffix: '_test%env(default::TEST_TOKEN)%'
