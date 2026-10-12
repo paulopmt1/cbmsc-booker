@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: skeleton
+        working-directory: backend
 
     steps:
       - uses: actions/checkout@v4
@@ -26,7 +26,7 @@ jobs:
         uses: actions/cache@v4
         with:
           path: ~/.composer/cache
-          key: composer-${{ hashFiles('skeleton/composer.lock') }}
+          key: composer-${{ hashFiles('backend/composer.lock') }}
           restore-keys: composer-
 
       # --no-scripts: os auto-scripts do Symfony (cache:clear) precisam das variáveis de produção

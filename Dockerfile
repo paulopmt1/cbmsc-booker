@@ -67,7 +67,7 @@ EXPOSE 80
 FROM base AS builder
 
 # Copy application files
-COPY skeleton/ /var/www/html/
+COPY backend/ /var/www/html/
 
 # Create minimal .env file for Symfony to avoid errors
 RUN touch /var/www/html/.env
