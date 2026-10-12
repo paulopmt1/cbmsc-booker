@@ -3,7 +3,7 @@
 namespace App\Tests\Entity;
 
 use App\Constants\CbmscConstants;
-use App\Entity\Disponibilidade;
+use App\Entity\Legacy\Disponibilidade;
 use PHPUnit\Framework\Attributes\DataProvider;
 use PHPUnit\Framework\TestCase;
 

@@ -3,8 +3,8 @@
 namespace App\Tests\Service;
 
 use App\Constants\CbmscConstants;
-use App\Entity\Bombeiro;
-use App\Entity\Turno;
+use App\Entity\Legacy\Bombeiro;
+use App\Entity\Legacy\Turno;
 use App\Service\CalculadorDeAntiguidade;
 use App\Service\CalculadorDePontos;
 use App\Service\ConversorPlanilhasBombeiro;

@@ -3,9 +3,9 @@
 namespace App\Tests\Entity;
 
 use App\Constants\CbmscConstants;
-use App\Entity\Bombeiro;
-use App\Entity\Disponibilidade;
-use App\Entity\Turno;
+use App\Entity\Legacy\Bombeiro;
+use App\Entity\Legacy\Disponibilidade;
+use App\Entity\Legacy\Turno;
 use PHPUnit\Framework\TestCase;
 
 class BombeiroTest extends TestCase

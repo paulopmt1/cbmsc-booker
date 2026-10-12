@@ -1,8 +1,8 @@
 <?php
 
-namespace App\Entity;
+namespace App\Entity\Legacy;
 
-use App\Entity\Disponibilidade;
+use App\Entity\Legacy\Disponibilidade;
 
 
 class Bombeiro {
@@ -18,7 +18,7 @@ class Bombeiro {
 
     /**
      * Array de turnos adquiridos
-     * @var array<App\Entity\Turno>
+     * @var array<App\Entity\Legacy\Turno>
      */
     private $turnosAdquiridos = [];
 
@@ -78,7 +78,7 @@ class Bombeiro {
     /**
      * Obtem a disponibilidade para um dia específico
      * @param int $dia
-     * @return App\Entity\Disponibilidade|null
+     * @return App\Entity\Legacy\Disponibilidade|null
      */
     public function getDisponibilidade(int $dia): ?Disponibilidade {
         foreach ($this->disponibilidades as $disponibilidade) {

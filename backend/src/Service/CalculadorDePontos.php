@@ -3,9 +3,9 @@
 namespace App\Service;
 
 use App\Constants\CbmscConstants;
-use App\Entity\Bombeiro;
+use App\Entity\Legacy\Bombeiro;
 use App\Service\CalculadorDeAntiguidade;
-use App\Entity\Turno;
+use App\Entity\Legacy\Turno;
 
 class CalculadorDePontos {
 
@@ -30,7 +30,7 @@ class CalculadorDePontos {
 
     /**
      * Array de bombeiros que serão utilizados para o serviço do mês
-     * @var $bombeiros array<App\Entity\Bombeiro>
+     * @var $bombeiros array<App\Entity\Legacy\Bombeiro>
      */
     private $bombeiros = [];
 

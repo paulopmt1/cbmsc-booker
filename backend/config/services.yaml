@@ -31,6 +31,9 @@ services:
         exclude:
             - '../src/DependencyInjection/'
             - '../src/Entity/'
+            - '../src/FiremanBundle/Entity/'
+            - '../src/AvailabilityBundle/Entity/'
+            - '../src/ShiftBundle/Entity/'
             - '../src/Kernel.php'
             - '../src/Service/GoogleSheetsService.php'
 
