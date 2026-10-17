@@ -1,0 +1,57 @@
+.split { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.cal { flex: 999 1 560px; min-width: 0; padding: 20px; }
+.aside { flex: 1 1 280px; min-width: 0; padding: 20px; display: flex; flex-direction: column; gap: 16px; }
+.cal-head { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-bottom: 16px; }
+.cal-title { font-size: 20px; font-weight: 600; flex: 1; min-width: 140px; }
+.cal-ctl { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.wdays { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; margin-bottom: 6px; }
+.wd { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; padding: 0 4px; }
+.grid7 { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.cell { position: relative; display: flex; flex-direction: column; align-items: flex-start; justify-content: space-between; gap: 6px; min-height: 92px; padding: 8px; background: #fff; border: 1px solid var(--line); border-radius: 8px; text-align: left; cursor: pointer; font-variant-numeric: tabular-nums; min-width: 0; }
+.cell:hover:not(:disabled) { border-color: var(--red); }
+.cell.empty { background: transparent; border-color: transparent; cursor: default; }
+.cell:disabled { cursor: default; }
+.dn { font-size: 14px; font-weight: 500; min-width: 24px; height: 24px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; padding: 0 4px; }
+.dn.today { background: var(--red); color: #fff; font-weight: 600; }
+.lbl { font-size: 12px; line-height: 1.2; padding: 3px 7px; border-radius: 5px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; border: 1px solid transparent; min-height: 1px; }
+.lbl:empty { display: none; }
+.dot { display: none; width: 8px; height: 8px; border-radius: 50%; }
+.c-past { opacity: .55; }
+.c-official { background: var(--red); border-color: var(--red); color: #fff; }
+.c-official:hover:not(:disabled) { border-color: #8A2A24; }
+.c-official .lbl { background: rgba(255, 255, 255, .2); color: #fff; }
+.c-official .dn.today { background: #fff; color: var(--red); }
+.c-official .dot { background: #fff; }
+.c-mine { background: var(--red-soft); border: 2px solid var(--red); padding: 7px; }
+.c-mine .lbl { color: var(--red); border: 1px dashed var(--red); background: #fff; font-weight: 500; }
+.c-mine .dot { border: 2px solid var(--red); }
+.c-taken { background: var(--soft-2); }
+.c-taken .lbl { color: var(--ink-2); border: 1px solid var(--line-strong); background: #fff; }
+.c-taken .dot { background: #9AA0A8; }
+.a-set .lbl { background: var(--red); color: #fff; font-weight: 500; }
+.a-set .dot { background: var(--red); }
+.a-int { background: var(--red-faint); }
+.a-int .lbl { border: 1px dashed var(--red); color: var(--red); background: var(--red-soft); font-weight: 500; }
+.a-int .dot { border: 2px solid var(--red); }
+.a-none .lbl { color: var(--muted); padding-left: 0; }
+.legend { display: flex; flex-wrap: wrap; gap: 8px 20px; margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--line); }
+.lg { display: inline-flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-2); }
+.lg.end { margin-left: auto; color: var(--muted); }
+.sw { width: 16px; height: 16px; border-radius: 4px; border: 1px solid var(--line-strong); background: #fff; display: inline-block; flex: 0 0 16px; }
+.sw-mine { background: var(--red-soft); border: 2px solid var(--red); }
+.sw-off { background: var(--red); border-color: var(--red); }
+.sw-taken { background: var(--soft-2); }
+.sw-aint { background: var(--red-soft); border: 1px dashed var(--red); }
+.sw-today { border-radius: 50%; background: var(--red); border-color: var(--red); }
+
+@media (max-width: 640px) {
+  .cal { padding: 12px; }
+  .cell { min-height: 52px; padding: 4px; align-items: center; justify-content: center; gap: 4px; }
+  .c-mine { padding: 3px; }
+  .lbl { display: none; }
+  .dot { display: block; }
+  .dn { font-size: 13px; }
+  .grid7, .wdays { gap: 3px; }
+  .wd { text-align: center; padding: 0; font-size: 11px; }
+  .cal-title { flex-basis: 100%; }
+}
