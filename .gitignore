@@ -1,7 +1,4 @@
 /node_modules
 /secrets
 backend/.phpunit.cache
-
-###> IDE ###
-/.idea/
-###< IDE ###
+.idea/
