@@ -1,0 +1,67 @@
+/* ---------- Login ---------- */
+.login-w { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px; background: #fff; }
+.login { width: 100%; max-width: 400px; display: flex; flex-direction: column; gap: 24px; }
+.login-head { display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+.login-head h1 { font-size: 24px; font-weight: 600; }
+.login-card { padding: 28px; display: flex; flex-direction: column; gap: 18px; }
+
+/* ---------- Dashboard ---------- */
+.kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 1fr)); gap: 16px; }
+.kpi { padding: 18px 20px; display: flex; flex-direction: column; gap: 4px; }
+.kpi-l { font-size: 13px; color: var(--muted); }
+.kpi-v { font-size: 32px; font-weight: 600; line-height: 1.1; font-variant-numeric: tabular-nums; }
+.kpi-v.red { color: var(--red); }
+.kpi-h { font-size: 13px; color: var(--muted); }
+.sec-h { display: flex; align-items: center; gap: 12px; padding: 16px 20px; border-bottom: 1px solid var(--line); }
+.sec-h h2 { font-size: 16px; font-weight: 600; flex: 1; }
+.lrow { display: flex; align-items: center; gap: 14px; width: 100%; padding: 12px 20px; border: 0; border-top: 1px solid var(--line-2); background: #fff; text-align: left; cursor: pointer; min-height: 56px; }
+.lrow:first-child { border-top: 0; }
+.lrow:hover { background: #F9FAFB; }
+.dbox { width: 46px; flex: 0 0 46px; text-align: center; line-height: 1.1; }
+.dbox b { display: block; font-size: 20px; font-weight: 600; font-variant-numeric: tabular-nums; }
+.dbox span { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.twocol { display: flex; flex-wrap: wrap; gap: 20px; align-items: flex-start; }
+.twocol > .card { flex: 1 1 360px; min-width: 0; }
+.prog-box { padding: 16px 20px; display: flex; flex-direction: column; gap: 8px; border-bottom: 1px solid var(--line-2); }
+.prog-row { display: flex; justify-content: space-between; font-size: 14px; }
+.prog-row b { font-weight: 600; }
+.prog { width: 100%; height: 8px; appearance: none; -webkit-appearance: none; border: 0; border-radius: 4px; overflow: hidden; display: block; }
+.prog::-webkit-progress-bar { background: #E9EAEC; }
+.prog::-webkit-progress-value { background: var(--red); }
+.prog::-moz-progress-bar { background: var(--red); }
+
+/* ---------- Bombeiros ---------- */
+.toolbar { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; }
+.sbox { position: relative; flex: 1 1 260px; min-width: 0; }
+.sbox svg { position: absolute; left: 12px; top: 12px; color: var(--muted); }
+.sbox .inp { padding-left: 40px; }
+.thead, .trow { display: grid; grid-template-columns: minmax(0, 2fr) 120px minmax(0, 2fr) 130px 100px 150px; gap: 16px; align-items: center; padding: 0 20px; }
+.thead { min-height: 44px; background: var(--soft); font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid var(--line); border-radius: 12px 12px 0 0; }
+.trow { min-height: 64px; border-top: 1px solid var(--line-2); font-size: 14px; }
+.trow:first-child { border-top: 0; }
+.tcell { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tname { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.tname b { font-weight: 500; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.tact { display: flex; gap: 8px; }
+
+/* ---------- Perfil ---------- */
+.prof { padding: 28px; display: flex; flex-direction: column; gap: 24px; max-width: 760px; }
+.prof-h { display: flex; align-items: center; gap: 20px; flex-wrap: wrap; }
+.prof-h h2 { font-size: 22px; font-weight: 600; }
+.prof-id { display: flex; flex-direction: column; gap: 6px; align-items: flex-start; }
+.prof .dl { border-top: 1px solid var(--line); padding-top: 24px; }
+
+/* ---------- Resumo do mês (bombeiro) ---------- */
+.aside h2 { font-size: 16px; font-weight: 600; }
+.sum-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.sum-box { background: var(--soft); border-radius: 10px; padding: 12px; }
+.sum-box .kpi-v { font-size: 26px; }
+
+@media (max-width: 760px) {
+  .thead { display: none; }
+  .trow { display: flex; flex-direction: column; align-items: stretch; gap: 6px; padding: 16px; white-space: normal; }
+  .trow .tcell { white-space: normal; }
+  .trow .mlab::before { content: attr(data-label) ': '; color: var(--muted); }
+  .tact .btn { flex: 1; }
+  .tact { margin-top: 6px; }
+}

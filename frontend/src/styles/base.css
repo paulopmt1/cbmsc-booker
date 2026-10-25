@@ -1,0 +1,103 @@
+/* ---------- Texto e cartões ---------- */
+.lede { color: var(--muted); font-size: 15px; line-height: 1.5; }
+.lede.sm { font-size: 14px; }
+.lede.xs { font-size: 13px; }
+.card { background: #fff; border: 1px solid var(--line); border-radius: 12px; }
+
+/* ---------- Botões ---------- */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border-radius: 8px; font-weight: 500; font-size: 15px; cursor: pointer; border: 1px solid transparent; white-space: nowrap; }
+.btn-p { background: var(--red); color: #fff; }
+.btn-p:hover { background: var(--red-hover); }
+.btn-p:disabled { background: var(--red-disabled); cursor: not-allowed; }
+.btn-s { background: #fff; border-color: var(--line-strong); color: var(--ink); }
+.btn-s:hover { background: var(--soft); }
+.btn-d { background: #fff; border-color: var(--red); color: var(--red); }
+.btn-d:hover { background: var(--red-soft); }
+.btn-sm { min-height: 36px; padding: 0 12px; font-size: 14px; }
+.ibtn { width: 44px; height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; cursor: pointer; color: var(--ink); }
+.ibtn:hover { background: var(--soft); }
+.nav:focus-visible, .btn:focus-visible, .cell:focus-visible, .seg-b:focus-visible, .row-b:focus-visible, .ibtn:focus-visible, .lrow:focus-visible, .xbtn:focus-visible { outline: 2px solid var(--red); outline-offset: 2px; }
+
+/* ---------- Badges e avatar ---------- */
+.badge { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 10px; border-radius: 12px; font-size: 12px; font-weight: 500; background: var(--soft-2); color: #2B3036; white-space: nowrap; }
+.badge i { width: 7px; height: 7px; border-radius: 50%; background: var(--ink); display: inline-block; }
+.badge.off i { background: transparent; border: 1.5px solid #6B7178; }
+.badge.red { background: #fff; border: 1px solid var(--red); color: var(--red); }
+.badge.solid { background: var(--red); color: #fff; }
+.badge.dash { background: var(--red-soft); border: 1px dashed var(--red); color: var(--red); }
+.badge.gray { background: var(--soft-2); color: var(--ink-2); }
+.av { width: 36px; height: 36px; flex: 0 0 36px; border-radius: 50%; background: var(--soft-2); color: var(--ink-2); font-weight: 600; font-size: 13px; display: flex; align-items: center; justify-content: center; }
+.av.lg { width: 72px; height: 72px; flex-basis: 72px; font-size: 24px; background: var(--red-soft); color: var(--red); }
+
+/* ---------- Logo ---------- */
+.logo { width: 70px; height: 70px; flex: 0 0 70px; border-radius: 50%; border: 3px solid var(--red); background: var(--red-soft); overflow: hidden; }
+.logo svg { display: block; width: 64px; height: 64px; }
+
+/* ---------- Formulários ---------- */
+.inp { width: 100%; height: 44px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; }
+.inp:focus { outline: 2px solid var(--red); outline-offset: -1px; border-color: var(--red); }
+.inp.inv { border-color: var(--red); background: var(--red-faint); }
+.sel { height: 44px; padding: 0 12px; border: 1px solid var(--line-strong); border-radius: 8px; background: #fff; min-width: 120px; }
+.field { display: flex; flex-direction: column; gap: 6px; }
+.field label { font-size: 14px; font-weight: 500; }
+.field .opt { font-weight: 400; color: var(--muted); }
+.err { font-size: 13px; color: var(--red); display: flex; gap: 6px; align-items: center; }
+.alert { display: flex; gap: 10px; align-items: flex-start; background: var(--red-soft); border: 1px solid var(--red); color: var(--red-dark); border-radius: 8px; padding: 10px 12px; font-size: 14px; line-height: 1.45; }
+.alert svg { flex: 0 0 18px; margin-top: 1px; }
+
+/* ---------- Avisos ---------- */
+.note { display: flex; gap: 12px; align-items: flex-start; background: var(--soft); border-radius: 10px; padding: 12px 16px; font-size: 14px; line-height: 1.5; color: #2B3036; }
+.note svg { flex: 0 0 20px; margin-top: 1px; color: var(--red); }
+.callout { display: flex; gap: 12px; background: var(--soft); border-radius: 10px; padding: 12px 14px; font-size: 14px; line-height: 1.5; }
+.callout svg { flex: 0 0 20px; color: var(--red); margin-top: 1px; }
+.empty-s { padding: 40px 20px; text-align: center; color: var(--muted); font-size: 15px; }
+
+/* ---------- Modal ---------- */
+.overlay { position: fixed; inset: 0; z-index: 60; background: rgba(20, 22, 26, .45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.overlay.top { z-index: 70; }
+.modal { background: #fff; border-radius: 14px; width: 100%; max-width: 520px; max-height: calc(100vh - 32px); overflow: auto; border: 1px solid var(--line); box-shadow: 0 10px 30px rgba(20, 22, 26, .14); display: flex; flex-direction: column; }
+.modal.w { max-width: 560px; }
+.m-h { display: flex; align-items: flex-start; gap: 12px; padding: 20px 24px 12px; }
+.m-h h2 { font-size: 18px; font-weight: 600; flex: 1; line-height: 1.3; }
+.m-b { padding: 4px 24px 20px; display: flex; flex-direction: column; gap: 16px; }
+.m-f { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 10px; padding: 16px 24px; border-top: 1px solid var(--line); background: #FAFAFB; border-radius: 0 0 14px 14px; }
+.xbtn { width: 40px; height: 40px; border: 0; background: transparent; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; cursor: pointer; margin: -6px -8px 0 0; }
+.xbtn:hover { background: var(--soft-2); }
+.compare { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 10px; }
+.cmp { border: 1px solid var(--line); border-radius: 10px; padding: 12px; font-size: 13px; color: var(--ink-2); line-height: 1.45; display: flex; flex-direction: column; gap: 8px; }
+.cmp.new { border: 2px solid var(--red); padding: 11px; }
+.cmp b { font-weight: 600; font-size: 15px; color: var(--ink); }
+.grp-l { font-size: 12px; font-weight: 600; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; }
+.rows { display: flex; flex-direction: column; gap: 8px; }
+.row-b { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 56px; padding: 8px 12px; border: 1px solid var(--line); border-radius: 10px; background: #fff; cursor: pointer; text-align: left; }
+.row-b:hover { border-color: var(--red); }
+.row-b.sel { border: 2px solid var(--red); background: var(--red-soft); padding: 7px 11px; }
+.radio { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #9AA0A8; flex: 0 0 18px; display: inline-flex; align-items: center; justify-content: center; }
+.row-b.sel .radio { border-color: var(--red); }
+.row-b.sel .radio::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: var(--red); }
+.cur { display: flex; align-items: center; gap: 12px; padding: 12px; border: 1px solid var(--line); border-radius: 10px; background: var(--soft); }
+.lr-m { flex: 1; min-width: 0; }
+.lr-t { font-size: 15px; font-weight: 500; }
+.lr-s { font-size: 13px; color: var(--muted); }
+.form { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.form .full { grid-column: 1 / -1; }
+.dl { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px 24px; margin: 0; }
+.dl dt { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .04em; font-weight: 600; margin-bottom: 4px; }
+.dl dd { margin: 0; font-size: 15px; overflow-wrap: anywhere; }
+
+/* ---------- Toast ---------- */
+.toast { position: fixed; right: 20px; bottom: 20px; z-index: 90; max-width: min(420px, calc(100vw - 32px)); display: flex; gap: 12px; align-items: flex-start; padding: 14px 16px; border-radius: 10px; background: var(--ink); color: #fff; font-size: 14px; line-height: 1.45; box-shadow: 0 8px 24px rgba(20, 22, 26, .2); }
+.toast.bad { background: #fff; color: var(--red-dark); border: 1px solid var(--red); }
+.toast button { border: 0; background: transparent; color: inherit; cursor: pointer; width: 28px; height: 28px; margin: -4px -6px -4px 0; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; flex: 0 0 28px; }
+
+@media (max-width: 760px) {
+  .dl, .form { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 640px) {
+  .compare { grid-template-columns: minmax(0, 1fr); }
+  .m-h { padding: 16px 16px 8px; }
+  .m-b { padding: 4px 16px 16px; }
+  .m-f { padding: 12px 16px; }
+  .m-f .btn { flex: 1; }
+  .toast { left: 16px; right: 16px; bottom: 16px; }
+}
