@@ -1,0 +1,31 @@
+:root {
+  --red: #B83A32;
+  --red-hover: #9E2F28;
+  --red-dark: #8A2A24;
+  --red-soft: #FBEFEF;
+  --red-faint: #FDF8F8;
+  --red-disabled: #EBD2CF;
+  --ink: #1B1F23;
+  --ink-2: #3A4047;
+  --muted: #5F6670;
+  --line: #E3E5E8;
+  --line-2: #EEF0F2;
+  --line-strong: #CDD1D6;
+  --soft: #F6F7F8;
+  --soft-2: #F1F2F4;
+  --font: 'IBM Plex Sans', system-ui, sans-serif;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  color: var(--ink);
+  background: #fff;
+  -webkit-font-smoothing: antialiased;
+}
+
+button { font-family: inherit; font-size: inherit; color: inherit; }
+input, select { font-family: inherit; font-size: 15px; color: var(--ink); }
+h1, h2, h3, p { margin: 0; }

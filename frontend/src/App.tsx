@@ -1,35 +1,38 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import type { ReactNode } from 'react'
+import { Navigate, Route, Routes } from 'react-router-dom'
+import { AppShell } from './components/layout/AppShell.tsx'
+import { HOME } from './lib/routes.ts'
+import { Dashboard } from './pages/admin/Dashboard.tsx'
+import { Firefighters } from './pages/admin/Firefighters.tsx'
+import { Schedule } from './pages/admin/Schedule.tsx'
+import { PickDays } from './pages/firefighter/PickDays.tsx'
+import { Login } from './pages/Login.tsx'
+import { Profile } from './pages/Profile.tsx'
+import { useApp } from './state/context.ts'
+import type { Role } from './types.ts'
 
-function App() {
-  const [count, setCount] = useState(0)
-
-  return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+/** Exige sessão; com `only`, restringe a rota a um perfil (outro perfil vai para a própria home). */
+function Guard({ only, children }: { only?: Role; children: ReactNode }) {
+  const { role } = useApp()
+  if (!role) return <Navigate to="/login" replace />
+  if (only && role !== only) return <Navigate to={HOME[role]} replace />
+  return children
 }
 
-export default App
+export default function App() {
+  const { role } = useApp()
+
+  return (
+    <Routes>
+      <Route path="/login" element={<Login />} />
+      <Route element={<Guard><AppShell /></Guard>}>
+        <Route path="/admin/dashboard" element={<Guard only="admin"><Dashboard /></Guard>} />
+        <Route path="/admin/bombeiros" element={<Guard only="admin"><Firefighters /></Guard>} />
+        <Route path="/admin/escalas" element={<Guard only="admin"><Schedule /></Guard>} />
+        <Route path="/bombeiro/escolher-dias" element={<Guard only="bombeiro"><PickDays /></Guard>} />
+        <Route path="/perfil" element={<Profile />} />
+      </Route>
+      <Route path="*" element={<Navigate to={role ? HOME[role] : '/login'} replace />} />
+    </Routes>
+  )
+}
