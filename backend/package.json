@@ -1,10 +1,10 @@
 {
     "devDependencies": {
-        "@babel/core": "^7.17.0",
+        "@babel/core": "^7.29.13",
         "@babel/preset-env": "^7.16.0",
         "@babel/preset-react": "^7.26.3",
         "@pmmmwh/react-refresh-webpack-plugin": "^0.5.16",
-        "@symfony/webpack-encore": "^4.0.0",
+        "@symfony/webpack-encore": "^7.2.1",
         "core-js": "^3.38.0",
         "react-refresh": "^0.14.2",
         "regenerator-runtime": "^0.13.9",
